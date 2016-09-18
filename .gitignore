@@ -1,0 +1,65 @@
+# External dependencies
+/extern/*
+!/extern/.keep
+
+# Manual build dirs
+/build
+/tmp
+/temp
+
+# CLion
+/.idea # This might be a bit too strict
+
+# QtCreator
+*.autosave
+CMakeLists.txt.user*
+
+# Emacs
+*~
+\#*\#
+.\#*
+/.projectile
+/.dir-locals.el
+
+# Vim
+[._]*.s[a-w][a-z]
+[._]s[a-w][a-z]
+tags
+
+# Object files
+*.o
+*.ko
+*.obj
+*.elf
+
+# Precompiled Headers
+*.gch
+*.pch
+
+# Libraries
+*.lib
+*.a
+*.la
+*.lo
+
+# Shared objects (inc. Windows DLLs)
+*.dll
+*.so
+*.so.*
+*.dylib
+
+# Executables
+*.exe
+*.out
+*.app
+*.i*86
+*.x86_64
+*.hex
+
+# Debug files
+*.dSYM/
+*.su
+
+# Sketchup Stuff
+AutoSave_*.skp
+*.skb
