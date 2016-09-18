@@ -1,6 +1,6 @@
-[submodule "code/glad"]
-	path = code/glad
+[submodule "glad"]
+	path = glad
 	url = https://github.com/Dav1dde/glad
-[submodule "code/fmtlib"]
-	path = code/fmtlib
+[submodule "fmtlib"]
+	path = fmtlib
 	url = https://github.com/fmtlib/fmt
