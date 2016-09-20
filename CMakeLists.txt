@@ -53,7 +53,9 @@ endif()
 set(SOURCES
   source/main.cc
   source/sdl_gl.cc
-  source/shader.cc)
+  source/sdl_gl.hh
+  source/shader.cc
+  source/shader.hh)
 
 ##------------------------------------------------------------------------------
 ## Targets
@@ -67,4 +69,4 @@ set_target_properties(inf251 PROPERTIES CXX_LANGUAGE_STANDARD 11)
 add_custom_target(assets ALL
   COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/assets ${CMAKE_BINARY_DIR}/assets)
 
-add_custom_target(run ALL COMMAND inf251)
+## add_custom_target(run ALL COMMAND inf251)

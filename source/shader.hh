@@ -4,7 +4,7 @@
 #include "infdef.hh"
 
 class Shader {
-    uint mProgram = 0;
+    unsigned int mProgram = 0;
 
 public:
     Shader() = default;
