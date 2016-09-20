@@ -51,11 +51,14 @@ endif()
 ##
 
 set(SOURCES
+  source/infdef.hh
   source/main.cc
   source/sdl_gl.cc
   source/sdl_gl.hh
   source/shader.cc
-  source/shader.hh)
+  source/shader.hh
+  assets/shaders/triangle.vs.glsl
+  assets/shaders/triangle.fs.glsl)
 
 ##------------------------------------------------------------------------------
 ## Targets
@@ -66,7 +69,19 @@ target_link_libraries(inf251 ${LIBRARIES})
 target_include_directories(inf251 PRIVATE ${INCLUDE_DIRS})
 set_target_properties(inf251 PROPERTIES CXX_LANGUAGE_STANDARD 11)
 
-add_custom_target(assets ALL
+add_custom_command(TARGET inf251 POST_BUILD
   COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/assets ${CMAKE_BINARY_DIR}/assets)
+
+if(MSVC)
+	source_group("Shaders" FILES "assets/shaders/triangle.vs.glsl")
+	source_group("Shaders" FILES "assets/shaders/triangle.fs.glsl")
+	add_custom_command(TARGET inf251 POST_BUILD
+		COMMAND ${CMAKE_COMMAND} -E copy_if_different
+		${CMAKE_SOURCE_DIR}/extern/lib/x86/SDL2.dll
+		${CMAKE_BINARY_DIR}/Debug/SDL2.dll)
+endif()
+
+##add_custom_target(assets ALL
+##  COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/assets ${CMAKE_BINARY_DIR}/assets)
 
 ## add_custom_target(run ALL COMMAND inf251)
