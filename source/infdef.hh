@@ -13,7 +13,7 @@
 #include <fmt/format.h>
 #include <fmt/ostream.h>
 
-inline namespace fmt {
+namespace fmt {
     /* fmtlib doesn't have a println function, so we add our own */
     inline void println(CStringRef format, ArgList args) {
         print(format, args);
@@ -35,5 +35,7 @@ inline namespace fmt {
     FMT_VARIADIC(void, println, std::FILE*, CStringRef)
     FMT_VARIADIC(void, fatal, CStringRef)
 }
+
+using namespace fmt;
 
 #endif //__INF251_INFDEF__54090249

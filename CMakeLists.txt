@@ -28,8 +28,9 @@ list(APPEND LIBRARIES fmt)
 
 set(GLAD_PROFILE "core")
 set(GLAD_API "gl=4.5")
+set(GLAD_GENERATOR "c-debug")
 
-# set(GLAD_EXTENSIONS ...)
+# set(GLAD_EXTENSIONS)
 
 string(REPLACE ";" "," GLAD_EXTENSIONS "${GLAD_EXTENSIONS}")
 
@@ -50,7 +51,8 @@ endif()
 ##
 
 set(SOURCES
-  source/main.cc)
+  source/main.cc
+  source/sdl_gl.cc)
 
 ##------------------------------------------------------------------------------
 ## Targets
@@ -60,3 +62,5 @@ add_executable(inf251 ${SOURCES})
 target_link_libraries(inf251 ${LIBRARIES})
 target_include_directories(inf251 PRIVATE ${INCLUDE_DIRS})
 set_target_properties(inf251 PROPERTIES CXX_LANGUAGE_STANDARD 11)
+
+add_custom_target(run ALL COMMAND inf251)

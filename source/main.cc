@@ -1,36 +1,6 @@
-#include <glad/glad.h>
-#include "SDL.h"
-
-#include <cstdlib>
-
-#include "infdef.hh"
+#include "sdl_gl.hh"
 
 namespace {
-    std::ostream& operator<<(std::ostream& s, const SDL_version &v)
-    {
-        return s << format("{:d}.{:d}.{:d}", v.major, v.minor, v.patch);
-    }
-
-    void print_sdl_info()
-    {
-        SDL_version compiled, linked;
-
-        SDL_VERSION(&compiled);
-        SDL_GetVersion(&linked);
-
-        println("SDL2 Header Version: {}", compiled);
-        println("SDL2 Library Version: {}", linked);
-    }
-
-    void print_gl_info()
-    {
-        println("GL Vendor: {}", glGetString(GL_VENDOR));
-        println("GL Renderer: {}", glGetString(GL_RENDERER));
-        println("GL Version: {}", glGetString(GL_VERSION));
-        println("GLSL Version: {}", glGetString(GL_SHADING_LANGUAGE_VERSION));
-
-    }
-
     GLuint vbo = 0; // Vertex Buffer Object
     GLuint vao = 0; // Vertex Array Object
     GLuint shader_program = 0;
@@ -42,14 +12,14 @@ namespace {
     };
 
     const char *vertex_shader_code =
-            "#version 440\n"
+            "#version 430\n"
                     "in vec3 vp;\n"
                     "void main() {\n"
                     "  gl_Position = vec4(vp, 1.0);\n"
                     "}";
 
     const char *fragment_shader_code =
-            "#version 440\n"
+            "#version 430\n"
                     "out vec4 frag_color;\n"
                     "void main() {\n"
                     "  frag_color = vec4(0.5, 0.0, 0.5, 1.0);\n"
@@ -118,51 +88,9 @@ namespace {
 
 int main()
 {
-    if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS) < 0)
-        fatal("SDL Error: {}", SDL_GetError());
+    Sdl sdl;
 
-    print_sdl_info();
-
-    SDL_Window *window;
-    SDL_GLContext context;
-
-    window = SDL_CreateWindow("INF251", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 800, 600, SDL_WINDOW_OPENGL);
-    context = SDL_GL_CreateContext(window);
-
-    gladLoadGLLoader(SDL_GL_GetProcAddress);
-    gladLoadGL();
-
-    print_gl_info();
-
-    initGL();
-
-    bool fullscreen = false;
-    for (;;)
-    {
-        SDL_Event ev;
-        while(SDL_PollEvent(&ev))
-        {
-            switch (ev.type) {
-                case SDL_QUIT:
-                    std::exit(0);
-                    break;
-
-                case SDL_KEYDOWN:
-                    if (ev.key.keysym.mod & KMOD_ALT && ev.key.keysym.sym == SDLK_RETURN)
-                    {
-                        fullscreen = !fullscreen;
-                        SDL_SetWindowFullscreen(window, fullscreen ? SDL_WINDOW_FULLSCREEN_DESKTOP : 0);
-                    }
-                    break;
-
-                default:
-                    break;
-            }
-        }
-
-        displayGL();
-
-        SDL_GL_SwapWindow(window);
-        SDL_Delay(10);
-    }
+    sdl.set_glinit(initGL);
+    sdl.set_gldisplay(displayGL);
+    sdl.main_loop();
 }
