@@ -38,4 +38,6 @@ namespace fmt {
 
 using namespace fmt;
 
+std::string get_file_contents(const std::string &path);
+
 #endif //__INF251_INFDEF__54090249

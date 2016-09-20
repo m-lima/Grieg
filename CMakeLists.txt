@@ -52,7 +52,8 @@ endif()
 
 set(SOURCES
   source/main.cc
-  source/sdl_gl.cc)
+  source/sdl_gl.cc
+  source/shader.cc)
 
 ##------------------------------------------------------------------------------
 ## Targets
@@ -62,5 +63,8 @@ add_executable(inf251 ${SOURCES})
 target_link_libraries(inf251 ${LIBRARIES})
 target_include_directories(inf251 PRIVATE ${INCLUDE_DIRS})
 set_target_properties(inf251 PROPERTIES CXX_LANGUAGE_STANDARD 11)
+
+add_custom_target(assets ALL
+  COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/assets ${CMAKE_BINARY_DIR}/assets)
 
 add_custom_target(run ALL COMMAND inf251)

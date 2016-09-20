@@ -1,89 +1,62 @@
+#include <fstream>
 #include "sdl_gl.hh"
+#include "shader.hh"
 
 namespace {
-    GLuint vbo = 0; // Vertex Buffer Object
-    GLuint vao = 0; // Vertex Array Object
-    GLuint shader_program = 0;
+  GLuint vbo = 0; // Vertex Buffer Object
+  GLuint vao = 0; // Vertex Array Object
 
-    GLfloat points[] = {
-            .0f, .5f, .0f,
-            .5f, -.5f, .0f,
-            -.5f, -.5f, .0f,
-    };
+  Shader shader;
 
-    const char *vertex_shader_code =
-            "#version 430\n"
-                    "in vec3 vp;\n"
-                    "void main() {\n"
-                    "  gl_Position = vec4(vp, 1.0);\n"
-                    "}";
+  GLfloat points[] = {
+      .0f, .5f, .0f,
+      .5f, -.5f, .0f,
+      -.5f, -.5f, .0f,
+  };
 
-    const char *fragment_shader_code =
-            "#version 430\n"
-                    "out vec4 frag_color;\n"
-                    "void main() {\n"
-                    "  frag_color = vec4(0.5, 0.0, 0.5, 1.0);\n"
-                    "}";
+  void initGL()
+  {
+      glGenBuffers(1, &vbo);
+      glBindBuffer(GL_ARRAY_BUFFER, vbo);
+      glBufferData(GL_ARRAY_BUFFER, sizeof points, points, GL_STATIC_DRAW);
 
-    void initGL()
-    {
-        GLint success = 0;
+      glGenVertexArrays(1, &vao);
+      glBindVertexArray(vao);
+      glEnableVertexAttribArray(0);
+      glBindBuffer(GL_ARRAY_BUFFER, vbo);
+      glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
 
-        glGenBuffers(1, &vbo);
-        glBindBuffer(GL_ARRAY_BUFFER, vbo);
-        glBufferData(GL_ARRAY_BUFFER, sizeof points, points, GL_STATIC_DRAW);
+      shader.load("triangle");
 
-        glGenVertexArrays(1, &vao);
-        glBindVertexArray(vao);
-        glEnableVertexAttribArray(0);
-        glBindBuffer(GL_ARRAY_BUFFER, vbo);
-        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
+      glClearColor(0, 0, 0, 1);
+  }
 
-        GLuint vs = glCreateShader(GL_VERTEX_SHADER);
-        glShaderSource(vs, 1, &vertex_shader_code, nullptr);
-        glCompileShader(vs);
-        glGetShaderiv(vs, GL_COMPILE_STATUS, &success);
-        if (!success) {
-            char log[1024];
-            glGetShaderInfoLog(vs, sizeof log, nullptr, log);
-            fmt::fatal("Couldn't compile vertex shader\nLog:\n{}", log);
-        }
+  void displayGL()
+  {
+      glClear(GL_COLOR_BUFFER_BIT);
 
-        GLuint fs = glCreateShader(GL_FRAGMENT_SHADER);
-        glShaderSource(fs, 1, &fragment_shader_code, nullptr);
-        glCompileShader(fs);
-        glGetShaderiv(fs, GL_COMPILE_STATUS, &success);
-        if (!success) {
-            char log[1024];
-            glGetShaderInfoLog(fs, sizeof log, nullptr, log);
-            fmt::fatal("Couldn't compile fragment shader\nLog:\n{}", log);
-        }
+      shader.bind();
+      glBindVertexArray(vao);
+      glDrawArrays(GL_TRIANGLES, 0, 3);
+  }
+}
 
-        shader_program = glCreateProgram();
-        glAttachShader(shader_program, vs);
-        glAttachShader(shader_program, fs);
-        glLinkProgram(shader_program);
-        glGetProgramiv(shader_program, GL_LINK_STATUS, &success);
-        if (!success) {
-            char log[1024];
-            glGetProgramInfoLog(shader_program, sizeof log, nullptr, log);
-            fmt::fatal("Couldn't link shader program\nLog:\n{}", log);
-        }
+std::string get_file_contents(const std::string &file)
+{
+    std::ifstream fh(file, std::ios::binary);
+    if (!fh.is_open())
+        throw std::runtime_error(format("Couldn't open file {}", file));
 
-        // glDeleteShader(vs);
-        // glDeleteShader(fs);
+    std::string buf;
+    size_t length;
 
-        glClearColor(0, 0, 0, 1);
-    }
+    fh.seekg(0, std::ios::end);
+    length = fh.tellg();
+    buf.reserve(length);
+    fh.seekg(0, std::ios::beg);
+    buf.assign(std::istreambuf_iterator<char>(fh), std::istreambuf_iterator<char>());
 
-    void displayGL()
-    {
-        glClear(GL_COLOR_BUFFER_BIT);
-
-        glUseProgram(shader_program);
-        glBindVertexArray(vao);
-        glDrawArrays(GL_TRIANGLES, 0, 3);
-    }
+    return buf;
 }
 
 int main()
