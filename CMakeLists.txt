@@ -57,6 +57,10 @@ set(SOURCES
   source/sdl_gl.hh
   source/shader.cc
   source/shader.hh
+  source/camera.cc
+  source/camera.hh
+  source/trackball.cc
+  source/trackball.hh
   assets/shaders/triangle.vs.glsl
   assets/shaders/triangle.fs.glsl)
 
@@ -77,11 +81,11 @@ add_custom_command(TARGET inf251 POST_BUILD
 ##
 
 if(MSVC)
-	source_group("Shaders" FILES "assets/shaders/triangle.vs.glsl")
-	source_group("Shaders" FILES "assets/shaders/triangle.fs.glsl")
-	add_custom_command(TARGET inf251 POST_BUILD
-		COMMAND ${CMAKE_COMMAND} -E copy_if_different
-		${CMAKE_SOURCE_DIR}/extern/lib/x86/SDL2.dll
-		${CMAKE_BINARY_DIR}/Debug/SDL2.dll)
+  source_group("Shaders" FILES "assets/shaders/triangle.vs.glsl")
+  source_group("Shaders" FILES "assets/shaders/triangle.fs.glsl")
+  add_custom_command(TARGET inf251 POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+    ${CMAKE_SOURCE_DIR}/extern/lib/x86/SDL2.dll
+    ${CMAKE_BINARY_DIR}/Debug/SDL2.dll)
 endif()
 
