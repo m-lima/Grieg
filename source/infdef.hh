@@ -11,6 +11,7 @@
 //#endif
 
 #include <fmt/format.h>
+#include <cstdint>
 #include <fmt/ostream.h>
 
 namespace fmt {

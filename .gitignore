@@ -4,8 +4,16 @@
 
 # Manual build dirs
 /build
+/lb
 /tmp
 /temp
+
+# CMake
+# **/CMakeCache.txt
+# **/CMakeFiles/
+# **/Makefile
+# **/cmake_install.cmake
+# **/compile_commands.json
 
 # CLion
 /.idea # This might be a bit too strict
