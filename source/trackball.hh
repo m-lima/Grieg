@@ -30,19 +30,19 @@ class Trackball {
 
   Quat mInitialRotation;
   Quat mCurrentRotation;
-  
+
 public:
   Trackball();
-  
+
   inline uint8_t getAllDirtyFlags() {
       return model_dirty |
               view_dirty |
               projection_dirty |
-              zoom_dirty | 
+              zoom_dirty |
               ortho_dirty |
               fov_dirty;
   }
-  
+
   inline void markAllDirty() {
       mDirtyValues = getAllDirtyFlags();
   }
