@@ -61,6 +61,10 @@ set(SOURCES
   source/camera.hh
   source/trackball.cc
   source/trackball.hh
+  source/renderer.cc
+  source/renderer.hh
+  assets/shaders/cube.vs.glsl
+  assets/shaders/cube.fs.glsl
   assets/shaders/triangle.vs.glsl
   assets/shaders/triangle.fs.glsl)
 
@@ -83,6 +87,8 @@ add_custom_command(TARGET inf251 POST_BUILD
 if(MSVC)
   source_group("Shaders" FILES "assets/shaders/triangle.vs.glsl")
   source_group("Shaders" FILES "assets/shaders/triangle.fs.glsl")
+  source_group("Shaders" FILES "assets/shaders/cube.vs.glsl")
+  source_group("Shaders" FILES "assets/shaders/cube.fs.glsl")
 endif()
 
 if(WIN32)

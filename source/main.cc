@@ -1,45 +1,8 @@
 #include <fstream>
 #include "sdl_gl.hh"
 #include "shader.hh"
-
-namespace {
-  GLuint vbo = 0; // Vertex Buffer Object
-  GLuint vao = 0; // Vertex Array Object
-
-  Shader shader;
-
-  GLfloat points[] = {
-      .0f, .5f, .0f,
-      .5f, -.5f, .0f,
-      -.5f, -.5f, .0f,
-  };
-
-  void initGL()
-  {
-      glGenBuffers(1, &vbo);
-      glBindBuffer(GL_ARRAY_BUFFER, vbo);
-      glBufferData(GL_ARRAY_BUFFER, sizeof points, points, GL_STATIC_DRAW);
-
-      glGenVertexArrays(1, &vao);
-      glBindVertexArray(vao);
-      glEnableVertexAttribArray(0);
-      glBindBuffer(GL_ARRAY_BUFFER, vbo);
-      glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
-
-      shader.load("triangle");
-
-      glClearColor(0, 0, 0, 1);
-  }
-
-  void displayGL()
-  {
-      glClear(GL_COLOR_BUFFER_BIT);
-
-      shader.bind();
-      glBindVertexArray(vao);
-      glDrawArrays(GL_TRIANGLES, 0, 3);
-  }
-}
+#include "trackball.hh"
+#include "renderer.hh"
 
 std::string get_file_contents(const std::string &file)
 {
@@ -62,8 +25,9 @@ std::string get_file_contents(const std::string &file)
 int main()
 {
     Sdl sdl;
+	Trackball trackball;
 
-    sdl.set_glinit(initGL);
-    sdl.set_gldisplay(displayGL);
+    sdl.set_glinit(&Renderer::init);
+    sdl.set_gldisplay(&Renderer::draw);
     sdl.main_loop();
 }
