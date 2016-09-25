@@ -55,7 +55,7 @@ public:
 
 	void mouseReleased(const uint8_t button, const unsigned int mods, const unsigned int x, const unsigned int y);
 
-	void mouseDragged(const uint8_t button, const unsigned int mods,
+	void mouseMoved(const uint8_t button, const unsigned int mods,
 		const unsigned int x, const unsigned int y);
 
 	uint8_t getAllDirtyFlags() {

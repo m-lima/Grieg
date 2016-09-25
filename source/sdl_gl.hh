@@ -3,6 +3,7 @@
 
 #include <string>
 #include "infdef.hh"
+//#include "trackball.hh"
 
 using glinit_type = void (*)();
 using gldisplay_type = void (*)();
@@ -16,10 +17,15 @@ class Sdl {
     int mWidth = 800;
     int mHeight = 600;
     std::unique_ptr<SdlImpl> mImpl;
+	//Trackball mTrackball;
 
 public:
     Sdl();
     ~Sdl();
+
+	//void setTrackball(const Trackball & trackball) {
+		//mTrackball = trackball;
+	//}
 
     void set_glinit(glinit_type glinit_proc)
     {

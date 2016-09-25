@@ -122,17 +122,17 @@ void Sdl::main_loop()
 
 			case SDL_MOUSEBUTTONDOWN:
 				println("X: {:d} - Y: {:d} - M: {:d}", ev.button.x, ev.button.y, SDL_GetModState());
-				/*if (mTrackball) {
-					mTrackball->mousePressed(ev.button.button, SDL_GetModState(), ev.button.x, ev.button.y);
-				}*/
+				//mTrackball.mousePressed(ev.button.button, SDL_GetModState(), ev.button.x, ev.button.y);
 				break;
 
 			case SDL_MOUSEBUTTONUP:
 				println("X: {:d} - Y: {:d} - M: {:d}", ev.button.x, ev.button.y, SDL_GetModState());
+				//mTrackball.mouseReleased(ev.button.button, SDL_GetModState(), ev.button.x, ev.button.y);
 				break;
 
 			case SDL_MOUSEMOTION:
 				println("X: {:d} - Y: {:d} - M: {:d}", ev.button.x, ev.button.y, SDL_GetModState());
+				//mTrackball.mouseMoved(ev.button.button, SDL_GetModState(), ev.button.x, ev.button.y);
 				break;
 
 			/*case SDL_KEYDOWN:

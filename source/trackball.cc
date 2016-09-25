@@ -55,7 +55,7 @@ void Trackball::mouseReleased(const uint8_t button, const unsigned int mods, con
 
 }
 
-void Trackball::mouseDragged(const uint8_t button, const unsigned int mods, const unsigned int x, const unsigned int y)
+void Trackball::mouseMoved(const uint8_t button, const unsigned int mods, const unsigned int x, const unsigned int y)
 {
 	if (mods & ~(KMOD_SHIFT | KMOD_ALT)) {
 		return;

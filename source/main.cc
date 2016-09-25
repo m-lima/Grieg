@@ -25,7 +25,7 @@ std::string get_file_contents(const std::string &file)
 int main()
 {
     Sdl sdl;
-	Trackball *trackball = new Trackball();
+	//Trackball trackball;
 
     sdl.set_glinit(&Renderer::init);
     sdl.set_gldisplay(&Renderer::draw);
