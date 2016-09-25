@@ -14,8 +14,25 @@ namespace {
   void glad_post_callback(const char *name, void *, int, ...) {
       GLenum err;
       err = glad_glGetError();
-      if (err != GL_NO_ERROR)
-          fatal("GL Error after calling {} with id {}", name, err);
+      if (err == GL_NO_ERROR)
+          return;
+      println(stderr, "GL error(s) occurred after calling {}:", name, err);
+
+      int numLogs;
+      glGetIntegerv(GL_DEBUG_LOGGED_MESSAGES, &numLogs);
+
+      assert(numLogs > 0);
+
+      char log[1024];
+      GLenum sources[numLogs];
+      GLenum types[numLogs];
+      GLuint ids[numLogs];
+      GLenum severities[numLogs];
+      GLsizei lengths[numLogs];
+      glad_glGetDebugMessageLog(1, sizeof(log), sources, types, ids, severities, lengths, log);
+      println(stderr, "{}", log);
+
+      std::terminate();
   }
 #endif //GLAD_DEBUG
 }
@@ -60,7 +77,7 @@ void Sdl::main_loop()
     /* Specify a OpenGL 4.3 Core profile context */
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 4);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, SDL_GL_CONTEXT_FORWARD_COMPATIBLE_FLAG);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, SDL_GL_CONTEXT_FORWARD_COMPATIBLE_FLAG | SDL_GL_CONTEXT_DEBUG_FLAG);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
 
     mImpl->window = SDL_CreateWindow(mCaption.c_str(),
@@ -84,7 +101,7 @@ void Sdl::main_loop()
 #ifdef GLAD_DEBUG
     glad_set_pre_callback(glad_pre_callback);
     glad_set_post_callback(glad_post_callback);
-#endif //GLAD_DEBUG
+#endif
 
     /* Print GL Version */
     println("GL Vendor: {}", glGetString(GL_VENDOR));
@@ -106,6 +123,10 @@ void Sdl::main_loop()
                 break;
             }
         }
+
+        // Reset the last used program ID to 0
+        extern GLuint gUseProgram;
+        gUseProgram = 0;
 
         mGlDisplay();
         SDL_GL_SwapWindow(mImpl->window);

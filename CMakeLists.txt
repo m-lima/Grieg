@@ -61,6 +61,7 @@ set(SOURCES
   source/camera.hh
   source/trackball.cc
   source/trackball.hh
+  #  source/rendererOther.cc
   source/renderer.cc
   source/renderer.hh
   assets/shaders/cube.vs.glsl
@@ -72,13 +73,14 @@ set(SOURCES
 ## Targets
 ##
 
+add_custom_target(assets
+  COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/assets ${CMAKE_BINARY_DIR}/assets)
+
 add_executable(inf251 ${SOURCES})
 target_link_libraries(inf251 ${LIBRARIES})
 target_include_directories(inf251 PRIVATE ${INCLUDE_DIRS})
+add_dependencies(inf251 assets)
 set_target_properties(inf251 PROPERTIES CXX_LANGUAGE_STANDARD 11)
-
-add_custom_command(TARGET inf251 POST_BUILD
-  COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/assets ${CMAKE_BINARY_DIR}/assets)
 
 ##------------------------------------------------------------------------------
 ## MSVC specifics
