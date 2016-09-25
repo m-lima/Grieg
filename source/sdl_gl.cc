@@ -1,3 +1,4 @@
+#include <memory>
 #include "SDL.h"
 #include "sdl_gl.hh"
 
@@ -24,12 +25,12 @@ namespace {
       assert(numLogs > 0);
 
       char log[1024];
-      GLenum sources[numLogs];
-      GLenum types[numLogs];
-      GLuint ids[numLogs];
-      GLenum severities[numLogs];
-      GLsizei lengths[numLogs];
-      glad_glGetDebugMessageLog(1, sizeof(log), sources, types, ids, severities, lengths, log);
+	  auto sources = std::make_unique<GLenum[]>(numLogs);
+	  auto types = std::make_unique<GLenum[]>(numLogs);
+	  auto ids = std::make_unique<GLuint[]>(numLogs);
+	  auto severities = std::make_unique<GLenum[]>(numLogs);
+	  auto lengths = std::make_unique<GLsizei[]>(numLogs);
+      glad_glGetDebugMessageLog(1, sizeof(log), sources.get(), types.get(), ids.get(), severities.get(), lengths.get(), log);
       println(stderr, "{}", log);
 
       std::terminate();

@@ -70,7 +70,7 @@ namespace Renderer {
 	{
 		glClear(GL_COLOR_BUFFER_BIT);
 
-		shader.bind();
+		shader.use();
 
 		glEnableVertexAttribArray(0);
 		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
