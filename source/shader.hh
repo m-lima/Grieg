@@ -6,8 +6,11 @@
 #include "vmath.hpp"
 using namespace Vectormath::Aos;
 
+std::string get_type_as_string(GLenum);
+
 class Shader {
     uint32_t mProgram = 0;
+    std::string mName = "";
 
     class UniformProxy {
         const Shader& mProgram;
@@ -19,6 +22,8 @@ class Shader {
                 mLoc(loc)
         {
         }
+
+        void assert_type(GLenum type);
 
         UniformProxy& operator=(const float f);
 
@@ -47,6 +52,11 @@ public:
     Shader& operator=(const Shader &) = delete;
 
     Shader& operator=(Shader &&) = default;
+
+    const std::string &name() const
+    {
+        return mName;
+    }
 
     void load(const std::string &name);
 

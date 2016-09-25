@@ -12,6 +12,7 @@
 
 #include <fmt/format.h>
 #include <cstdint>
+#include <cstdlib>
 #include <fmt/ostream.h>
 
 namespace fmt {
@@ -29,7 +30,7 @@ namespace fmt {
     /* write something and promptly die */
     inline void fatal(CStringRef format, ArgList args) {
         println(stderr, format, args);
-        std::terminate();
+        std::exit(1);
     }
 
     FMT_VARIADIC(void, println, CStringRef)
