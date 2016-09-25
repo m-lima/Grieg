@@ -37,8 +37,18 @@ Vec3 Trackball::getSurfaceVector() {
 
 Trackball::Trackball()
 {
-	mProjection = glm::perspective(glm::radians(120.0f), 4.0f / 3.0f, 0.1f, 100.f);
+	mFov = 45.0f;
+	mScale.x = 1.0f;
+	mScale.y = 1.0f;
+	mScale.z = 1.0f;
 	markAllDirty();
+}
+
+void Trackball::setSize(unsigned int width, unsigned int height) {
+	mWidth = width;
+	mHeight = height;	
+	mProjection = glm::perspectiveFov(glm::radians(mFov), (float)mWidth, (float)mHeight, 0.1f, 100.0f);
+	mDirtyValues |= projection_dirty;
 }
 
 void Trackball::mousePressed(int x, int y)
@@ -84,6 +94,25 @@ void Trackball::translate(int x, int y)
 	mDirtyValues |= view_dirty;
 }
 
+void Trackball::zoom(int x, int y)
+{
+	mScale -= 0.05f * y;
+	mDirtyValues |= view_dirty;
+}
+
+/*
+For some reason, this function messes with the conjugate calculation
+Have to dig a bit into the implementation to see what's going on
+
+Disabled for now :/
+*/
+void Trackball::fov(int x, int y)
+{
+	//mFov += y;
+	//mProjection = glm::perspectiveFov(glm::radians(mFov), (float) mWidth, (float) mHeight, 0.1f, 100.0f);
+	//mDirtyValues |= projection_dirty;
+}
+
 Mat4 Trackball::getRotation() {
-	return glm::translate(Mat4(mCurrentRotation), glm::conjugate(mCurrentRotation) * mTranslation);
+	return glm::scale(glm::translate(Mat4(mCurrentRotation), glm::conjugate(mCurrentRotation) * mTranslation), mScale);
 }

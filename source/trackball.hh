@@ -15,13 +15,16 @@ class Trackball {
 	unsigned int mWidth;
 	unsigned int mHeight;
 
-	// Trackball tracking variables
+	// View tracking variables
 	Vec3 mInitialPosition;
 	Vec3 mCurrentPosition;
 	Quat mInitialRotation;
 	Quat mCurrentRotation;
+	Vec3 mScale;
 	Vec3 mTranslation;
 
+	// Projection tracking variables
+	float mFov;
 	Mat4 mProjection;
 
 	// Convert the mouse click to a spherical vector
@@ -37,16 +40,15 @@ public:
 	static constexpr uint8_t fov_dirty = 1 << 5;
 
 	Trackball();
-
-	void setSize(unsigned int width, unsigned int height) {
-		mWidth = width;
-		mHeight = height;
-	}
+	
+	void setSize(unsigned int width, unsigned int height);
 
 	void mousePressed(int x, int y);
 	void mouseReleased();
 	void rotate(int x, int y);
 	void translate(int x, int y);
+	void zoom(int x, int y);
+	void fov(int x, int y);
 
 	Mat4 getRotation();
 

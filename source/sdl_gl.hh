@@ -7,9 +7,11 @@
 
 enum struct States {
     none,
+	start,
     translate,
     rotate,
-	start
+	zoom,
+	fov
 };
 
 struct Update {

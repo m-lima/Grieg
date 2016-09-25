@@ -167,6 +167,14 @@ void Sdl::main_loop()
 				update.y = ev.motion.yrel;
 				break;
 
+			case SDL_MOUSEWHEEL:
+				if (SDL_GetModState() & KMOD_CTRL)
+					update.state = States::fov;
+				else
+					update.state = States::zoom;
+				update.x = ev.wheel.x;
+				update.y = ev.wheel.y;
+
 			default:
 				break;
 			}
