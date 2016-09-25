@@ -21,27 +21,39 @@ class Trackball {
 	float mXPosOld;
 	float mYPosOld;
 
+	// Viewport variables
+	unsigned int mWidth;
+	unsigned int mHeight;
+
 	// View variables
 	Vec3 mEyePosition;
 	Vec3 mTargetPostion;
 	Vec3 mUpVector;
 
 	// Trackball tracking variables
-	Vec3 mInitialMousePosition;
-	Vec3 mCurrentMousePosition;
-	Vec3 mMouseMoveAxis;
+	Vec3 mInitialPosition;
+	Vec3 mCurrentPosition;
+	Vec3 mAxis;
 
 	Quat mInitialRotation;
 	Quat mCurrentRotation;
 
 	// Convert the mouse click to a spherical vector
-	void getSurfaceVector(unsigned int x, unsigned int y, unsigned int width, unsigned int height, float point[]);
+	Vec3 getSurfaceVector(unsigned int x, unsigned int y);
 
 public:
 	Trackball();
 	~Trackball();
 
+	void setSize(unsigned int width, unsigned int height) {
+		mWidth = width;
+		mHeight = height;
+	}
+
 	void mousePressed(const uint8_t button, const unsigned int mods,
+		const unsigned int x, const unsigned int y);
+
+	void mouseDragged(const uint8_t button, const unsigned int mods,
 		const unsigned int x, const unsigned int y);
 
 	uint8_t getAllDirtyFlags() {
@@ -59,6 +71,10 @@ public:
 
 	uint8_t getDirtyValues() {
 		return mDirtyValues;
+	}
+
+	glm::fmat4 getRotation() {
+		return glm::fmat4(mCurrentRotation);
 	}
 
 };
