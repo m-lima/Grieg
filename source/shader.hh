@@ -2,9 +2,36 @@
 #define __INF251_SHADER__21548889
 
 #include "infdef.hh"
+#include <glad/glad.h>
+#include "vmath.hpp"
+using namespace Vectormath::Aos;
 
 class Shader {
-    unsigned int mProgram = 0;
+    uint32_t mProgram = 0;
+
+    class UniformProxy {
+        const Shader& mProgram;
+        const GLint mLoc;
+
+    public:
+        UniformProxy(const Shader& program, const GLint loc):
+                mProgram(program),
+                mLoc(loc)
+        {
+        }
+
+        UniformProxy& operator=(const float f);
+
+        UniformProxy& operator=(const std::pair<float, float> vec2);
+
+        UniformProxy& operator=(const Vector3 vec3);
+
+        UniformProxy& operator=(const Vector4 vec4);
+
+        UniformProxy& operator=(const Matrix3 &mat3);
+
+        UniformProxy& operator=(const Matrix4 &mat4);
+    };
 
 public:
     Shader() = default;
@@ -23,7 +50,9 @@ public:
 
     void load(const std::string &name);
 
-    void bind() const;
+    UniformProxy uniform(const std::string &name);
+
+    void use() const;
 };
 
 #endif //__INF251_SHADER__21548889

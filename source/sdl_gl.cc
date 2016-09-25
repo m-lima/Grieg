@@ -107,6 +107,10 @@ void Sdl::main_loop()
             }
         }
 
+        // Reset the last used program ID to 0
+        extern GLuint gUseProgram;
+        gUseProgram = 0;
+
         mGlDisplay();
         SDL_GL_SwapWindow(mImpl->window);
 

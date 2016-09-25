@@ -1,7 +1,11 @@
 #version 430
 
-out vec4 frag_color;
+uniform vec2 fResolution;
+uniform float fGlobalTime;
+in vec2 gl_FragCoord;
+out vec4 gl_FragColor;
 
 void main() {
-    frag_color = vec4(0.5, 0.0, 0.5, 1.0);
+    vec2 uv = gl_FragCoord.xy / fResolution.xy;
+    gl_FragColor = vec4(uv, 0.5 + 0.5 * sin(fGlobalTime), 1.0);
 }

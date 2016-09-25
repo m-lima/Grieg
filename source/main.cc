@@ -1,6 +1,8 @@
 #include <fstream>
+#include <SDL_timer.h>
 #include "sdl_gl.hh"
 #include "shader.hh"
+#include "trackball.hh"
 
 namespace {
   GLuint vbo = 0; // Vertex Buffer Object
@@ -27,6 +29,7 @@ namespace {
       glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
 
       shader.load("triangle");
+      shader.uniform("fResolution") = { 640, 480 };
 
       glClearColor(0, 0, 0, 1);
   }
@@ -35,7 +38,8 @@ namespace {
   {
       glClear(GL_COLOR_BUFFER_BIT);
 
-      shader.bind();
+      shader.uniform("fGlobalTime") = SDL_GetTicks() / 1000.0f;
+      shader.use();
       glBindVertexArray(vao);
       glDrawArrays(GL_TRIANGLES, 0, 3);
   }
