@@ -2,7 +2,6 @@
 #define __INF251_SDL_GL__24851580
 
 #include <string>
-#include <glad/glad.h>
 #include "infdef.hh"
 
 using glinit_type = void (*)();

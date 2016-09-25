@@ -1,36 +1,8 @@
 #include "shader.hh"
 #include "sdl_gl.hh"
+#include "debug.hh"
 
 GLuint gUseProgram = 0;
-
-std::string get_type_as_string(GLenum type)
-{
-    switch (type) {
-    case GL_FLOAT:
-        return "float";
-
-    case GL_FLOAT_VEC2:
-        return "vec2 (float)";
-
-    case GL_FLOAT_VEC3:
-        return "vec3 (float)";
-
-    case GL_FLOAT_VEC4:
-        return "vec4 (float)";
-
-    case GL_FLOAT_MAT2:
-        return "mat2 (float)";
-
-    case GL_FLOAT_MAT3:
-        return "mat3 (float)";
-
-    case GL_FLOAT_MAT4:
-        return "mat4 (float)";
-
-    default:
-        return format("??? (id: {})", type);
-    }
-}
 
 Shader::Shader(const std::string &name)
 {
@@ -125,7 +97,7 @@ void Shader::UniformProxy::assert_type(GLenum pType)
 
     if (type != pType)
         fatal("Error assigning to uniform \"{}\" in shader \"{}\":\n  GLSL: {}\n  C++:  {}",
-              name, mProgram.name(), get_type_as_string(type), get_type_as_string(pType));
+              name, mProgram.name(), debug::glsl_type(type), debug::glsl_type(pType));
 }
 
 Shader::UniformProxy& Shader::UniformProxy::operator=(const float f)
@@ -136,40 +108,42 @@ Shader::UniformProxy& Shader::UniformProxy::operator=(const float f)
     return *this;
 }
 
-Shader::UniformProxy& Shader::UniformProxy::operator=(const std::pair<float, float> vec2)
+Shader::UniformProxy& Shader::UniformProxy::operator=(const Vec2 vec2)
 {
     assert_type(GL_FLOAT_VEC2);
     mProgram.use();
-    glUniform2f(mLoc, vec2.first, vec2.second);
+    glUniform2f(mLoc, vec2.x, vec2.y);
     return *this;
 }
 
-Shader::UniformProxy& Shader::UniformProxy::operator=(const Vector3 vec3)
+Shader::UniformProxy& Shader::UniformProxy::operator=(const Vec3 vec3)
 {
     assert_type(GL_FLOAT_VEC3);
     mProgram.use();
-    glUniform3f(mLoc, vec3.getX(), vec3.getY(), vec3.getZ());
+    glUniform3f(mLoc, vec3.x, vec3.y, vec3.z);
     return *this;
 }
 
-Shader::UniformProxy& Shader::UniformProxy::operator=(const Vector4 vec4)
+Shader::UniformProxy& Shader::UniformProxy::operator=(const Vec4 vec4)
 {
     assert_type(GL_FLOAT_VEC4);
     mProgram.use();
-    glUniform4f(mLoc, vec4.getX(), vec4.getY(), vec4.getZ(), vec4.getW());
+    glUniform4f(mLoc, vec4.x, vec4.y, vec4.z, vec4.w);
     return *this;
 }
 
-Shader::UniformProxy& Shader::UniformProxy::operator=(const Matrix3 &mat3)
+Shader::UniformProxy& Shader::UniformProxy::operator=(const Mat3 &mat3)
 {
+    static_assert(sizeof(mat3) == sizeof(GLfloat) * 9, "");
     assert_type(GL_FLOAT_MAT3);
     mProgram.use();
-    glUniformMatrix3fv(mLoc, 1, GL_FALSE, reinterpret_cast<const float*>(&mat3));
+    glUniformMatrix3fv(mLoc, 1, GL_FALSE, reinterpret_cast<const GLfloat*>(&mat3));
     return *this;
 }
 
-Shader::UniformProxy& Shader::UniformProxy::operator=(const Matrix4 &mat4)
+Shader::UniformProxy& Shader::UniformProxy::operator=(const Mat4 &mat4)
 {
+    static_assert(sizeof(mat4) == sizeof(GLfloat) * 16, "");
     assert_type(GL_FLOAT_MAT4);
     mProgram.use();
     glUniformMatrix4fv(mLoc, 1, GL_FALSE, reinterpret_cast<const float*>(&mat4));
