@@ -3,9 +3,22 @@
 
 #include <string>
 #include "infdef.hh"
+#include "SDL_keyboard.h"
+
+enum struct States {
+    none,
+    translate,
+    rotate
+};
+
+struct Update {
+    States state = States::none;
+    int x = 0;
+    int y = 0;
+};
 
 using glinit_type = void (*)();
-using gldisplay_type = void (*)();
+using gldisplay_type = void (*)(Update);
 
 struct SdlImpl;
 
