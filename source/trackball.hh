@@ -4,6 +4,30 @@
 #include "infdef.hh"
 
 class Trackball {
+	// Trackball status flags
+	uint8_t mDirtyValues;
+
+	// Mouse tracking variables
+	int mXPos;
+	int mYPos;
+
+	// Viewport variables
+	unsigned int mWidth;
+	unsigned int mHeight;
+
+	// Trackball tracking variables
+	Vec3 mInitialPosition;
+	Vec3 mCurrentPosition;
+	Quat mInitialRotation;
+	Quat mCurrentRotation;
+	Vec3 mTranslation;
+
+	Mat4 mProjection;
+
+	// Convert the mouse click to a spherical vector
+	Vec3 getSurfaceVector();
+
+public:
 	// Bitmask for tracking trackball changes
 	static constexpr uint8_t model_dirty = 1 << 0;
 	static constexpr uint8_t view_dirty = 1 << 1;
@@ -12,51 +36,17 @@ class Trackball {
 	static constexpr uint8_t ortho_dirty = 1 << 4;
 	static constexpr uint8_t fov_dirty = 1 << 5;
 
-	// Trackball status flags
-	uint8_t mDirtyValues;
-
-	// Mouse tracking variables
-	unsigned int mXPos;
-	unsigned int mYPos;
-	float mXPosOld;
-	float mYPosOld;
-
-	// Viewport variables
-	unsigned int mWidth;
-	unsigned int mHeight;
-
-	// View variables
-	Vec3 mEyePosition;
-	Vec3 mTargetPostion;
-	Vec3 mUpVector;
-
-	// Trackball tracking variables
-	Vec3 mInitialPosition;
-	Vec3 mCurrentPosition;
-	Vec3 mAxis;
-
-	Quat mInitialRotation;
-	Quat mCurrentRotation;
-
-	// Convert the mouse click to a spherical vector
-	Vec3 getSurfaceVector(unsigned int x, unsigned int y);
-
-public:
 	Trackball();
-	~Trackball();
 
 	void setSize(unsigned int width, unsigned int height) {
 		mWidth = width;
 		mHeight = height;
 	}
 
-	void mousePressed(const uint8_t button, const unsigned int mods,
-		const unsigned int x, const unsigned int y);
-
-	void mouseReleased(const uint8_t button, const unsigned int mods, const unsigned int x, const unsigned int y);
-
-	void mouseMoved(const uint8_t button, const unsigned int mods,
-		const unsigned int x, const unsigned int y);
+	void mousePressed(int x, int y);
+	void mouseReleased();
+	void rotate(int x, int y);
+	void translate(int x, int y);
 
 	uint8_t getAllDirtyFlags() {
 		return model_dirty |
@@ -81,8 +71,12 @@ public:
 		return mDirtyValues;
 	}
 
-	glm::fmat4 getRotation() {
-		return glm::fmat4(mCurrentRotation);
+	Mat4 getRotation() {
+		return Mat4(mCurrentRotation);
+	}
+
+	Mat4 getProjection() {
+		return mProjection;
 	}
 
 };

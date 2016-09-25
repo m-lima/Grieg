@@ -1,4 +1,5 @@
 #include <memory>
+#include <stdlib.h>
 #include "SDL.h"
 #include "sdl_gl.hh"
 
@@ -25,12 +26,21 @@ namespace {
       assert(numLogs > 0);
 
       char log[1024];
+#if defined(_MSC_VER)
 	  auto sources = std::make_unique<GLenum[]>(numLogs);
 	  auto types = std::make_unique<GLenum[]>(numLogs);
 	  auto ids = std::make_unique<GLuint[]>(numLogs);
 	  auto severities = std::make_unique<GLenum[]>(numLogs);
 	  auto lengths = std::make_unique<GLsizei[]>(numLogs);
       glad_glGetDebugMessageLog(1, sizeof(log), sources.get(), types.get(), ids.get(), severities.get(), lengths.get(), log);
+#else
+      GLenum sources[numLogs];
+      GLenum types[numLogs];
+      GLuint ids[numLogs];
+      GLenum severities[numLogs];
+      GLsizei lengths[numLogs];
+      glad_glGetDebugMessageLog(1, sizeof(log), sources, types, ids, severities, lengths, log);
+#endif
       println(stderr, "{}", log);
 
       std::terminate();
@@ -110,38 +120,43 @@ void Sdl::main_loop()
     println("GL Version: {}", glGetString(GL_VERSION));
     println("GLSL Version: {}", glGetString(GL_SHADING_LANGUAGE_VERSION));
 
-    mGlInit();
+    mGlInit(mWidth, mHeight);
     for (;;) {
         /* Event loop */
+		Update update;
         SDL_Event ev;
         while (SDL_PollEvent(&ev)) {
             switch (ev.type) {
             case SDL_QUIT:
-                std::exit(1);
+                std::exit(0);
                 break;
 
 			case SDL_MOUSEBUTTONDOWN:
-				println("X: {:d} - Y: {:d} - M: {:d}", ev.button.x, ev.button.y, SDL_GetModState());
-				//mTrackball.mousePressed(ev.button.button, SDL_GetModState(), ev.button.x, ev.button.y);
+				if (update.state == States::none) {
+					if (ev.button.button & (SDL_BUTTON_LEFT)) {
+						update.state = States::start;
+						update.x = ev.button.x;
+						update.y = ev.button.y;
+						SDL_SetRelativeMouseMode(SDL_TRUE);
+					}
+				}
 				break;
 
 			case SDL_MOUSEBUTTONUP:
-				println("X: {:d} - Y: {:d} - M: {:d}", ev.button.x, ev.button.y, SDL_GetModState());
-				//mTrackball.mouseReleased(ev.button.button, SDL_GetModState(), ev.button.x, ev.button.y);
+				if (ev.button.button & (SDL_BUTTON_LEFT)) {
+                    update.state = States::none;
+					SDL_SetRelativeMouseMode(SDL_FALSE);
+                }
 				break;
 
 			case SDL_MOUSEMOTION:
-				println("X: {:d} - Y: {:d} - M: {:d}", ev.button.x, ev.button.y, SDL_GetModState());
-				//mTrackball.mouseMoved(ev.button.button, SDL_GetModState(), ev.button.x, ev.button.y);
-				break;
+				if (ev.button.button & (SDL_BUTTON_LEFT)) {
+					update.state = States::rotate;//(ev.button.button & SDL_BUTTON_LEFT) ? States::translate : States::rotate;
+				}
 
-			/*case SDL_KEYDOWN:
-				println("KeyDN: {:d} - Mod: {:d}", ev.key.keysym.sym, ev.key.keysym.mod);
+                update.x = ev.motion.xrel;
+                update.y = ev.motion.yrel;
 				break;
-
-			case SDL_KEYUP:
-				println("KeyUP: {:d} - Mod: {:d}", ev.key.keysym.sym, ev.key.keysym.mod);
-				break;*/
 
             default:
                 break;
@@ -152,7 +167,7 @@ void Sdl::main_loop()
         extern GLuint gUseProgram;
         gUseProgram = 0;
 
-        mGlDisplay();
+        mGlDisplay(update);
         SDL_GL_SwapWindow(mImpl->window);
 
         /* Sleep for 10ms */

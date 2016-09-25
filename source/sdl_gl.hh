@@ -3,10 +3,23 @@
 
 #include <string>
 #include "infdef.hh"
-//#include "trackball.hh"
+#include "SDL_keyboard.h"
 
-using glinit_type = void (*)();
-using gldisplay_type = void (*)();
+enum struct States {
+    none,
+    translate,
+    rotate,
+	start
+};
+
+struct Update {
+    States state = States::none;
+    unsigned int x = 0;
+    unsigned int y = 0;
+};
+
+using glinit_type = void (*)(int, int);
+using gldisplay_type = void (*)(Update);
 
 struct SdlImpl;
 
@@ -17,15 +30,10 @@ class Sdl {
     int mWidth = 800;
     int mHeight = 600;
     std::unique_ptr<SdlImpl> mImpl;
-	//Trackball mTrackball;
 
 public:
     Sdl();
     ~Sdl();
-
-	//void setTrackball(const Trackball & trackball) {
-		//mTrackball = trackball;
-	//}
 
     void set_glinit(glinit_type glinit_proc)
     {
