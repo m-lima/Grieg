@@ -4,7 +4,7 @@
 #include "infdef.hh"
 
 class Trackball {
-  // Bitmask for tracking trackball changes
+	// Bitmask for tracking trackball changes
 	static constexpr uint8_t model_dirty = 1 << 0;
 	static constexpr uint8_t view_dirty = 1 << 1;
 	static constexpr uint8_t projection_dirty = 1 << 2;
@@ -12,40 +12,50 @@ class Trackball {
 	static constexpr uint8_t ortho_dirty = 1 << 4;
 	static constexpr uint8_t fov_dirty = 1 << 5;
 
-  // Trackball status flags
-  uint8_t mDirtyValues;
+	// Trackball status flags
+	uint8_t mDirtyValues;
 
-  // View variables
-  Vec3 mEyePosition;
-  Vec3 mTargetPostion;
-  Vec3 mUpVector;
+	// Mouse tracking variables
+	unsigned int mXPos;
+	unsigned int mYPos;
+	float mXPosOld;
+	float mYPosOld;
 
-  // Trackball tracking variables
-  Vec3 mInitialMousePosition;
-  Vec3 mCurrentMousePosition;
-  Vec3 mMouseMoveAxis;
+	// View variables
+	Vec3 mEyePosition;
+	Vec3 mTargetPostion;
+	Vec3 mUpVector;
 
-  Quat mInitialRotation;
-  Quat mCurrentRotation;
+	// Trackball tracking variables
+	Vec3 mInitialMousePosition;
+	Vec3 mCurrentMousePosition;
+	Vec3 mMouseMoveAxis;
+
+	Quat mInitialRotation;
+	Quat mCurrentRotation;
+
+	// Convert the mouse click to a spherical vector
+	void getSurfaceVector(unsigned int x, unsigned int y, unsigned int width, unsigned int height, float point[]);
 
 public:
-  Trackball();
+	Trackball();
+	~Trackball();
 
-	void mousePressed(const uint8_t button, const uint8_t mods,
+	void mousePressed(const uint8_t button, const unsigned int mods,
 		const unsigned int x, const unsigned int y);
 
 	uint8_t getAllDirtyFlags() {
-      return model_dirty |
-              view_dirty |
-              projection_dirty |
-              zoom_dirty |
-              ortho_dirty |
-              fov_dirty;
-  }
+		return model_dirty |
+			view_dirty |
+			projection_dirty |
+			zoom_dirty |
+			ortho_dirty |
+			fov_dirty;
+	}
 
 	void markAllDirty() {
-      mDirtyValues = getAllDirtyFlags();
-  }
+		mDirtyValues = getAllDirtyFlags();
+	}
 
 	uint8_t getDirtyValues() {
 		return mDirtyValues;

@@ -120,6 +120,21 @@ void Sdl::main_loop()
                 std::exit(1);
                 break;
 
+			case SDL_MOUSEBUTTONDOWN:
+				println("X: {:d} - Y: {:d} - M: {:d}", ev.button.x, ev.button.y, SDL_GetModState());
+				/*if (mTrackball) {
+					mTrackball->mousePressed(ev.button.button, SDL_GetModState(), ev.button.x, ev.button.y);
+				}*/
+				break;
+
+			/*case SDL_KEYDOWN:
+				println("KeyDN: {:d} - Mod: {:d}", ev.key.keysym.sym, ev.key.keysym.mod);
+				break;
+
+			case SDL_KEYUP:
+				println("KeyUP: {:d} - Mod: {:d}", ev.key.keysym.sym, ev.key.keysym.mod);
+				break;*/
+
             default:
                 break;
             }
