@@ -1,10 +1,7 @@
 #ifndef __INF251_TRACKBALL__54845665
 #define __INF251_TRACKBALL__54845665
 
-#include <cstdint>
-#include "vmath.hpp"
-
-using namespace Vectormath::Aos;
+#include "infdef.hh"
 
 class Trackball {
   // Bitmask for tracking trackball changes
@@ -19,14 +16,14 @@ class Trackball {
   uint8_t mDirtyValues;
 
   // View variables
-  Vector3 mEyePosition;
-  Vector3 mTargetPostion;
-  Vector3 mUpVector;
+  Vec3 mEyePosition;
+  Vec3 mTargetPostion;
+  Vec3 mUpVector;
 
   // Trackball tracking variables
-  Vector3 mInitialMousePosition;
-  Vector3 mCurrentMousePosition;
-  Vector3 mMouseMoveAxis;
+  Vec3 mInitialMousePosition;
+  Vec3 mCurrentMousePosition;
+  Vec3 mMouseMoveAxis;
 
   Quat mInitialRotation;
   Quat mCurrentRotation;

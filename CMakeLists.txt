@@ -22,6 +22,9 @@ add_subdirectory(fmtlib)
 list(APPEND INCLUDE_DIRS fmtlib)
 list(APPEND LIBRARIES fmt)
 
+# OpenGL Math library
+list(APPEND INCLUDE_DIRS glm)
+
 ##------------------------------------------------------------------------------
 ## GLAD
 ##
@@ -55,6 +58,7 @@ set(SOURCES
   source/main.cc
   source/sdl_gl.cc
   source/sdl_gl.hh
+  source/debug.cc
   source/shader.cc
   source/shader.hh
   source/camera.cc

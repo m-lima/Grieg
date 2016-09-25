@@ -2,11 +2,6 @@
 #define __INF251_SHADER__21548889
 
 #include "infdef.hh"
-#include <glad/glad.h>
-#include "vmath.hpp"
-using namespace Vectormath::Aos;
-
-std::string get_type_as_string(GLenum);
 
 class Shader {
     uint32_t mProgram = 0;
@@ -27,15 +22,15 @@ class Shader {
 
         UniformProxy& operator=(const float f);
 
-        UniformProxy& operator=(const std::pair<float, float> vec2);
+        UniformProxy& operator=(const Vec2 vec2);
 
-        UniformProxy& operator=(const Vector3 vec3);
+        UniformProxy& operator=(const Vec3 vec3);
 
-        UniformProxy& operator=(const Vector4 vec4);
+        UniformProxy& operator=(const Vec4 vec4);
 
-        UniformProxy& operator=(const Matrix3 &mat3);
+        UniformProxy& operator=(const Mat3 &mat3);
 
-        UniformProxy& operator=(const Matrix4 &mat4);
+        UniformProxy& operator=(const Mat4 &mat4);
     };
 
 public:
