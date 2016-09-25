@@ -26,7 +26,7 @@ Vec3 Trackball::getSurfaceVector(unsigned int x, unsigned int y) {
 
 Trackball::Trackball()
 {
-	mDirtyValues = getAllDirtyFlags();
+	markAllDirty();
 }
 
 void Trackball::mousePressed(const uint8_t button, const unsigned int mods, const unsigned int x, const unsigned int y)
@@ -49,6 +49,10 @@ void Trackball::mousePressed(const uint8_t button, const unsigned int mods, cons
 		mInitialPosition = getSurfaceVector(x, y);
 		mInitialRotation = mCurrentRotation;
 	}
+}
+
+void Trackball::mouseReleased(const uint8_t button, const unsigned int mods, const unsigned int x, const unsigned int y) {
+
 }
 
 void Trackball::mouseDragged(const uint8_t button, const unsigned int mods, const unsigned int x, const unsigned int y)

@@ -46,6 +46,13 @@ namespace Renderer {
 
 	void checkAndLoadUniforms()
 	{
+		//uint8_t dirtyValues = trackball.getDirtyValues();
+		//if (dirtyValues) {
+		//	if (dirtyValues & model_dirty) {
+		//		shader.uniform("model") = trackball.getRotation();
+		//		trackball.clearDirtyFlag(model_dirty);
+		//	}
+		//}
 	}
 
 	void init()
@@ -78,6 +85,8 @@ namespace Renderer {
 		glBindBuffer(GL_ARRAY_BUFFER, vbo);
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
 		glBindVertexArray(vao);
+
+		checkAndLoadUniforms();
 
 		glDrawElements(GL_TRIANGLES, 12 * 3, GL_UNSIGNED_INT, 0);
 		glDisableVertexAttribArray(0);

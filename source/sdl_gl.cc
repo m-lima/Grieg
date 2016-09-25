@@ -127,6 +127,14 @@ void Sdl::main_loop()
 				}*/
 				break;
 
+			case SDL_MOUSEBUTTONUP:
+				println("X: {:d} - Y: {:d} - M: {:d}", ev.button.x, ev.button.y, SDL_GetModState());
+				break;
+
+			case SDL_MOUSEMOTION:
+				println("X: {:d} - Y: {:d} - M: {:d}", ev.button.x, ev.button.y, SDL_GetModState());
+				break;
+
 			/*case SDL_KEYDOWN:
 				println("KeyDN: {:d} - Mod: {:d}", ev.key.keysym.sym, ev.key.keysym.mod);
 				break;

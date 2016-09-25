@@ -53,6 +53,8 @@ public:
 	void mousePressed(const uint8_t button, const unsigned int mods,
 		const unsigned int x, const unsigned int y);
 
+	void mouseReleased(const uint8_t button, const unsigned int mods, const unsigned int x, const unsigned int y);
+
 	void mouseDragged(const uint8_t button, const unsigned int mods,
 		const unsigned int x, const unsigned int y);
 
@@ -67,6 +69,12 @@ public:
 
 	void markAllDirty() {
 		mDirtyValues = getAllDirtyFlags();
+	}
+
+	void clearDirtyFlag(uint8_t flags) {
+		if (flags <= getAllDirtyFlags()) {
+			mDirtyValues &= ~flags;
+		}
 	}
 
 	uint8_t getDirtyValues() {
