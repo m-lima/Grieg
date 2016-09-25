@@ -48,6 +48,8 @@ public:
 	void rotate(int x, int y);
 	void translate(int x, int y);
 
+	Mat4 getRotation();
+
 	uint8_t getAllDirtyFlags() {
 		return model_dirty |
 			view_dirty |
@@ -69,10 +71,6 @@ public:
 
 	uint8_t getDirtyValues() {
 		return mDirtyValues;
-	}
-
-	Mat4 getRotation() {
-		return Mat4(mCurrentRotation);
 	}
 
 	Mat4 getProjection() {

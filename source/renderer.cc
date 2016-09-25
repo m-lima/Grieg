@@ -92,6 +92,9 @@ void Renderer::draw(Update update)
 	case States::rotate:
 		trackball.rotate(update.x, update.y);
 		break;
+	case States::translate:
+		trackball.translate(update.x, update.y);
+		break;
 	}
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);

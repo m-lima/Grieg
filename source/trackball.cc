@@ -79,7 +79,11 @@ void Trackball::rotate(int x, int y)
 
 void Trackball::translate(int x, int y)
 {
-	mTranslation.x += x;
-	mTranslation.y += y;
+	mTranslation.x += 0.001f * x;
+	mTranslation.y -= 0.001f * y;
 	mDirtyValues |= view_dirty;
+}
+
+Mat4 Trackball::getRotation() {
+	return glm::translate(Mat4(mCurrentRotation), glm::conjugate(mCurrentRotation) * mTranslation);
 }
