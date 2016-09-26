@@ -125,15 +125,12 @@ void Sdl::mainLoop()
 				break;
 
 			case SDL_MOUSEBUTTONDOWN:
-				if (update.state == States::none) {
-					if (ev.button.button & (SDL_BUTTON_LMASK | SDL_BUTTON_RMASK)) {
-						update.state = States::start;
-						update.x = ev.button.x;
-						update.y = ev.button.y;
+				if (ev.button.button & SDL_BUTTON_LMASK) {
+					update.oX = ev.button.x;
+					update.oY = ev.button.y;
 #ifndef SPHERICAL_TRACKBALL
-						SDL_SetRelativeMouseMode(SDL_TRUE);
+					SDL_SetRelativeMouseMode(SDL_TRUE);
 #endif
-					}
 				}
 				break;
 

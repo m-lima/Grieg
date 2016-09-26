@@ -27,11 +27,10 @@ public:
 
 	Trackball();
 
-	void mousePressed(int x, int y);
-	void mouseReleased();
+	void anchorRotation(int x, int y);
 	void rotate(int x, int y);
 	void translate(int x, int y);
-	void zoom(int x, int y);
+	void zoom(int amount);
 	void reset();
 	void togglePerspective();
 

@@ -6,7 +6,6 @@
 
 enum struct States {
     none,
-	start,
 	reset,
     translate,
     rotate,
@@ -18,6 +17,8 @@ struct Update {
     States state = States::none;
     int x = 0;
     int y = 0;
+	int oX = 0;
+	int oY = 0;
 };
 
 namespace Sdl {

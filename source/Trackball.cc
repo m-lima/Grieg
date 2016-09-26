@@ -31,16 +31,12 @@ Trackball::Trackball() :
 {
 }
 
-void Trackball::mousePressed(int x, int y)
+void Trackball::anchorRotation(int x, int y)
 {
 #ifdef SPHERICAL_TRACKBALL
 	mInitialPosition = surfaceVector();
 	mInitialRotation = mCurrentRotation;
 #endif
-}
-
-void Trackball::mouseReleased() {
-
 }
 
 void Trackball::rotate(int x, int y)
@@ -68,9 +64,9 @@ void Trackball::translate(int x, int y)
 	viewDirty = true;
 }
 
-void Trackball::zoom(int x, int y)
+void Trackball::zoom(int amount)
 {
-	mFov += mSensitivityZooming * y;
+	mFov += mSensitivityZooming * amount;
 	if (mFov < 1.0f) {
 		mFov = 1.0f;
 	}

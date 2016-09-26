@@ -58,11 +58,11 @@ void Renderer::init()
 
 void Renderer::draw(Update update)
 {
-	switch (update.state) {
-    case States::start:
-        trackball.mousePressed(update.x, update.y);
-		break;
+	if (update.oX > 0 || update.oY > 0) {
+		trackball.anchorRotation(update.oX, update.oY);
+	}
 
+	switch (update.state) {
     case States::reset:
         trackball.reset();
 		break;
@@ -76,7 +76,7 @@ void Renderer::draw(Update update)
 		break;
 
     case States::zoom:
-        trackball.zoom(update.x, update.y);
+        trackball.zoom(update.y);
 		break;
 
 	case States::togglePerspective:
