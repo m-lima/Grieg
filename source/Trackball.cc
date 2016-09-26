@@ -27,7 +27,6 @@ Trackball::Trackball() :
 	lightDirty(true),
 	mCurrentLightPos{1.0f, 1.0f, 1.0f},
 	mTranslation{ 0.0f, 0.0f, -5.0f },
-	mSensitivityRotation(0.0025f),
 	mSensitivityTranslation(0.005f),
 	mSensitivityZooming(1.0f)
 {
@@ -53,8 +52,8 @@ void Trackball::rotate(int x, int y)
 
 	mCurrentRotation = glm::rotate(mInitialRotation, angle, glm::conjugate(mInitialRotation) * mAxis);
 #else
-	mCurrentRotation = glm::rotate(mCurrentRotation, mSensitivityRotation * x, glm::conjugate(mCurrentRotation) * Vec3(0, -1, 0));
-	mCurrentRotation = glm::rotate(mCurrentRotation, mSensitivityRotation * y, glm::conjugate(mCurrentRotation) * Vec3(-1, 0, 0));
+	mCurrentRotation = glm::rotate(mCurrentRotation, glm::radians(static_cast<float>(x)), glm::conjugate(mCurrentRotation) * Vec3(0, 1, 0));
+	mCurrentRotation = glm::rotate(mCurrentRotation, glm::radians(static_cast<float>(y)), glm::conjugate(mCurrentRotation) * Vec3(1, 0, 0));
 #endif
 
 	viewDirty = true;
@@ -62,6 +61,7 @@ void Trackball::rotate(int x, int y)
 
 void Trackball::rotateLight(int x, int y)
 {
+#ifdef SPHERICAL_TRACKBALL
 	mCurrentPosition = surfaceVector();
 
 	float angle = glm::acos(glm::dot(mInitialPosition, mCurrentPosition));
@@ -70,6 +70,11 @@ void Trackball::rotateLight(int x, int y)
 
 	Quat lightRotation = glm::rotate(Quat(), angle, mAxis);
 	mCurrentLightPos = lightRotation * mInitialLightPos;
+#else
+	Quat lightRotation = glm::rotate(Quat(), glm::radians(static_cast<float>(x)), Vec3(0, 1, 0));
+	lightRotation = glm::rotate(lightRotation, glm::radians(static_cast<float>(y)), glm::conjugate(lightRotation) * Vec3(1, 0, 0));
+	mCurrentLightPos = lightRotation * mCurrentLightPos;
+#endif
 
 	lightDirty = true;
 }
@@ -95,14 +100,16 @@ void Trackball::zoom(int amount)
 
 void Trackball::reset()
 {
-	auto screen = Sdl::screenCoords();
 	mOrtho = false;
+	mFov = 45.0f;
 	projectionDirty = true;
 
 	mCurrentRotation = Quat();
 	mTranslation = Vec3(0.0f, 0.0f, -5.0f);
-	mFov = 45.0f;
 	viewDirty = true;
+
+	mCurrentLightPos = Vec3(1.0f, 1.0f, 1.0f);
+	lightDirty = true;
 }
 
 void Trackball::togglePerspective()
@@ -131,5 +138,7 @@ Mat4 Trackball::projectionMatrix()
 
 Vec3 Trackball::lightPosition()
 {
+	//Vec3 yo = glm::normalize(mCurrentLightPos);
+	//println("X: {} | Y: {} | Z: {}", yo.x, yo.y, yo.z);
 	return glm::normalize(mCurrentLightPos);
 }

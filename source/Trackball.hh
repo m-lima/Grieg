@@ -26,7 +26,6 @@ public:
 	bool viewDirty : 1;
 	bool lightDirty : 1;
 
-	float mSensitivityRotation;
 	float mSensitivityTranslation;
 	float mSensitivityZooming;
 

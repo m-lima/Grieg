@@ -41,8 +41,8 @@ void Renderer::checkAndLoadUniforms()
 
 void Renderer::init()
 {
-    object.load("grieghallen");
-	object.scaleFactor = 0.02f;
+    object.load("suzanne");
+	//object.scaleFactor = 0.02f;
 
 //    glGenBuffers(1, &vbo);
 //    glBindBuffer(GL_ARRAY_BUFFER, vbo);
