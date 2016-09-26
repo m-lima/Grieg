@@ -2,6 +2,8 @@
 #include "Object.hh"
 #include "Shader.hh"
 #include "Trackball.hh"
+//#include <glm/mat4x4.hpp>
+#include <glm/gtc/matrix_transform.hpp>
 
 namespace
 {
@@ -10,10 +12,16 @@ namespace
 	Trackball trackball;
 
     Object object;
+
+	bool modelTransforLoaded;
 }
 
 void Renderer::checkAndLoadUniforms()
 {
+	if (!modelTransforLoaded) {
+		shader.uniform("model") = glm::scale(glm::mat4(), glm::vec3(0.01f, 0.01f, 0.01f));
+	}
+
 	if (trackball.viewDirty) {
 		shader.uniform("view") = trackball.rotationMatrix();
 		trackball.viewDirty = false;

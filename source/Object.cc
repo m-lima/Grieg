@@ -135,7 +135,8 @@ void Object::load(const std::string &name)
             std::string subtok;
             size_t subleft, subright;
             glm::ivec3 v, vt, vn;
-            bool tex, norm;
+			bool tex = false;
+			bool norm = false;
 
             /* Read first space-separated token, x */
             subleft = subright = 0;

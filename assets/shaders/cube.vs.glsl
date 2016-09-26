@@ -7,11 +7,11 @@ out vec3 fNormal;
 
 uniform mat4 projection;
 uniform mat4 view;
-//uniform mat4 model;
+uniform mat4 model;
 
 void main()
 {
     vertexOut = position;    
-	gl_Position = projection * view * vec4(vertexOut, 1.0);
+	gl_Position = projection * view * model * vec4(vertexOut, 1.0);
     fNormal = normalize(normal);
 }
