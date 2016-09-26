@@ -56,9 +56,11 @@ endif()
 set(SOURCES
   source/infdef.hh
   source/main.cc
+  source/Debug.cc
+  source/Object.cc
+  source/Object.hh
   source/Sdl.cc
   source/Sdl.hh
-  source/Debug.cc
   source/Shader.cc
   source/Shader.hh
   source/Trackball.cc
