@@ -1,5 +1,5 @@
 #include <memory>
-#include <stdlib.h>
+#include <cstdlib>
 #include "SDL.h"
 #include "Sdl.hh"
 
@@ -17,7 +17,7 @@ namespace {
 	Sdl::GlDisplayProc _glDisplay;
 
 #ifdef GLAD_DEBUG
-	void glad_pre_callback(const char *name, void *, int, ...) {
+	void glad_pre_callback(const char *, void *, int, ...) {
 	}
 
 	void glad_post_callback(const char *name, void *, int, ...) {

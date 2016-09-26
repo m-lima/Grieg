@@ -71,3 +71,6 @@ tags
 # Sketchup Stuff
 AutoSave_*.skp
 *.skb
+
+# Let us push mesh .obj
+!/assets/meshes/*.obj

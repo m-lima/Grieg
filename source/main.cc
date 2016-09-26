@@ -1,4 +1,5 @@
 #include <fstream>
+#include <sstream>
 #include "Sdl.hh"
 #include "Renderer.hh"
 
@@ -9,11 +10,10 @@ std::string readFileContents(const std::string &file)
         throw std::runtime_error(format("Couldn't open file {}", file));
 
     std::string buf;
-    size_t length;
 
     fh.seekg(0, std::ios::end);
-    length = fh.tellg();
-    buf.reserve(length);
+    auto length = fh.tellg();
+    buf.reserve(static_cast<size_t>(length));
     fh.seekg(0, std::ios::beg);
     buf.assign(std::istreambuf_iterator<char>(fh), std::istreambuf_iterator<char>());
 
