@@ -11,7 +11,6 @@ enum struct States {
     translate,
     rotate,
 	zoom,
-	fov,
 	togglePerspective
 };
 

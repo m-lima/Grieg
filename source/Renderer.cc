@@ -69,14 +69,11 @@ void Renderer::draw(Update update)
         trackball.zoom(update.x, update.y);
 		break;
 
-    case States::fov:
-        trackball.fov(update.x, update.y);
+	case States::togglePerspective:
+		trackball.togglePerspective();
 		break;
 
     default:
-		break;
-	case States::togglePerspective:
-		trackball.togglePerspective();
 		break;
 	}
 
