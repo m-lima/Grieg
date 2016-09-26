@@ -1,7 +1,7 @@
 
-#include "debug.hh"
+#include "Debug.hh"
 
-const char *debug::glsl_type(GLenum type)
+const char *Debug::GlslType(GLenum type)
 {
     switch (type)
     {

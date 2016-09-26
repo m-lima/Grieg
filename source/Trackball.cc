@@ -1,13 +1,14 @@
-#include "trackball.hh"
-#include "SDL.h"
+#include "Trackball.hh"
+#include "Sdl.hh"
 
 #include <glm/gtc/matrix_transform.hpp>
 
-Vec3 Trackball::getSurfaceVector() {
-	float width = mWidth / 2.0f;
-	float height = mHeight / 2.0f;
+Vec3 Trackball::surfaceVector() {
+    auto screen = Sdl::screenCoords();
+    float width = screen.x / 2.0f;
+	float height = screen.y / 2.0f;
 
-	Vec3 point(mXPos, mYPos, 0.0f);
+	Vec3 point(Sdl::mouseCoords(), 0.0f);
 	point.x -= width;
 	point.y -= height;
 
@@ -35,20 +36,12 @@ Vec3 Trackball::getSurfaceVector() {
 	return glm::normalize(point);
 }
 
-Trackball::Trackball()
+Trackball::Trackball():
+    mFov(45.0f),
+    mScale{ 1.0f, 1.0f, 1.0f },
+    projectionDirty(true),
+    viewDirty(true)
 {
-	mFov = 45.0f;
-	mScale.x = 1.0f;
-	mScale.y = 1.0f;
-	mScale.z = 1.0f;
-	markAllDirty();
-}
-
-void Trackball::setSize(unsigned int width, unsigned int height) {
-	mWidth = width;
-	mHeight = height;	
-	mProjection = glm::perspectiveFov(glm::radians(mFov), (float)mWidth, (float)mHeight, 0.1f, 100.0f);
-	mDirtyValues |= projection_dirty;
 }
 
 void Trackball::mousePressed(int x, int y)
@@ -81,23 +74,23 @@ void Trackball::rotate(int x, int y)
 
 	//mCurrentRotation = glm::rotate(mInitialRotation, angle, mAxis);
 	//mCurrentRotation = glm::rotate(glm::conjugate(mInitialRotation), angle, mAxis);
-	mCurrentRotation = glm::rotate(mCurrentRotation, 0.0025f * x, glm::conjugate(mCurrentRotation) * Vec3(0, -1, 0));
-	mCurrentRotation = glm::rotate(mCurrentRotation, 0.0025f * y, glm::conjugate(mCurrentRotation) * Vec3(-1, 0, 0));
+	mCurrentRotation = glm::rotate(mCurrentRotation, 0.025f * x, glm::conjugate(mCurrentRotation) * Vec3(0, -1, 0));
+	mCurrentRotation = glm::rotate(mCurrentRotation, 0.025f * y, glm::conjugate(mCurrentRotation) * Vec3(-1, 0, 0));
 
-	mDirtyValues |= view_dirty;
+    viewDirty = true;
 }
 
 void Trackball::translate(int x, int y)
 {
-	mTranslation.x += 0.001f * x;
-	mTranslation.y -= 0.001f * y;
-	mDirtyValues |= view_dirty;
+	mTranslation.x += 0.01f * x;
+	mTranslation.y -= 0.01f * y;
+    viewDirty = true;
 }
 
 void Trackball::zoom(int x, int y)
 {
 	mScale -= 0.05f * y;
-	mDirtyValues |= view_dirty;
+    viewDirty = true;
 }
 
 /*
@@ -113,6 +106,6 @@ void Trackball::fov(int x, int y)
 	//mDirtyValues |= projection_dirty;
 }
 
-Mat4 Trackball::getRotation() {
+Mat4 Trackball::rotationMatrix() {
 	return glm::scale(glm::translate(Mat4(mCurrentRotation), glm::conjugate(mCurrentRotation) * mTranslation), mScale);
 }

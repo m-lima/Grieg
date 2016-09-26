@@ -3,8 +3,8 @@
 
 #include "infdef.hh"
 
-namespace debug {
-  const char *glsl_type(GLenum);
+namespace Debug {
+  const char *GlslType(GLenum);
 }
 
 #endif //__INF251_DEBUG__68921962

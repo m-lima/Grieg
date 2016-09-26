@@ -1,14 +1,14 @@
 #ifndef __INF251_RENDERER__48721384
 #define __INF251_RENDERER__48721384
 
-#include "sdl_gl.hh"
+#include "Sdl.hh"
 
 namespace Renderer {
 	void loadVertices();
 	void loadProgram();
 	void checkAndLoadUniforms();
 
-	void init(int width, int height);
+	void init();
 	void draw(Update);
 };
 

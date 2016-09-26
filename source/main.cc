@@ -1,9 +1,8 @@
 #include <fstream>
-#include "sdl_gl.hh"
-#include "shader.hh"
-#include "renderer.hh"
+#include "Sdl.hh"
+#include "Renderer.hh"
 
-std::string get_file_contents(const std::string &file)
+std::string readFileContents(const std::string &file)
 {
     std::ifstream fh(file, std::ios::binary);
     if (!fh.is_open())
@@ -23,9 +22,7 @@ std::string get_file_contents(const std::string &file)
 
 int main()
 {
-    Sdl sdl;
-
-    sdl.set_glinit(&Renderer::init);
-    sdl.set_gldisplay(&Renderer::draw);
-    sdl.main_loop();
+    Sdl::setGlInit(Renderer::init);
+    Sdl::setGlDisplay(Renderer::draw);
+    Sdl::mainLoop();
 }

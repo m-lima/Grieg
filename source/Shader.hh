@@ -18,7 +18,7 @@ class Shader {
         {
         }
 
-        void assert_type(GLenum type);
+        void assertType(GLenum type);
 
         UniformProxy& operator=(const float f);
 

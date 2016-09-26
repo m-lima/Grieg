@@ -30,7 +30,7 @@ list(APPEND INCLUDE_DIRS glm)
 ##
 
 set(GLAD_PROFILE "core")
-set(GLAD_API "gl=4.5")
+set(GLAD_API "gl=4.3")
 set(GLAD_GENERATOR "c-debug")
 
 # set(GLAD_EXTENSIONS)
@@ -56,18 +56,17 @@ endif()
 set(SOURCES
   source/infdef.hh
   source/main.cc
-  source/sdl_gl.cc
-  source/sdl_gl.hh
-  source/debug.cc
-  source/shader.cc
-  source/shader.hh
-  source/camera.cc
-  source/camera.hh
-  source/trackball.cc
-  source/trackball.hh
-  #  source/rendererOther.cc
-  source/renderer.cc
-  source/renderer.hh
+  source/Sdl.cc
+  source/Sdl.hh
+  source/Debug.cc
+  source/Shader.cc
+  source/Shader.hh
+  source/Trackball.cc
+  source/Trackball.hh
+  source/Renderer.cc
+  source/Renderer.hh)
+
+set(SHADERS
   assets/shaders/cube.vs.glsl
   assets/shaders/cube.fs.glsl
   assets/shaders/triangle.vs.glsl
@@ -80,7 +79,7 @@ set(SOURCES
 add_custom_target(assets
   COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/assets ${CMAKE_BINARY_DIR}/assets)
 
-add_executable(inf251 ${SOURCES})
+add_executable(inf251 ${SOURCES} ${SHADERS})
 target_link_libraries(inf251 ${LIBRARIES})
 target_include_directories(inf251 PRIVATE ${INCLUDE_DIRS})
 add_dependencies(inf251 assets)
@@ -91,10 +90,7 @@ set_target_properties(inf251 PROPERTIES CXX_LANGUAGE_STANDARD 11)
 ##
 
 if(MSVC)
-  source_group("Shaders" FILES "assets/shaders/triangle.vs.glsl")
-  source_group("Shaders" FILES "assets/shaders/triangle.fs.glsl")
-  source_group("Shaders" FILES "assets/shaders/cube.vs.glsl")
-  source_group("Shaders" FILES "assets/shaders/cube.fs.glsl")
+  source_group("Shaders" FILES ${SHADERS})
 endif()
 
 if(WIN32)
