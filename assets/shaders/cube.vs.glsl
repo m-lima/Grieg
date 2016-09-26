@@ -11,5 +11,7 @@ void main()
 {
     vertexOut = position;    
     //gl_Position = projection * view * model * vec4((vertexOut - 0.5), 1.0);
-	gl_Position = projection * view * vec4((vertexOut - 0.5), 1.0);
+	gl_Position = view * vec4(vertexOut, 1.0);
+	//gl_Position.z -= 2;
+	gl_Position = projection * gl_Position;
 }

@@ -35,8 +35,10 @@ Trackball::Trackball() :
 
 void Trackball::mousePressed(int x, int y)
 {
+#ifdef SPHERICAL_TRACKBALL
 	mInitialPosition = surfaceVector();
 	mInitialRotation = mCurrentRotation;
+#endif
 }
 
 void Trackball::mouseReleased() {
@@ -49,6 +51,7 @@ void Trackball::mouseReleased() {
  **/
 void Trackball::rotate(int x, int y)
 {
+#ifdef SPHERICAL_TRACKBALL
 	mCurrentPosition = surfaceVector();
 
 	float angle = glm::acos(glm::dot(mInitialPosition, mCurrentPosition));
@@ -56,8 +59,10 @@ void Trackball::rotate(int x, int y)
 	mAxis = glm::normalize(mAxis);
 
 	mCurrentRotation = glm::rotate(mInitialRotation, angle, glm::conjugate(mInitialRotation) * mAxis);
-	//mCurrentRotation = glm::rotate(mCurrentRotation, mSensitivityRotation * x, glm::conjugate(mCurrentRotation) * Vec3(0, -1, 0));
-	//mCurrentRotation = glm::rotate(mCurrentRotation, mSensitivityRotation * y, glm::conjugate(mCurrentRotation) * Vec3(-1, 0, 0));
+#else
+	mCurrentRotation = glm::rotate(mCurrentRotation, mSensitivityRotation * x, glm::conjugate(mCurrentRotation) * Vec3(0, -1, 0));
+	mCurrentRotation = glm::rotate(mCurrentRotation, mSensitivityRotation * y, glm::conjugate(mCurrentRotation) * Vec3(-1, 0, 0));
+#endif
 
 	viewDirty = true;
 }
@@ -101,7 +106,8 @@ void Trackball::reset()
 {
 	auto screen = Sdl::screenCoords();
 	mOrtho = false;
-	mProjection = glm::perspectiveFov(glm::radians(mFov), static_cast<float>(screen.x), static_cast<float>(screen.y), 0.1f, 100.0f);
+	//mProjection = glm::perspectiveFov(glm::radians(mFov), static_cast<float>(screen.x), static_cast<float>(screen.y), 0.1f, 100.0f);
+	mProjection = glm::frustum(0, screen.x, 0, screen.y, 1, 100);
 	projectionDirty = true;
 
 	mCurrentRotation = Quat();
@@ -119,7 +125,7 @@ void Trackball::togglePerspective()
 		mProjection = glm::ortho(0.0f, scaledScreen.x, 0.0f, scaledScreen.y);
 	}
 	else {
-		mProjection = glm::frustum(0.0f)
+		mProjection = glm::frustum(0, screen.x, 0, screen.y, 0, 100);
 		//mProjection = glm::perspectiveFov(glm::radians(mFov), static_cast<float>(screen.x), static_cast<float>(screen.y), 0.1f, 100.0f);
 	}
 	mOrtho = !mOrtho;
