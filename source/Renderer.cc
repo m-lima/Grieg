@@ -19,7 +19,8 @@ namespace
 void Renderer::checkAndLoadUniforms()
 {
 	if (!modelTransforLoaded) {
-		shader.uniform("model") = glm::scale(glm::mat4(), glm::vec3(0.01f, 0.01f, 0.01f));
+		shader.uniform("model") = glm::scale(glm::mat4(), glm::vec3(object.scaleFactor, object.scaleFactor, object.scaleFactor));
+		modelTransforLoaded = true;
 	}
 
 	if (trackball.viewDirty) {
@@ -36,6 +37,7 @@ void Renderer::checkAndLoadUniforms()
 void Renderer::init()
 {
     object.load("grieghallen");
+	object.scaleFactor = 0.02f;
 
 //    glGenBuffers(1, &vbo);
 //    glBindBuffer(GL_ARRAY_BUFFER, vbo);
