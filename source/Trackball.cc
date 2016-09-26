@@ -28,7 +28,8 @@ Trackball::Trackball() :
 	mSensitivityRotation(0.0025f),
 	mSensitivityTranslation(0.01f),
 	mSensitivityZooming(0.05f),
-	mSensitivityFov(0.5f)
+	mSensitivityFov(0.5f),
+	mOrtho(false)
 {
 }
 
@@ -71,7 +72,16 @@ void Trackball::translate(int x, int y)
 void Trackball::zoom(int x, int y)
 {
 	mScale -= mSensitivityZooming * y;
-	viewDirty = true;
+	if (mOrtho) {
+		auto screen = Sdl::screenCoords();
+		glm::fvec2 scaledScreen = mScale;
+		scaledScreen *= screen;
+		mProjection = glm::ortho(0.0f, scaledScreen.x, 0.0f, scaledScreen.y);
+		projectionDirty = true;
+	}
+	else {
+		viewDirty = true;
+	}
 }
 
 /*
@@ -89,10 +99,31 @@ void Trackball::fov(int x, int y)
 
 void Trackball::reset()
 {
+	auto screen = Sdl::screenCoords();
+	mOrtho = false;
+	mProjection = glm::perspectiveFov(glm::radians(mFov), static_cast<float>(screen.x), static_cast<float>(screen.y), 0.1f, 100.0f);
+	projectionDirty = true;
+
 	mCurrentRotation = Quat();
 	mTranslation = Vec3();
 	mScale = Vec3(1.0f, 1.0f, 1.0f);
 	viewDirty = true;
+}
+
+void Trackball::togglePerspective()
+{
+	auto screen = Sdl::screenCoords();
+	if (mOrtho) {
+		glm::fvec2 scaledScreen = mScale;
+		scaledScreen /= screen;
+		mProjection = glm::ortho(0.0f, scaledScreen.x, 0.0f, scaledScreen.y);
+	}
+	else {
+		mProjection = glm::frustum(0.0f)
+		//mProjection = glm::perspectiveFov(glm::radians(mFov), static_cast<float>(screen.x), static_cast<float>(screen.y), 0.1f, 100.0f);
+	}
+	mOrtho = !mOrtho;
+	projectionDirty = true;
 }
 
 Mat4 Trackball::rotationMatrix() {

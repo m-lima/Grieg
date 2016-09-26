@@ -163,6 +163,12 @@ void Sdl::mainLoop()
 				update.x = ev.wheel.x;
 				update.y = ev.wheel.y;
 
+			case SDL_KEYUP:
+				if (ev.key.keysym.sym == SDLK_SPACE) {
+					update.state = States::togglePerspective;
+				}
+				break;
+
 			default:
 				break;
 			}

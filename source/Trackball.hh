@@ -15,6 +15,7 @@ class Trackball
 
 	// Projection tracking variables
 	float mFov;
+	bool mOrtho;
 	Mat4 mProjection;
 public:
 
@@ -36,6 +37,7 @@ public:
 	void zoom(int x, int y);
 	void fov(int x, int y);
 	void reset();
+	void togglePerspective();
 
 	// Convert the mouse click to a spherical vector
 	Vec3 surfaceVector();

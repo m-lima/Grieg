@@ -87,6 +87,8 @@ void Renderer::draw(Update update)
 		break;
 	case States::fov: trackball.fov(update.x, update.y);
 		break;
+	case States::togglePerspective: trackball.togglePerspective();
+		break;
 	}
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
