@@ -27,7 +27,7 @@ void Renderer::checkAndLoadUniforms()
 
 void Renderer::init()
 {
-    object.load("suzanne");
+    object.load("grieghallen");
 
 //    glGenBuffers(1, &vbo);
 //    glBindBuffer(GL_ARRAY_BUFFER, vbo);
