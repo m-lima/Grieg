@@ -126,14 +126,6 @@ void Sdl::main_loop()
 		Update update;
 		SDL_Event ev;
 
-		/*
-		The SLD_BUTTON_XXX constant does not map ev.button.button
-		ev.button.button actually outputs which button was pressed
-		in the for of binary
-		100 - Right
-		010 - Middle
-		001 - Left
-		*/
 		while (SDL_PollEvent(&ev)) {
 			switch (ev.type) {
 			case SDL_QUIT:
@@ -141,7 +133,7 @@ void Sdl::main_loop()
 				break;
 			case SDL_MOUSEBUTTONDOWN:
 				if (update.state == States::none) {
-					if (ev.button.button & (0b100 | 0b001)) {
+					if (ev.button.button & (SDL_BUTTON_LMASK | SDL_BUTTON_RMASK)) {
 						update.state = States::start;
 						update.x = ev.button.x;
 						update.y = ev.button.y;
@@ -151,14 +143,14 @@ void Sdl::main_loop()
 				break;
 
 			case SDL_MOUSEBUTTONUP:
-				if (ev.button.button & (0b100 | 0b001)) {
+				if (ev.button.button & (SDL_BUTTON_LMASK | SDL_BUTTON_RMASK)) {
 					update.state = States::none;
 					SDL_SetRelativeMouseMode(SDL_FALSE);
 				}
 				break;
 
 			case SDL_MOUSEMOTION:
-				if (ev.button.button & 0b001)
+				if (ev.button.button & SDL_BUTTON_LMASK)
 					update.state = States::translate;
 				else if (ev.button.button & 0b100)
 					update.state = States::rotate;
@@ -180,7 +172,7 @@ void Sdl::main_loop()
 			}
 		}
 
-		// Reset the last used program ID to 0
+		// Reset the last used shader program ID to 0
 		extern GLuint gUseProgram;
 		gUseProgram = 0;
 
