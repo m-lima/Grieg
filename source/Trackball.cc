@@ -107,7 +107,9 @@ Mat4 Trackball::projectionMatrix()
 	auto screen = Sdl::screenCoords();
 
 	if (mOrtho) {
-		return glm::ortho(0.0f, static_cast<float>(screen.x), 0.0f, static_cast<float>(screen.y), 0.1f, 100.0f);
+		float zoom = mFov / 45.0f;
+		zoom *= 2.0f;
+		return glm::ortho(-zoom, zoom, -zoom, zoom, 0.0f, 100.0f);
 	}
 	else {
 		return glm::perspectiveFov(glm::radians(mFov), static_cast<float>(screen.x), static_cast<float>(screen.y), 0.1f, 100.0f);
