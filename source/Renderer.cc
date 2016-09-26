@@ -13,14 +13,14 @@ namespace
 
     Object object;
 
-	bool modelTransforLoaded;
+	bool modelTransforUnloaded = true;
 }
 
 void Renderer::checkAndLoadUniforms()
 {
-	if (!modelTransforLoaded) {
+	if (modelTransforUnloaded) {
 		shader.uniform("model") = glm::scale(glm::mat4(), glm::vec3(object.scaleFactor, object.scaleFactor, object.scaleFactor));
-		modelTransforLoaded = true;
+		modelTransforUnloaded = false;
 	}
 
 	if (trackball.viewDirty) {
@@ -31,6 +31,11 @@ void Renderer::checkAndLoadUniforms()
 	if (trackball.projectionDirty) {
 		shader.uniform("projection") = trackball.projectionMatrix();
 		trackball.projectionDirty = false;
+	}
+
+	if (trackball.lightDirty) {
+		shader.uniform("lightPos") = trackball.lightPosition();
+		trackball.lightDirty = false;
 	}
 }
 
@@ -69,6 +74,10 @@ void Renderer::draw(Update update)
 
     case States::rotate:
         trackball.rotate(update.x, update.y);
+        break;
+
+    case States::rotateLight:
+        trackball.rotateLight(update.x, update.y);
         break;
 
     case States::translate:

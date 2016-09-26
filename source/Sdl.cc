@@ -147,10 +147,17 @@ void Sdl::mainLoop()
 				break;
 
 			case SDL_MOUSEMOTION:
-				if (ev.button.button & SDL_BUTTON_LMASK)
+				if (ev.button.button & SDL_BUTTON_LMASK) {
 					update.state = States::translate;
-				else if (ev.button.button & SDL_BUTTON_RMASK)
-					update.state = States::rotate;
+				}
+				else if (ev.button.button & SDL_BUTTON_RMASK) {
+					if (SDL_GetModState() & KMOD_SHIFT) {
+						update.state = States::rotateLight;
+					}
+					else {
+						update.state = States::rotate;
+					}
+				}
 
 				update.x = ev.motion.xrel;
 				update.y = ev.motion.yrel;

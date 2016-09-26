@@ -9,6 +9,7 @@ enum struct States {
 	reset,
     translate,
     rotate,
+    rotateLight,
 	zoom,
 	togglePerspective
 };
