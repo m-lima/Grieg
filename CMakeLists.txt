@@ -86,6 +86,7 @@ target_link_libraries(inf251 ${LIBRARIES})
 target_include_directories(inf251 PRIVATE ${INCLUDE_DIRS})
 add_dependencies(inf251 assets)
 set_target_properties(inf251 PROPERTIES CXX_LANGUAGE_STANDARD 11)
+add_definitions(-DSPHERICAL_TRACKBALL)
 
 ##------------------------------------------------------------------------------
 ## MSVC specifics

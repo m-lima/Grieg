@@ -130,7 +130,9 @@ void Sdl::mainLoop()
 						update.state = States::start;
 						update.x = ev.button.x;
 						update.y = ev.button.y;
+#ifndef SPHERICAL_TRACKBALL
 						SDL_SetRelativeMouseMode(SDL_TRUE);
+#endif
 					}
 				}
 				break;
@@ -142,7 +144,9 @@ void Sdl::mainLoop()
 				else if (ev.button.button & (SDL_BUTTON_MMASK)) {
 					update.state = States::reset;
 				}
+#ifndef SPHERICAL_TRACKBALL
 				SDL_SetRelativeMouseMode(SDL_FALSE);
+#endif
 				break;
 
 			case SDL_MOUSEMOTION:
@@ -156,12 +160,15 @@ void Sdl::mainLoop()
 				break;
 
 			case SDL_MOUSEWHEEL:
-				if (SDL_GetModState() & KMOD_CTRL)
-					update.state = States::fov;
-				else
-					update.state = States::zoom;
+				update.state = States::zoom;
 				update.x = ev.wheel.x;
 				update.y = ev.wheel.y;
+
+			case SDL_KEYUP:
+				if (ev.key.keysym.sym == SDLK_SPACE) {
+					update.state = States::togglePerspective;
+				}
+				break;
 
 			default:
 				break;

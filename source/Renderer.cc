@@ -5,24 +5,24 @@
 
 namespace
 {
-    Shader shader;
+	Shader shader;
 
-    Trackball trackball;
+	Trackball trackball;
 
     Object object;
 }
 
 void Renderer::checkAndLoadUniforms()
 {
-    if (trackball.viewDirty) {
-        shader.uniform("view") = trackball.rotationMatrix();
-        trackball.viewDirty = false;
-    }
+	if (trackball.viewDirty) {
+		shader.uniform("view") = trackball.rotationMatrix();
+		trackball.viewDirty = false;
+	}
 
-    if (trackball.projectionDirty) {
-        shader.uniform("projection") = trackball.projectionMatrix();
-        trackball.projectionDirty = false;
-    }
+	if (trackball.projectionDirty) {
+		shader.uniform("projection") = trackball.projectionMatrix();
+		trackball.projectionDirty = false;
+	}
 }
 
 void Renderer::init()
@@ -40,22 +40,22 @@ void Renderer::init()
 //    glGenVertexArrays(1, &vao);
 //    glBindVertexArray(vao);
 
-    shader.load("cube");
+	shader.load("cube");
 
-    glClearColor(0, 0, 0, 1);
-    glEnable(GL_DEPTH_TEST);
+	glClearColor(0, 0, 0, 1);
+	glEnable(GL_DEPTH_TEST);
 }
 
 void Renderer::draw(Update update)
 {
-    switch (update.state) {
+	switch (update.state) {
     case States::start:
         trackball.mousePressed(update.x, update.y);
-        break;
+		break;
 
     case States::reset:
         trackball.reset();
-        break;
+		break;
 
     case States::rotate:
         trackball.rotate(update.x, update.y);
@@ -63,28 +63,28 @@ void Renderer::draw(Update update)
 
     case States::translate:
         trackball.translate(update.x, update.y);
-        break;
+		break;
 
     case States::zoom:
         trackball.zoom(update.x, update.y);
-        break;
+		break;
 
-    case States::fov:
-        trackball.fov(update.x, update.y);
-        break;
+	case States::togglePerspective:
+		trackball.togglePerspective();
+		break;
 
     default:
-        break;
-    }
+		break;
+	}
 
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    shader.use();
+	shader.use();
     object.bind();
-    checkAndLoadUniforms();
+	checkAndLoadUniforms();
     object.draw();
-    glDisableVertexAttribArray(0);
-    glUseProgram(0);
+	glDisableVertexAttribArray(0);
+	glUseProgram(0);
 
 //    glEnableVertexAttribArray(0);
 //    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);

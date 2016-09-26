@@ -12,8 +12,8 @@ Vec3 Trackball::surfaceVector() {
 	point.x -= width;
 	point.y -= height;
 
-	point.x /= -width;
-	point.y /= height;
+	point.x /= width;
+	point.y /= -height;
 
 	point.z = glm::sqrt(glm::length(point));
 
@@ -22,33 +22,30 @@ Vec3 Trackball::surfaceVector() {
 
 Trackball::Trackball() :
 	mFov(45.0f),
-	mScale{ 1.0f, 1.0f, 1.0f },
 	projectionDirty(true),
 	viewDirty(true),
-	mSensitivityRotation(0.025f),
+	mTranslation{ 0.0f, 0.0f, -5.0f },
+	mSensitivityRotation(0.0025f),
 	mSensitivityTranslation(0.01f),
-	mSensitivityZooming(0.05f),
-	mSensitivityFov(0.5f)
+	mSensitivityZooming(1.0f)
 {
 }
 
 void Trackball::mousePressed(int x, int y)
 {
+#ifdef SPHERICAL_TRACKBALL
 	mInitialPosition = surfaceVector();
 	mInitialRotation = mCurrentRotation;
+#endif
 }
 
 void Trackball::mouseReleased() {
 
 }
 
-/**
-  This rotation is not very good. It is impossible to rotate around the Z axis
-  But a trackball would not allow for linear rotation
- **/
 void Trackball::rotate(int x, int y)
 {
-#if 0
+#ifdef SPHERICAL_TRACKBALL
 	mCurrentPosition = surfaceVector();
 
 	float angle = glm::acos(glm::dot(mInitialPosition, mCurrentPosition));
@@ -73,31 +70,48 @@ void Trackball::translate(int x, int y)
 
 void Trackball::zoom(int x, int y)
 {
-	mScale -= mSensitivityZooming * y;
-	viewDirty = true;
-}
-
-/*
-   For some reason, this function messes with the conjugate calculation
-   Have to dig a bit into the implementation to see what's going on
-
-   Disabled for now :/
-   */
-void Trackball::fov(int x, int y)
-{
-	//mFov += y;
-	//mProjection = glm::perspectiveFov(glm::radians(mFov), (float) mWidth, (float) mHeight, 0.1f, 100.0f);
-	//mDirtyValues |= projection_dirty;
+	mFov += mSensitivityZooming * y;
+	if (mFov < 1.0f) {
+		mFov = 1.0f;
+	}
+	else if (mFov >= 180.0f) {
+		mFov = 179.0f;
+	}
+	projectionDirty = true;
 }
 
 void Trackball::reset()
 {
+	auto screen = Sdl::screenCoords();
+	mOrtho = false;
+	projectionDirty = true;
+
 	mCurrentRotation = Quat();
-	mTranslation = Vec3();
-	mScale = Vec3(1.0f, 1.0f, 1.0f);
+	mTranslation = Vec3(0.0f, 0.0f, -5.0f);
+	mFov = 45.0f;
 	viewDirty = true;
 }
 
+void Trackball::togglePerspective()
+{
+	mOrtho = !mOrtho;
+	projectionDirty = true;
+}
+
 Mat4 Trackball::rotationMatrix() {
-	return glm::scale(glm::translate(Mat4(mCurrentRotation), glm::conjugate(mCurrentRotation) * mTranslation), mScale);
+	return glm::translate(Mat4(mCurrentRotation), glm::conjugate(mCurrentRotation) * mTranslation);
+}
+
+Mat4 Trackball::projectionMatrix()
+{
+	auto screen = Sdl::screenCoords();
+
+	if (mOrtho) {
+		float zoom = mFov / 45.0f;
+		zoom *= 2.0f;
+		return glm::ortho(-zoom, zoom, -zoom, zoom, 0.0f, 100.0f);
+	}
+	else {
+		return glm::perspectiveFov(glm::radians(mFov), static_cast<float>(screen.x), static_cast<float>(screen.y), 0.1f, 100.0f);
+	}
 }
