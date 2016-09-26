@@ -16,7 +16,7 @@ class Object
 public:
     void load(const std::string &name);
 
-    void setVertices(const std::vector<glm::vec3> &vertices, const std::vector<glm::uvec3> &indices);
+    void setVertices(const std::vector<glm::vec3> &vertices, const std::vector<glm::ivec3> &indices);
 
     void bind();
     void draw();

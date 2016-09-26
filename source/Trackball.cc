@@ -25,7 +25,7 @@ Trackball::Trackball() :
 	mScale{ 1.0f, 1.0f, 1.0f },
 	projectionDirty(true),
 	viewDirty(true),
-	mSensitivityRotation(0.0025f),
+	mSensitivityRotation(0.025f),
 	mSensitivityTranslation(0.01f),
 	mSensitivityZooming(0.05f),
 	mSensitivityFov(0.5f)
@@ -48,6 +48,7 @@ void Trackball::mouseReleased() {
  **/
 void Trackball::rotate(int x, int y)
 {
+#if 0
 	mCurrentPosition = surfaceVector();
 
 	float angle = glm::acos(glm::dot(mInitialPosition, mCurrentPosition));
@@ -55,8 +56,10 @@ void Trackball::rotate(int x, int y)
 	mAxis = glm::normalize(mAxis);
 
 	mCurrentRotation = glm::rotate(mInitialRotation, angle, glm::conjugate(mInitialRotation) * mAxis);
-	//mCurrentRotation = glm::rotate(mCurrentRotation, mSensitivityRotation * x, glm::conjugate(mCurrentRotation) * Vec3(0, -1, 0));
-	//mCurrentRotation = glm::rotate(mCurrentRotation, mSensitivityRotation * y, glm::conjugate(mCurrentRotation) * Vec3(-1, 0, 0));
+#else
+	mCurrentRotation = glm::rotate(mCurrentRotation, mSensitivityRotation * x, glm::conjugate(mCurrentRotation) * Vec3(0, -1, 0));
+	mCurrentRotation = glm::rotate(mCurrentRotation, mSensitivityRotation * y, glm::conjugate(mCurrentRotation) * Vec3(-1, 0, 0));
+#endif
 
 	viewDirty = true;
 }
