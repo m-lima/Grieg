@@ -138,8 +138,11 @@ void Sdl::mainLoop()
 			case SDL_MOUSEBUTTONUP:
 				if (ev.button.button & (SDL_BUTTON_LMASK | SDL_BUTTON_RMASK)) {
 					update.state = States::none;
-					SDL_SetRelativeMouseMode(SDL_FALSE);
 				}
+				else if (ev.button.button & (SDL_BUTTON_MMASK)) {
+					update.state = States::reset;
+				}
+				SDL_SetRelativeMouseMode(SDL_FALSE);
 				break;
 
 			case SDL_MOUSEMOTION:

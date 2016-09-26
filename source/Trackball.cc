@@ -87,6 +87,14 @@ void Trackball::fov(int x, int y)
 	//mDirtyValues |= projection_dirty;
 }
 
+void Trackball::reset()
+{
+	mCurrentRotation = Quat();
+	mTranslation = Vec3();
+	mScale = Vec3(1.0f, 1.0f, 1.0f);
+	viewDirty = true;
+}
+
 Mat4 Trackball::rotationMatrix() {
 	return glm::scale(glm::translate(Mat4(mCurrentRotation), glm::conjugate(mCurrentRotation) * mTranslation), mScale);
 }

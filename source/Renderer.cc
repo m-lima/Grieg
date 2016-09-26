@@ -77,6 +77,8 @@ void Renderer::draw(Update update)
 	switch (update.state) {
 	case States::start: trackball.mousePressed(update.x, update.y);
 		break;
+	case States::reset: trackball.reset();
+		break;
 	case States::rotate: trackball.rotate(update.x, update.y);
 		break;
 	case States::translate: trackball.translate(update.x, update.y);

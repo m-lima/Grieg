@@ -35,6 +35,7 @@ public:
 	void translate(int x, int y);
 	void zoom(int x, int y);
 	void fov(int x, int y);
+	void reset();
 
 	// Convert the mouse click to a spherical vector
 	Vec3 surfaceVector();

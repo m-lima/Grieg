@@ -7,6 +7,7 @@
 enum struct States {
     none,
 	start,
+	reset,
     translate,
     rotate,
 	zoom,
