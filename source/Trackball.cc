@@ -118,11 +118,11 @@ void Trackball::togglePerspective()
 	projectionDirty = true;
 }
 
-Mat4 Trackball::rotationMatrix() {
+Mat4 Trackball::rotation() {
 	return glm::translate(Mat4(mCurrentRotation), glm::conjugate(mCurrentRotation) * mTranslation);
 }
 
-Mat4 Trackball::projectionMatrix()
+Mat4 Trackball::projection()
 {
 	auto screen = Sdl::screenCoords();
 

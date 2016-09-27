@@ -2,7 +2,6 @@
 #include "Object.hh"
 #include "Shader.hh"
 #include "Trackball.hh"
-//#include <glm/mat4x4.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
 namespace
@@ -19,17 +18,18 @@ namespace
 void Renderer::checkAndLoadUniforms()
 {
 	if (modelTransforUnloaded) {
-		shader.uniform("model") = glm::scale(glm::mat4(), glm::vec3(object.scaleFactor, object.scaleFactor, object.scaleFactor));
+		shader.uniform("model") = glm::scale(Mat4(), Vec3(object.scaleFactor, object.scaleFactor, object.scaleFactor));
 		modelTransforUnloaded = false;
 	}
 
 	if (trackball.viewDirty) {
-		shader.uniform("view") = trackball.rotationMatrix();
+		shader.uniform("view") = trackball.rotation();
+		shader.uniform("sunPos") = static_cast<Quat>(glm::inverse(trackball.rotation())) * glm::normalize(Vec3(1.0f));
 		trackball.viewDirty = false;
 	}
 
 	if (trackball.projectionDirty) {
-		shader.uniform("projection") = trackball.projectionMatrix();
+		shader.uniform("projection") = trackball.projection();
 		trackball.projectionDirty = false;
 	}
 

@@ -7,7 +7,7 @@ out vec4 fragColor;
 uniform vec3 lightPos; //Assumed to be normalized to avoid per-pixel normalization
 uniform mat4 view;
 
-const vec3 sunPos = mat3((inverse(view))) * normalize(vec3(1.0)); //Calculation performed only once per frame
+uniform vec3 sunPos; // Sun position in global coordinates
 
 void main() {       
 	float flashlight = dot(fNormal, lightPos) * 0.5;

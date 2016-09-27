@@ -42,8 +42,8 @@ public:
 	// Convert the mouse click to a spherical vector
 	Vec3 surfaceVector();
 
-	Mat4 rotationMatrix();
-	Mat4 projectionMatrix();
+	Mat4 rotation();
+	Mat4 projection();
 	Vec3 lightPosition();
 };
 
