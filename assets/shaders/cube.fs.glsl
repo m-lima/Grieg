@@ -9,6 +9,8 @@ uniform mat4 view;
 
 uniform vec3 sunPos; // Sun position in global coordinates
 
+uniform sampler2D skybox;
+
 void main() {       
 	float flashlight = dot(fNormal, lightPos) * 0.5;
 	vec3 flashlightColor = vec3(flashlight);
@@ -16,5 +18,5 @@ void main() {
 	float sunLight = dot(fNormal, sunPos);
 	vec3 sunColor = vec3(sunLight);
 
-    fragColor = vec4(sunColor + flashlightColor, 1.0);
+    fragColor = vec4((sunColor + flashlightColor) * 0.01 + texture(skybox, vertexOut.xy).rgb, 1.0);
 }

@@ -2,6 +2,7 @@
 #include "Object.hh"
 #include "Shader.hh"
 #include "Trackball.hh"
+#include "Texture.hh"
 #include <glm/gtc/matrix_transform.hpp>
 
 namespace
@@ -11,6 +12,8 @@ namespace
 	Trackball trackball;
 
     Object object;
+
+	Texture texture;
 }
 
 void Renderer::checkAndLoadUniforms()
@@ -39,21 +42,13 @@ void Renderer::checkAndLoadUniforms()
 
 void Renderer::init()
 {
-    object.load("griegNormal");
-	object.modelTransform = glm::scale(Mat4(), Vec3(0.02f, 0.02f, 0.02f));
-
-//    glGenBuffers(1, &vbo);
-//    glBindBuffer(GL_ARRAY_BUFFER, vbo);
-//    glBufferData(GL_ARRAY_BUFFER, 8 * 3 * sizeof(GLfloat), cube, GL_STATIC_DRAW);
-//
-//    glGenBuffers(1, &ibo);
-//    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
-//    glBufferData(GL_ELEMENT_ARRAY_BUFFER, 12 * 3 * sizeof(GLuint), cubeIndices, GL_STATIC_DRAW);
-//
-//    glGenVertexArrays(1, &vao);
-//    glBindVertexArray(vao);
+    object.load("suzanne");
+	//object.modelTransform = glm::scale(Mat4(), Vec3(0.02f, 0.02f, 0.02f));
 
 	shader.load("cube");
+
+	texture.load("Mollweide", "jpg");
+	shader.uniform("skybox") = texture;
 
 	glClearColor(0, 0, 0, 1);
 	glEnable(GL_DEPTH_TEST);
@@ -102,17 +97,4 @@ void Renderer::draw(Update update)
     object.draw();
 	glDisableVertexAttribArray(0);
 	glUseProgram(0);
-
-//    glEnableVertexAttribArray(0);
-//    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
-//
-//    glBindBuffer(GL_ARRAY_BUFFER, vbo);
-//    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
-//    glBindVertexArray(vao);
-//
-//    checkAndLoadUniforms();
-//
-//    glDrawElements(GL_TRIANGLES, 12 * 3, GL_UNSIGNED_INT, 0);
-//    glDisableVertexAttribArray(0);
-//    glUseProgram(0);
 }

@@ -100,6 +100,22 @@ void Shader::UniformProxy::assertType(GLenum pType)
               name, mProgram.name(), Debug::GlslType(type), Debug::GlslType(pType));
 }
 
+Shader::UniformProxy& Shader::UniformProxy::operator=(const Texture &texture)
+{
+	assertType(GL_SAMPLER_2D);
+	mProgram.use();
+	glUniform1i(mLoc, texture.texture());
+	return *this;
+}
+
+Shader::UniformProxy& Shader::UniformProxy::operator=(const GLuint i)
+{
+    assertType(GL_UNSIGNED_INT);
+    mProgram.use();
+    glUniform1i(mLoc, i);
+    return *this;
+}
+
 Shader::UniformProxy& Shader::UniformProxy::operator=(const float f)
 {
     assertType(GL_FLOAT);
@@ -108,7 +124,7 @@ Shader::UniformProxy& Shader::UniformProxy::operator=(const float f)
     return *this;
 }
 
-Shader::UniformProxy& Shader::UniformProxy::operator=(const Vec2 vec2)
+Shader::UniformProxy& Shader::UniformProxy::operator=(const Vec2 &vec2)
 {
     assertType(GL_FLOAT_VEC2);
     mProgram.use();
@@ -116,7 +132,7 @@ Shader::UniformProxy& Shader::UniformProxy::operator=(const Vec2 vec2)
     return *this;
 }
 
-Shader::UniformProxy& Shader::UniformProxy::operator=(const Vec3 vec3)
+Shader::UniformProxy& Shader::UniformProxy::operator=(const Vec3 &vec3)
 {
     assertType(GL_FLOAT_VEC3);
     mProgram.use();
@@ -124,7 +140,7 @@ Shader::UniformProxy& Shader::UniformProxy::operator=(const Vec3 vec3)
     return *this;
 }
 
-Shader::UniformProxy& Shader::UniformProxy::operator=(const Vec4 vec4)
+Shader::UniformProxy& Shader::UniformProxy::operator=(const Vec4 &vec4)
 {
     assertType(GL_FLOAT_VEC4);
     mProgram.use();

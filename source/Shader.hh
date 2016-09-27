@@ -2,6 +2,7 @@
 #define __INF251_SHADER__21548889
 
 #include "infdef.hh"
+#include "Texture.hh"
 
 class Shader {
     uint32_t mProgram = 0;
@@ -20,13 +21,17 @@ class Shader {
 
         void assertType(GLenum type);
 
+		UniformProxy& operator=(const Texture &texture);
+
+        UniformProxy& operator=(const GLuint i);
+
         UniformProxy& operator=(const float f);
 
-        UniformProxy& operator=(const Vec2 vec2);
+        UniformProxy& operator=(const Vec2 &vec2);
 
-        UniformProxy& operator=(const Vec3 vec3);
+        UniformProxy& operator=(const Vec3 &vec3);
 
-        UniformProxy& operator=(const Vec4 vec4);
+        UniformProxy& operator=(const Vec4 &vec4);
 
         UniformProxy& operator=(const Mat3 &mat3);
 
