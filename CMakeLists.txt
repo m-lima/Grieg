@@ -59,6 +59,8 @@ set(SOURCES
   source/Debug.cc
   source/Object.cc
   source/Object.hh
+  source/Texture.cc
+  source/Texture.hh
   source/Sdl.cc
   source/Sdl.hh
   source/Shader.cc
