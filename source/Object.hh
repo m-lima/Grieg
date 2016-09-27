@@ -23,6 +23,9 @@ public:
 
 	float scaleFactor = 1.0f;
 
+	bool modelDirty : 1;
+	Mat4 modelTransform;
+
     void load(const std::string &name);
 
     void setVertices(const std::vector<glm::vec3> &vertices, const std::vector<glm::ivec3> &indices);

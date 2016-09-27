@@ -11,15 +11,13 @@ namespace
 	Trackball trackball;
 
     Object object;
-
-	bool modelTransforUnloaded = true;
 }
 
 void Renderer::checkAndLoadUniforms()
 {
-	if (modelTransforUnloaded) {
-		shader.uniform("model") = glm::scale(Mat4(), Vec3(object.scaleFactor, object.scaleFactor, object.scaleFactor));
-		modelTransforUnloaded = false;
+	if (object.modelDirty) {
+		shader.uniform("model") = object.modelTransform;
+		object.modelDirty = false;
 	}
 
 	if (trackball.viewDirty) {
@@ -42,7 +40,7 @@ void Renderer::checkAndLoadUniforms()
 void Renderer::init()
 {
     object.load("suzanne");
-	//object.scaleFactor = 0.02f;
+	//object.modelTransform = glm::scale(Mat4(), Vec3(object.scaleFactor, object.scaleFactor, object.scaleFactor));
 
 //    glGenBuffers(1, &vbo);
 //    glBindBuffer(GL_ARRAY_BUFFER, vbo);
