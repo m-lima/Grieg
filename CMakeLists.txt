@@ -15,8 +15,12 @@ list(APPEND LIBRARIES ${OPENGL_LIBRARIES})
 find_package(SDL2 REQUIRED)
 list(APPEND INCLUDE_DIRS ${SDL2_INCLUDE_DIRS})
 list(APPEND LIBRARIES ${SDL2_LIBRARIES})
-
 message(STATUS "${SDL2_LIBRARIES}")
+
+find_package(SDL2_image REQUIRED)
+list(APPEND INCLUDE_DIRS ${SDL2_IMAGE_INCLUDE_DIRS})
+list(APPEND LIBRARIES ${SDL2_IMAGE_LIBRARIES})
+message(STATUS "${SDL2_IMAGE_LIBRARIES}")
 
 add_subdirectory(fmtlib)
 list(APPEND INCLUDE_DIRS fmtlib)
@@ -104,10 +108,18 @@ if(WIN32)
       COMMAND ${CMAKE_COMMAND} -E copy_if_different
       ${CMAKE_SOURCE_DIR}/extern/lib/x86/SDL2.dll
       ${CMAKE_BINARY_DIR}/Debug/SDL2.dll)
+    add_custom_command(TARGET inf251 POST_BUILD
+      COMMAND ${CMAKE_COMMAND} -E copy_if_different
+      ${CMAKE_SOURCE_DIR}/extern/lib/x86/SDL2_image.dll
+      ${CMAKE_BINARY_DIR}/Debug/SDL2_image.dll)
   else()
     add_custom_command(TARGET inf251 POST_BUILD
       COMMAND ${CMAKE_COMMAND} -E copy_if_different
       ${CMAKE_SOURCE_DIR}/extern/lib/x86/SDL2.dll
       ${CMAKE_BINARY_DIR}/SDL2.dll)
+    add_custom_command(TARGET inf251 POST_BUILD
+      COMMAND ${CMAKE_COMMAND} -E copy_if_different
+      ${CMAKE_SOURCE_DIR}/extern/lib/x86/SDL2_image.dll
+      ${CMAKE_BINARY_DIR}/SDL2_image.dll)
   endif()
 endif()

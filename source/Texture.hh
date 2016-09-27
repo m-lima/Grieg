@@ -1,6 +1,7 @@
 #ifndef __INF251_TEXTURE__61287533
 #define __INF251_TEXTURE__61287533
 
+#include <SDL_image.h>
 #include "infdef.hh"
 
 class Texture
@@ -9,11 +10,9 @@ class Texture
 
 	GLuint mTexture = 0;
 	const GLuint mTextureOffset;
-	GLsizei mWidth;
-	GLsizei mHeight;
 
 	void init();
-	void setTexture(const std::vector<glm::vec3> &texture);
+	void setTexture(SDL_Surface *surface);
 	
 public:
 	Texture() : mTextureOffset(0) {};//mTextureCount++) {};

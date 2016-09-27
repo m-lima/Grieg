@@ -1,4 +1,3 @@
-#include <fstream>
 #include "Texture.hh"
 
 void Texture::init()
@@ -14,26 +13,27 @@ void Texture::init()
 	}
 }
 
-void Texture::setTexture(const std::vector<glm::vec3> &texture)
+void Texture::setTexture(SDL_Surface *surface)
 {
 	init();
 
 	glBindTexture(GL_TEXTURE_2D, mTexture);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, mWidth, mHeight, 0, GL_RGB, GL_UNSIGNED_INT, &texture);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, surface->w, surface->h, 0, GL_RGB, GL_UNSIGNED_INT, surface->pixels);
 }
 
 void Texture::load(const std::string & name, const std::string & extension)
 {
-	std::ifstream file(format("assets/images/{}.{}", name, extension));
-	if (!file.is_open()) {
-		fatal("Couldn't open texture file {}", name, extension);
+	IMG_Init(IMG_INIT_JPG);
+	println("Loading texture: {}.{}", name, extension);
+	SDL_Surface *surface = IMG_Load(format("assets / images / {}.{}", name, extension).c_str());
+	if (surface == nullptr) {
+		fatal("  Could not load texture");
 	}
 
-	println("Loading texture: {}", name);
+    println("  format:         {}", surface->format->format);
+    println("  width:          {}", surface->w);
+    println("  height:         {}", surface->h);
+    println("  bytes ppx:      {}", surface->format->BitsPerPixel);
 
-	mWidth = 2;
-	mHeight = 2;
-
-	std::vector<Vec3> data = { Vec3(1, 0, 0), Vec3(0, 1, 0), Vec3(0, 0, 1), Vec3(1, 1, 1) };
-	setTexture(data);
+	setTexture(surface);
 }
