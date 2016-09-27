@@ -39,8 +39,8 @@ void Renderer::checkAndLoadUniforms()
 
 void Renderer::init()
 {
-    object.load("suzanne");
-	//object.modelTransform = glm::scale(Mat4(), Vec3(object.scaleFactor, object.scaleFactor, object.scaleFactor));
+    object.load("griegNormal");
+	object.modelTransform = glm::scale(Mat4(), Vec3(0.02f, 0.02f, 0.02f));
 
 //    glGenBuffers(1, &vbo);
 //    glBindBuffer(GL_ARRAY_BUFFER, vbo);

@@ -19,9 +19,8 @@ class Object
     void init();
 
 public:
+	Object() : modelDirty(true) {};
     ~Object();
-
-	float scaleFactor = 1.0f;
 
 	bool modelDirty : 1;
 	Mat4 modelTransform;
