@@ -1,3 +1,4 @@
+#include <map>
 #include <fstream>
 #include "Object.hh"
 
@@ -31,7 +32,7 @@ namespace
     {
         std::string tok;
         if (nextToken<Char, Skip>(line, tok, left, right)) {
-            out = std::stof(tok);
+            out = std::stod(tok);
             return true;
         }
         return false;
@@ -48,32 +49,35 @@ namespace
         return false;
     }
 
-    template <class T, GLsizei N>
-    GLsizei size(T (&)[N])
+    struct Vertex
     {
-        return N;
+        glm::vec3 position;
+        glm::vec3 normal;
     };
 }
 
 Object::~Object()
 {
-    if (mBuffers[0]) {
-        glDeleteBuffers(size(mBuffers), mBuffers);
-    }
+    if (!mVbo)
+        glDeleteBuffers(1, &mVbo);
 
-    if (mVao) {
+    if (!mIbo)
+        glDeleteBuffers(1, &mIbo);
+
+    if (mVao)
         glDeleteVertexArrays(1, &mVao);
-    }
 }
 
-void Object::init() {
-    if (!mBuffers[0]) {
-        glGenBuffers(size(mBuffers), mBuffers);
-    }
+void Object::init()
+{
+    if (!mVbo)
+        glGenBuffers(1, &mVbo);
 
-    if (!mVao) {
+    if (!mIbo)
+        glGenBuffers(1, &mIbo);
+
+    if (!mVao)
         glGenVertexArrays(1, &mVao);
-    }
 }
 
 void Object::load(const std::string &name)
@@ -83,13 +87,13 @@ void Object::load(const std::string &name)
         fatal("Couldn't open file {}.obj", name);
 
     std::vector<glm::vec3> objVertices;
-    std::vector<glm::ivec3> vertexIndices;
+    std::vector<int> vertexIndices;
 
     std::vector<glm::vec3> objNormals;
-    std::vector<glm::ivec3> normalIndices;
+    std::vector<int> normalIndices;
 
     //std::vector<glm::vec2> texCoords;
-    std::vector<glm::uvec2> texIndices;
+    //std::vector<glm::uvec2> texIndices;
 
     println("Loading mesh: {}", name);
 
@@ -128,15 +132,15 @@ void Object::load(const std::string &name)
             nextToken(line, vec.x, left, right);
             nextToken(line, vec.y, left, right);
             nextToken(line, vec.z, left, right);
-            objNormals.emplace_back(glm::normalize(vec));
+            objNormals.emplace_back(vec);
         }
         else if (tmp == "f") {
             /* Face: Kind of complicated, read the wiki */
             std::string subtok;
             size_t subleft, subright;
             glm::ivec3 v, vt, vn;
-			bool tex = false;
-			bool norm = false;
+            bool tex = false;
+            bool norm = false;
 
             /* Read first space-separated token, x */
             subleft = subright = 0;
@@ -159,9 +163,14 @@ void Object::load(const std::string &name)
             nextToken<'/', false>(subtok, vt.z, subleft, subright);
             nextToken<'/', false>(subtok, vn.z, subleft, subright);
 
-            vertexIndices.emplace_back(v);
-            if (tex) texIndices.emplace_back(vt);
-            if (norm) normalIndices.emplace_back(vn);
+            vertexIndices.emplace_back(v.x);
+            vertexIndices.emplace_back(v.y);
+            vertexIndices.emplace_back(v.z);
+            if (norm) {
+                normalIndices.emplace_back(vn.x);
+                normalIndices.emplace_back(vn.y);
+                normalIndices.emplace_back(vn.z);
+            }
         }
     }
 
@@ -169,80 +178,88 @@ void Object::load(const std::string &name)
      * If negative, then the index refers to the vertices from the end of the list
      * ie. -1 is the last vertex, -2 is next to last, and so on. */
     int vtxSize = static_cast<int>(objVertices.size());
-    for (auto &idx : vertexIndices) {
-        idx.x = (idx.x > 0) ? idx.x - 1 : vtxSize + idx.x - 1;
-        idx.y = (idx.y > 0) ? idx.y - 1 : vtxSize + idx.y - 1;
-        idx.z = (idx.z > 0) ? idx.z - 1 : vtxSize + idx.z - 1;
-    }
+    for (auto &idx : vertexIndices)
+        idx = (idx > 0) ? idx - 1 : vtxSize + idx - 1;
 
     int normSize = static_cast<int>(objNormals.size());
-    for (auto &idx : normalIndices) {
-        idx.x = (idx.x > 0) ? idx.x - 1 : normSize + idx.x;
-        idx.y = (idx.y > 0) ? idx.y - 1 : normSize + idx.y;
-        idx.z = (idx.z > 0) ? idx.z - 1 : normSize + idx.z;
-    }
+    for (auto &idx : normalIndices)
+        idx = (idx > 0) ? idx - 1 : normSize + idx - 1;
 
-    std::vector<glm::vec3> normals(objVertices.size());
+    std::map<int, std::vector<int>> vertexCache;
+    std::vector<Vertex> vertexBuffer;
+    std::vector<int> indexBuffer;
     for (size_t i = 0; i < normalIndices.size(); i++) {
         auto normIdx = normalIndices[i];
         auto vertIdx = vertexIndices[i];
-        normals[vertIdx.x] += objNormals[normIdx.x];
-        normals[vertIdx.y] += objNormals[normIdx.y];
-        normals[vertIdx.z] += objNormals[normIdx.z];
+        Vertex v;
+
+        v.position = objVertices[vertIdx];
+        v.normal = glm::normalize(objNormals[normIdx]);
+
+        int index = -1;
+        auto it = vertexCache.find(vertIdx);
+        if (it == vertexCache.end()) {
+            index = vertexBuffer.size();
+            vertexBuffer.push_back(v);
+            vertexCache.insert({ vertIdx, { 1, index } });
+        } else {
+            auto& vertices = it->second;
+            bool found = false;
+
+            for (const auto vtx : vertices) {
+                const auto& v2 = objVertices[vtx];
+                if (std::memcmp(&v2, &v, sizeof(v)) == 0) {
+                    found = true;
+                    break;
+                }
+            }
+            if (!found) {
+                index = vertexBuffer.size();
+                vertexBuffer.push_back(v);
+                vertices.push_back(index);
+            }
+        }
+        indexBuffer.push_back(index);
     }
 
-    println("  vertices:       {}", objVertices.size());
-    println("  vertex indices: {}", vertexIndices.size());
-    println("  normals:        {}", normals.size());
-    println("  normal indices: {}", normalIndices.size());
+    println("  positions:      {}", objVertices.size());
+    println("  normals:        {}", objNormals.size());
+    println("  faces:          {}", normalIndices.size());
 
-    setVertices(objVertices, vertexIndices);
-    setNormals(normals, normalIndices);
-}
+    println("  vertices:       {}", vertexBuffer.size());
+    println("  indices:        {}", indexBuffer.size());
 
-void Object::setVertices(const std::vector<glm::vec3> &vertices, const std::vector<glm::ivec3> &indices)
-{
     init();
+
+    glBindVertexArray(mVao);
 
     glBindBuffer(GL_ARRAY_BUFFER, mVbo);
     glBufferData(GL_ARRAY_BUFFER,
-                 vertices.size() * sizeof(glm::vec3),
-                 &vertices[0],
+                 vertexBuffer.size() * sizeof(vertexBuffer[0]),
+                 &vertexBuffer[0],
                  GL_STATIC_DRAW);
 
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mIbo);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER,
-                 indices.size() * sizeof(glm::ivec3),
-                 &indices[0],
+                 indexBuffer.size() * sizeof(indexBuffer[0]),
+                 &indexBuffer[0],
                  GL_STATIC_DRAW);
 
-    glBindVertexArray(mVao);
-
-    mTrigCount = static_cast<GLuint>(indices.size());
-}
-
-void Object::setNormals(const std::vector<glm::vec3> &normals, const std::vector<glm::ivec3> &indices)
-{
-    glBindBuffer(GL_ARRAY_BUFFER, mNbo);
-    glBufferData(GL_ARRAY_BUFFER,
-                 normals.size() * sizeof(glm::vec3),
-                 &normals[0],
-                 GL_STATIC_DRAW);
+    mTrigCount = static_cast<GLuint>(indexBuffer.size());
 }
 
 void Object::bind()
 {
+    glBindVertexArray(mVao);
 
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mIbo);
     glEnableVertexAttribArray(0);
-    glBindBuffer(GL_ARRAY_BUFFER, mVbo);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_TRUE, 0, 0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_TRUE, sizeof(Vertex), reinterpret_cast<const void*>(offsetof(Vertex, position)));
 
     glEnableVertexAttribArray(1);
-    glBindBuffer(GL_ARRAY_BUFFER, mNbo);
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_TRUE, 0, 0);
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_TRUE, sizeof(Vertex), reinterpret_cast<const void*>(offsetof(Vertex, normal)));
 
-    glBindVertexArray(mVao);
+    glBindBuffer(GL_ARRAY_BUFFER, mVbo);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mIbo);
 }
 
 void Object::draw()

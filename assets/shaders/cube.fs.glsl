@@ -18,5 +18,5 @@ void main() {
 	float sunLight = dot(fNormal, sunPos);
 	vec3 sunColor = vec3(sunLight);
 
-    fragColor = vec4((sunColor + flashlightColor) * 1.00 + texture(skybox, vertexOut.xy).rgb * 0.01, 1.0);
+    fragColor = vec4((sunColor + flashlightColor), 1.0);
 }
