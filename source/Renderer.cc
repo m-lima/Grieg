@@ -42,8 +42,8 @@ void Renderer::checkAndLoadUniforms()
 
 void Renderer::init()
 {
-    object.load("suzanne");
-	//object.modelTransform = glm::scale(Mat4(), Vec3(0.02f, 0.02f, 0.02f));
+    object.load("griegNormal2");
+	object.modelTransform = glm::scale(Mat4(), Vec3(0.02f, 0.02f, 0.02f));
 
 	shader.load("cube");
 

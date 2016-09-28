@@ -23,17 +23,17 @@ void Texture::setTexture(SDL_Surface *surface)
 
 void Texture::load(const std::string & name, const std::string & extension)
 {
-	IMG_Init(IMG_INIT_JPG);
-	println("Loading texture: {}.{}", name, extension);
-	SDL_Surface *surface = IMG_Load(format("assets / images / {}.{}", name, extension).c_str());
-	if (surface == nullptr) {
-		fatal("  Could not load texture");
-	}
+	////IMG_Init(IMG_INIT_JPG);
+	//println("Loading texture: {}.{}", name, extension);
+	//SDL_Surface *surface = IMG_Load(format("assets / images / {}.{}", name, extension).c_str());
+	//if (surface == nullptr) {
+	//	fatal("  Could not load texture");
+	//}
 
-    println("  format:         {}", surface->format->format);
-    println("  width:          {}", surface->w);
-    println("  height:         {}", surface->h);
-    println("  bytes ppx:      {}", surface->format->BitsPerPixel);
+ //   println("  format:         {}", surface->format->format);
+ //   println("  width:          {}", surface->w);
+ //   println("  height:         {}", surface->h);
+ //   println("  bytes ppx:      {}", surface->format->BitsPerPixel);
 
-	setTexture(surface);
+	//setTexture(surface);
 }
