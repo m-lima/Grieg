@@ -4,56 +4,67 @@
 
 namespace
 {
-    // Returns true if token was read successfully
-    template<char Char = ' ', bool Skip = true>
-    bool nextTokenPos(const std::string &line, size_t &left, size_t &right)
-    {
-        if (right == std::string::npos)
-            return false;
+  // Returns true if token was read successfully
+  template<char Char = ' ', bool Skip = true>
+  bool nextTokenPos(const std::string &line, size_t &left, size_t &right)
+  {
+      if (right == std::string::npos)
+          return false;
 
-        left = Skip ? line.find_first_not_of(Char, right) : (right == 0 ? right : right + 1);
-        right = line.find_first_of(Char, left);
+      left = Skip ? line.find_first_not_of(Char, right) : (right == 0 ? right : right + 1);
+      right = line.find_first_of(Char, left);
 
-        return true;
-    }
+      return true;
+  }
 
-    template<char Char = ' ', bool Skip = true>
-    bool nextToken(const std::string &line, std::string &out, size_t &left, size_t &right)
-    {
-        if (nextTokenPos<Char, Skip>(line, left, right)) {
-            out = line.substr(left, right - left);
-            return !out.empty();
-        }
-        return false;
-    }
+  template<char Char = ' ', bool Skip = true>
+  bool nextToken(const std::string &line, std::string &out, size_t &left, size_t &right)
+  {
+      if (nextTokenPos<Char, Skip>(line, left, right)) {
+          out = line.substr(left, right - left);
+          return !out.empty();
+      }
+      return false;
+  }
 
-    template<char Char = ' ', bool Skip = true>
-    bool nextToken(const std::string &line, float &out, size_t &left, size_t &right)
-    {
-        std::string tok;
-        if (nextToken<Char, Skip>(line, tok, left, right)) {
-            out = std::stod(tok);
-            return true;
-        }
-        return false;
-    }
+  template<char Char = ' ', bool Skip = true>
+  bool nextToken(const std::string &line, float &out, size_t &left, size_t &right)
+  {
+      std::string tok;
+      if (nextToken<Char, Skip>(line, tok, left, right)) {
+          out = std::stod(tok);
+          return true;
+      }
+      return false;
+  }
 
-    template<char Char = ' ', bool Skip = true>
-    bool nextToken(const std::string &line, int &out, size_t &left, size_t &right)
-    {
-        std::string tok;
-        if (nextToken<Char, Skip>(line, tok, left, right)) {
-            out = std::stoi(tok);
-            return true;
-        }
-        return false;
-    }
+  template<char Char = ' ', bool Skip = true>
+  bool nextToken(const std::string &line, int &out, size_t &left, size_t &right)
+  {
+      std::string tok;
+      if (nextToken<Char, Skip>(line, tok, left, right)) {
+          out = std::stoi(tok);
+          return true;
+      }
+      return false;
+  }
 
-    struct Vertex
-    {
-        glm::vec3 position;
-        glm::vec3 normal;
-    };
+  struct Vertex
+  {
+      glm::vec3 pos;
+      glm::vec2 tex;
+      glm::vec3 norm;
+
+      constexpr Vertex(const glm::vec3 &pPos,
+                       const glm::vec2 &pTex,
+                       const glm::vec3 &pNorm):
+      pos(pPos),
+          tex(pTex),
+          norm(pNorm)
+      {
+      }
+  };
+  static_assert(sizeof(Vertex) == sizeof(GLfloat) * 8);
 }
 
 Object::~Object()
@@ -86,14 +97,25 @@ void Object::load(const std::string &name)
     if (!file.is_open())
         fatal("Couldn't open file {}.obj", name);
 
-    std::vector<glm::vec3> objVertices;
-    std::vector<int> vertexIndices;
+    struct Triangle {
+        glm::ivec3 posIdx;
+        glm::ivec3 texIdx;
+        glm::ivec3 normIdx;
 
+        constexpr Triangle(const glm::ivec3 pPosIdx,
+                           const glm::ivec3 pTexIdx,
+                           const glm::ivec3 pNormIdx):
+        posIdx(pPosIdx),
+            texIdx(pTexIdx),
+            normIdx(pNormIdx)
+        {
+        }
+    };
+
+    std::vector<glm::vec3> objPositions;
     std::vector<glm::vec3> objNormals;
-    std::vector<int> normalIndices;
-
-    //std::vector<glm::vec2> texCoords;
-    //std::vector<glm::uvec2> texIndices;
+    std::vector<glm::vec2> objTexCoords;
+    std::vector<Triangle> objTrigs;
 
     println("Loading mesh: {}", name);
 
@@ -124,7 +146,14 @@ void Object::load(const std::string &name)
                 vec /= w;
             }
 
-            objVertices.emplace_back(vec);
+            objPositions.emplace_back(vec);
+        }
+        else if (tmp == "vt") {
+            /* Vertex texture coordinate: vt <s:f> <t:f> */
+            glm::vec2 vec;
+            nextToken(line, vec.s, left, right);
+            nextToken(line, vec.t, left, right);
+            objTexCoords.emplace_back(vec);
         }
         else if (tmp == "vn") {
             /* Vertex normal: vn <x:f> <y:f> <z:f> */
@@ -132,7 +161,7 @@ void Object::load(const std::string &name)
             nextToken(line, vec.x, left, right);
             nextToken(line, vec.y, left, right);
             nextToken(line, vec.z, left, right);
-            objNormals.emplace_back(vec);
+            objNormals.emplace_back(glm::normalize(vec));
         }
         else if (tmp == "f") {
             /* Face: Kind of complicated, read the wiki */
@@ -163,71 +192,52 @@ void Object::load(const std::string &name)
             nextToken<'/', false>(subtok, vt.z, subleft, subright);
             nextToken<'/', false>(subtok, vn.z, subleft, subright);
 
-            vertexIndices.emplace_back(v.x);
-            vertexIndices.emplace_back(v.y);
-            vertexIndices.emplace_back(v.z);
-            if (norm) {
-                normalIndices.emplace_back(vn.x);
-                normalIndices.emplace_back(vn.y);
-                normalIndices.emplace_back(vn.z);
-            }
+            objTrigs.emplace_back(v, vt, vn);
         }
     }
 
     /* The indices start from 1 and 0, so subtract if positive.
      * If negative, then the index refers to the vertices from the end of the list
      * ie. -1 is the last vertex, -2 is next to last, and so on. */
-    int vtxSize = static_cast<int>(objVertices.size());
-    for (auto &idx : vertexIndices)
-        idx = (idx > 0) ? idx - 1 : vtxSize + idx - 1;
+    const auto posSize = static_cast<int>(objPositions.size());
+    const auto texSize = static_cast<int>(objTexCoords.size());
+    const auto normSize = static_cast<int>(objNormals.size());
+    const auto normalizeIdx = [](int size, glm::ivec3 &v) {
+        v.x = (v.x > 0) ? v.x - 1 : size + v.x - 1;
+        v.y = (v.y > 0) ? v.y - 1 : size + v.y - 1;
+        v.z = (v.z > 0) ? v.z - 1 : size + v.z - 1;
+    };
 
-    int normSize = static_cast<int>(objNormals.size());
-    for (auto &idx : normalIndices)
-        idx = (idx > 0) ? idx - 1 : normSize + idx - 1;
+    std::vector<Vertex> vertices;
+    std::vector<GLuint> indices;
+    for (auto &f : objTrigs) {
+        normalizeIdx(posSize, f.posIdx);
+        normalizeIdx(texSize, f.texIdx);
+        normalizeIdx(normSize, f.normIdx);
 
-    std::map<int, std::vector<int>> vertexCache;
-    std::vector<Vertex> vertexBuffer;
-    std::vector<int> indexBuffer;
-    for (size_t i = 0; i < normalIndices.size(); i++) {
-        auto normIdx = normalIndices[i];
-        auto vertIdx = vertexIndices[i];
-        Vertex v;
+        indices.emplace_back(vertices.size());
+        vertices.emplace_back(objPositions[f.posIdx.x],
+                              objTexCoords[f.texIdx.x],
+                              objNormals[f.normIdx.x]);
 
-        v.position = objVertices[vertIdx];
-        v.normal = glm::normalize(objNormals[normIdx]);
+        indices.emplace_back(vertices.size());
+        vertices.emplace_back(objPositions[f.posIdx.y],
+                              objTexCoords[f.texIdx.y],
+                              objNormals[f.normIdx.y]);
 
-        int index = -1;
-        auto it = vertexCache.find(vertIdx);
-        if (it == vertexCache.end()) {
-            index = vertexBuffer.size();
-            vertexBuffer.push_back(v);
-            vertexCache.insert({ vertIdx, { 1, index } });
-        } else {
-            auto& vertices = it->second;
-            bool found = false;
-
-            for (const auto vtx : vertices) {
-                const auto& v2 = objVertices[vtx];
-                if (std::memcmp(&v2, &v, sizeof(v)) == 0) {
-                    found = true;
-                    break;
-                }
-            }
-            if (!found) {
-                index = vertexBuffer.size();
-                vertexBuffer.push_back(v);
-                vertices.push_back(index);
-            }
-        }
-        indexBuffer.push_back(index);
+        indices.emplace_back(vertices.size());
+        vertices.emplace_back(objPositions[f.posIdx.z],
+                              objTexCoords[f.texIdx.z],
+                              objNormals[f.normIdx.z]);
     }
 
-    println("  positions:      {}", objVertices.size());
+    println("  positions:      {}", objPositions.size());
+    println("  texcoord:       {}", objTexCoords.size());
     println("  normals:        {}", objNormals.size());
-    println("  faces:          {}", normalIndices.size());
-
-    println("  vertices:       {}", vertexBuffer.size());
-    println("  indices:        {}", indexBuffer.size());
+    println("  trigs:          {}", objTrigs.size());
+    println("");
+    println("  vertices:       {}", vertices.size());
+    println("  indices:        {}", indices.size());
 
     init();
 
@@ -235,17 +245,17 @@ void Object::load(const std::string &name)
 
     glBindBuffer(GL_ARRAY_BUFFER, mVbo);
     glBufferData(GL_ARRAY_BUFFER,
-                 vertexBuffer.size() * sizeof(vertexBuffer[0]),
-                 &vertexBuffer[0],
+                 vertices.size() * sizeof(vertices[0]),
+                 &vertices[0],
                  GL_STATIC_DRAW);
 
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mIbo);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER,
-                 indexBuffer.size() * sizeof(indexBuffer[0]),
-                 &indexBuffer[0],
+                 indices.size() * sizeof(indices[0]),
+                 &indices[0],
                  GL_STATIC_DRAW);
 
-    mTrigCount = static_cast<GLuint>(indexBuffer.size());
+    mTrigCount = static_cast<GLuint>(indices.size());
 }
 
 void Object::bind()
@@ -253,10 +263,28 @@ void Object::bind()
     glBindVertexArray(mVao);
 
     glEnableVertexAttribArray(0);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_TRUE, sizeof(Vertex), reinterpret_cast<const void*>(offsetof(Vertex, position)));
+    glVertexAttribPointer(0,
+                          3,
+                          GL_FLOAT,
+                          GL_TRUE,
+                          sizeof(Vertex),
+                          reinterpret_cast<const void*>(offsetof(Vertex, pos)));
 
     glEnableVertexAttribArray(1);
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_TRUE, sizeof(Vertex), reinterpret_cast<const void*>(offsetof(Vertex, normal)));
+    glVertexAttribPointer(1,
+                          2,
+                          GL_FLOAT,
+                          GL_TRUE,
+                          sizeof(Vertex),
+                          reinterpret_cast<const void*>(offsetof(Vertex, tex)));
+
+    glEnableVertexAttribArray(2);
+    glVertexAttribPointer(2,
+                          3,
+                          GL_FLOAT,
+                          GL_TRUE,
+                          sizeof(Vertex),
+                          reinterpret_cast<const void*>(offsetof(Vertex, norm)));
 
     glBindBuffer(GL_ARRAY_BUFFER, mVbo);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mIbo);

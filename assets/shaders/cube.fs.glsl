@@ -1,6 +1,7 @@
 #version 430
 
 in vec3 vertexOut;
+in vec2 fTexCoord;
 in vec3 fNormal; //Already normalized
 out vec4 fragColor;
 
@@ -11,12 +12,12 @@ uniform vec3 sunPos; // Sun position in global coordinates
 
 uniform sampler2D skybox;
 
-void main() {       
-	float flashlight = dot(fNormal, lightPos) * 0.5;
-	vec3 flashlightColor = vec3(flashlight);
- 
-	float sunLight = dot(fNormal, sunPos);
-	vec3 sunColor = vec3(sunLight);
+void main() {
+    float flashlight = dot(fNormal, lightPos) * 0.5;
+    vec3 flashlightColor = vec3(flashlight);
 
-    fragColor = vec4((sunColor + flashlightColor), 1.0);
+    float sunLight = dot(fNormal, sunPos);
+    vec3 sunColor = vec3(sunLight);
+
+    fragColor = vec4(fNormal, 1.0);
 }

@@ -72,8 +72,10 @@ Shader::UniformProxy Shader::uniform(const std::string &name)
 {
     auto loc = glGetUniformLocation(mProgram, name.c_str());
 
-    if (loc < 0)
-        fatal("Couldn't get uniform location");
+    if (loc < 0) {
+        println("Warning: Couldn't get uniform location \"{}\" in shader \"{}\"", name, mName);
+        return { *this, -1 };
+    }
 
     return { *this, loc };
 }
@@ -102,14 +104,20 @@ void Shader::UniformProxy::assertType(GLenum pType)
 
 Shader::UniformProxy& Shader::UniformProxy::operator=(const Texture &texture)
 {
-	assertType(GL_SAMPLER_2D);
-	mProgram.use();
-	glUniform1i(mLoc, texture.texture());
-	return *this;
+    if (mLoc < 0)
+        return * this;
+
+    assertType(GL_SAMPLER_2D);
+    mProgram.use();
+    glUniform1i(mLoc, texture.texture());
+    return *this;
 }
 
 Shader::UniformProxy& Shader::UniformProxy::operator=(const GLuint i)
 {
+    if (mLoc < 0)
+        return * this;
+
     assertType(GL_UNSIGNED_INT);
     mProgram.use();
     glUniform1i(mLoc, i);
@@ -118,6 +126,9 @@ Shader::UniformProxy& Shader::UniformProxy::operator=(const GLuint i)
 
 Shader::UniformProxy& Shader::UniformProxy::operator=(const float f)
 {
+    if (mLoc < 0)
+        return * this;
+
     assertType(GL_FLOAT);
     mProgram.use();
     glUniform1f(mLoc, f);
@@ -126,6 +137,9 @@ Shader::UniformProxy& Shader::UniformProxy::operator=(const float f)
 
 Shader::UniformProxy& Shader::UniformProxy::operator=(const Vec2 &vec2)
 {
+    if (mLoc < 0)
+        return * this;
+
     assertType(GL_FLOAT_VEC2);
     mProgram.use();
     glUniform2f(mLoc, vec2.x, vec2.y);
@@ -134,6 +148,9 @@ Shader::UniformProxy& Shader::UniformProxy::operator=(const Vec2 &vec2)
 
 Shader::UniformProxy& Shader::UniformProxy::operator=(const Vec3 &vec3)
 {
+    if (mLoc < 0)
+        return * this;
+
     assertType(GL_FLOAT_VEC3);
     mProgram.use();
     glUniform3f(mLoc, vec3.x, vec3.y, vec3.z);
@@ -142,6 +159,9 @@ Shader::UniformProxy& Shader::UniformProxy::operator=(const Vec3 &vec3)
 
 Shader::UniformProxy& Shader::UniformProxy::operator=(const Vec4 &vec4)
 {
+    if (mLoc < 0)
+        return * this;
+
     assertType(GL_FLOAT_VEC4);
     mProgram.use();
     glUniform4f(mLoc, vec4.x, vec4.y, vec4.z, vec4.w);
@@ -150,6 +170,9 @@ Shader::UniformProxy& Shader::UniformProxy::operator=(const Vec4 &vec4)
 
 Shader::UniformProxy& Shader::UniformProxy::operator=(const Mat3 &mat3)
 {
+    if (mLoc < 0)
+        return * this;
+
     static_assert(sizeof(mat3) == sizeof(GLfloat) * 9, "");
     assertType(GL_FLOAT_MAT3);
     mProgram.use();
@@ -159,6 +182,9 @@ Shader::UniformProxy& Shader::UniformProxy::operator=(const Mat3 &mat3)
 
 Shader::UniformProxy& Shader::UniformProxy::operator=(const Mat4 &mat4)
 {
+    if (mLoc < 0)
+        return * this;
+
     static_assert(sizeof(mat4) == sizeof(GLfloat) * 16, "");
     assertType(GL_FLOAT_MAT4);
     mProgram.use();

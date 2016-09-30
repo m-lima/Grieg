@@ -15,11 +15,11 @@ class Object
     void init();
 
 public:
-	Object() : modelDirty(true) {};
+    Object() : modelDirty(true) {};
     ~Object();
 
-	bool modelDirty : 1;
-	Mat4 modelTransform;
+    bool modelDirty : 1;
+    Mat4 modelTransform;
 
     void load(const std::string &name);
 
