@@ -5,12 +5,25 @@
 
 class Object
 {
+    struct MaterialGroup {
+        size_t count;
+
+        MaterialGroup() = default;
+
+        MaterialGroup(size_t pCount):
+            count(pCount)
+        {
+        }
+    };
+
     // Buffers
     GLuint mVao = 0;
     GLuint mVbo = 0;
     GLuint mIbo = 0;
 
     GLuint mTrigCount = 0;
+
+    std::vector<MaterialGroup> mMaterialGroups;
 
     void init();
 
