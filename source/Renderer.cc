@@ -1,36 +1,50 @@
+#include <array>
+#include <glm/gtc/matrix_transform.hpp>
 #include "Renderer.hh"
 #include "Object.hh"
 #include "Shader.hh"
 #include "Trackball.hh"
 #include "Texture.hh"
-#include <glm/gtc/matrix_transform.hpp>
 
 namespace
 {
   Shader shader;
+  Shader gridShader;
 
   Trackball trackball;
 
   Object object;
 
   Texture texture;
+  GLuint gridVbo = 0;
+  GLuint gridVao = 0;
+
+  std::vector<Shader*> mvpShaders;
+
+  template <class T>
+  void setUniform(const std::string &name, T&& value) {
+      for (auto&& sh: mvpShaders) {
+          sh->use();
+          sh->uniform(name) = std::forward<T>(value);
+      }
+  }
 }
 
 void Renderer::checkAndLoadUniforms()
 {
     if (object.modelDirty) {
-        shader.uniform("model") = object.modelTransform;
+        setUniform("model", object.modelTransform);
         object.modelDirty = false;
     }
 
     if (trackball.viewDirty) {
-        shader.uniform("view") = trackball.rotation();
+        setUniform("view", trackball.rotation());
         shader.uniform("sunPos") = static_cast<Quat>(glm::inverse(trackball.rotation())) * glm::normalize(Vec3(1.0f));
         trackball.viewDirty = false;
     }
 
     if (trackball.projectionDirty) {
-        shader.uniform("projection") = trackball.projection();
+        setUniform("projection", trackball.projection());
         trackball.projectionDirty = false;
     }
 
@@ -46,9 +60,30 @@ void Renderer::init()
     object.modelTransform = glm::scale(Mat4(), Vec3(0.02f, 0.02f, 0.02f));
 
     shader.load("cube");
+    gridShader.load("grid");
+
+    mvpShaders.push_back(&shader);
+    mvpShaders.push_back(&gridShader);
 
     //texture.load("Mollweide", "jpg");
-    //shader.uniform("skybox") = texture;
+
+    /* Create grid quad */
+    constexpr float gridSize = 1000.0f;
+    const glm::vec3 gridQuad[] = {
+        { -gridSize, 0.0f, -gridSize },
+        {  gridSize, 0.0f, -gridSize },
+        {  gridSize, 0.0f,  gridSize },
+        { -gridSize, 0.0f,  gridSize }
+    };
+    glGenVertexArrays(1, &gridVao);
+    glBindVertexArray(gridVao);
+
+    glGenBuffers(1, &gridVbo);
+    glBindBuffer(GL_ARRAY_BUFFER, gridVbo);
+    glBufferData(GL_ARRAY_BUFFER,
+                 sizeof(gridQuad),
+                 &gridQuad[0],
+                 GL_STATIC_DRAW);
 
     glClearColor(0, 0, 0, 1);
     glEnable(GL_DEPTH_TEST);
@@ -91,9 +126,19 @@ void Renderer::draw(Update update)
 
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+    checkAndLoadUniforms();
+
+    /* Draw grid before doing anything else */
+    glBindVertexArray(gridVao);
+    glBindBuffer(GL_ARRAY_BUFFER, gridVbo);
+    gridShader.use();
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_TRUE, sizeof(GLfloat) * 3, 0);
+    glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
+    glDisableVertexAttribArray(0);
+
     shader.use();
     object.bind();
-    checkAndLoadUniforms();
     object.draw();
     glDisableVertexAttribArray(0);
     glDisableVertexAttribArray(1);

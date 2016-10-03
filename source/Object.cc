@@ -351,6 +351,9 @@ void Object::bind()
 {
     glBindVertexArray(mVao);
 
+    glBindBuffer(GL_ARRAY_BUFFER, mVbo);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mIbo);
+
     glEnableVertexAttribArray(0);
     glVertexAttribPointer(0,
                           3,
@@ -374,9 +377,6 @@ void Object::bind()
                           GL_TRUE,
                           sizeof(Vertex),
                           reinterpret_cast<const void*>(offsetof(Vertex, norm)));
-
-    glBindBuffer(GL_ARRAY_BUFFER, mVbo);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mIbo);
 }
 
 void Object::draw()
