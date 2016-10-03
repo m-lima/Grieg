@@ -1,185 +1,114 @@
-# Blender MTL File: 'None'
-# Material Count: 17
+#
+## Alias OBJ Material File
+# Exported from SketchUp, (c) 2000-2012 Trimble Navigation Limited
 
-newmtl *2
-Ns 96.078431
+newmtl Grieg_statue_cutout2
 Ka 0.000000 0.000000 0.000000
-Kd 0.330000 0.330000 0.330000
-Ks 0.330000 0.330000 0.330000
-Ke 0.000000 0.000000 0.000000
-Ni 1.000000
-d 1.000000
-illum 2
-map_Kd granite.jpg
+Kd 0.501961 0.501961 0.501961
+Ks 0.000000 0.000000 0.000000
+map_Kd GrieghallenFlipped/Grieg_statue_cutout2.png
 
-newmtl Asphalt_New
-Ns 96.078431
+newmtl Upper_floor
 Ka 0.000000 0.000000 0.000000
-Kd 0.330000 0.330000 0.330000
+Kd 0.262745 0.227451 0.207843
 Ks 0.330000 0.330000 0.330000
-Ke 0.000000 0.000000 0.000000
-Ni 1.000000
-d 1.000000
-illum 2
-map_Kd griegNormal/Asphalt_New.jpg
+map_Kd GrieghallenFlipped/Upper_floor.jpg
 
-newmtl Blacktop_New
-Ns 96.078431
+newmtl FrontColor
 Ka 0.000000 0.000000 0.000000
-Kd 0.533333 0.509804 0.549020
+Kd 1.000000 1.000000 1.000000
 Ks 0.330000 0.330000 0.330000
-Ke 0.000000 0.000000 0.000000
-Ni 1.000000
-d 1.000000
-illum 2
-map_Kd New.jpg
 
-newmtl Color_A01
-Ns 96.078431
+newmtl _Concrete_Form_4x8_1
 Ka 0.000000 0.000000 0.000000
-Kd 1.000000 0.800000 0.800000
+Kd 0.654902 0.666667 0.658824
 Ks 0.330000 0.330000 0.330000
-Ke 0.000000 0.000000 0.000000
-Ni 1.000000
-d 1.000000
-illum 2
+map_Kd GrieghallenFlipped/_Concrete_Form_4x8_1.jpg
+
+newmtl Weird_roof_wall
+Ka 0.000000 0.000000 0.000000
+Kd 0.760784 0.752941 0.701961
+Ks 0.330000 0.330000 0.330000
+map_Kd GrieghallenFlipped/Weird_roof_wall.jpg
 
 newmtl Color_F05
-Ns 96.078431
 Ka 0.000000 0.000000 0.000000
 Kd 0.215686 0.384314 0.592157
 Ks 0.330000 0.330000 0.330000
-Ke 0.000000 0.000000 0.000000
-Ni 1.000000
-d 1.000000
-illum 2
 
-newmtl Column
-Ns 96.078431
+newmtl _Blacktop_New_1
 Ka 0.000000 0.000000 0.000000
-Kd 0.330000 0.330000 0.330000
+Kd 0.117647 0.117647 0.117647
 Ks 0.330000 0.330000 0.330000
-Ke 0.000000 0.000000 0.000000
-Ni 1.000000
-d 1.000000
-illum 2
-map_Kd things.jpg
-
-newmtl Layer_Building
-Ns 96.078431
-Ka 1.000000 1.000000 1.000000
-Kd 0.640000 0.640000 0.640000
-Ks 0.500000 0.500000 0.500000
-Ke 0.000000 0.000000 0.000000
-Ni 1.000000
-d 1.000000
-illum 2
+map_Kd GrieghallenFlipped/_Blacktop_New_1.jpg
 
 newmtl Lisanne_Boots
-Ns 96.078431
 Ka 0.000000 0.000000 0.000000
 Kd 0.905882 0.909804 0.886275
 Ks 0.330000 0.330000 0.330000
-Ke 0.000000 0.000000 0.000000
-Ni 1.000000
-d 1.000000
-illum 2
-
-newmtl Metal_Rusted
-Ns 96.078431
-Ka 0.000000 0.000000 0.000000
-Kd 0.330000 0.330000 0.330000
-Ks 0.330000 0.330000 0.330000
-Ke 0.000000 0.000000 0.000000
-Ni 1.000000
-d 1.000000
-illum 2
-map_Kd griegNormal/Metal_Rusted.jpg
 
 newmtl Polished_Concrete_New
-Ns 96.078431
 Ka 0.000000 0.000000 0.000000
-Kd 0.330000 0.330000 0.330000
+Kd 0.784314 0.784314 0.796078
 Ks 0.330000 0.330000 0.330000
-Ke 0.000000 0.000000 0.000000
-Ni 1.000000
-d 1.000000
-illum 2
-map_Kd New.jpg
+map_Kd GrieghallenFlipped/Polished_Concrete_New.jpg
+
+newmtl Blacktop_New
+Ka 0.000000 0.000000 0.000000
+Kd 0.533333 0.509804 0.549020
+Ks 0.330000 0.330000 0.330000
+map_Kd GrieghallenFlipped/Blacktop_New.jpg
+
+newmtl Column
+Ka 0.000000 0.000000 0.000000
+Kd 0.847059 0.847059 0.839216
+Ks 0.330000 0.330000 0.330000
+map_Kd GrieghallenFlipped/Column.jpg
+
+newmtl Asphalt_New
+Ka 0.000000 0.000000 0.000000
+Kd 0.262745 0.235294 0.243137
+Ks 0.330000 0.330000 0.330000
+map_Kd GrieghallenFlipped/Asphalt_New.jpg
 
 newmtl Polished_Concrete_Old
-Ns 96.078431
 Ka 0.000000 0.000000 0.000000
-Kd 0.330000 0.330000 0.330000
+Kd 0.898039 0.898039 0.898039
 Ks 0.330000 0.330000 0.330000
-Ke 0.000000 0.000000 0.000000
-Ni 1.000000
-d 1.000000
-illum 2
-map_Kd Old.jpg
+map_Kd GrieghallenFlipped/Polished_Concrete_Old.jpg
+
+newmtl Color_A01
+Ka 0.000000 0.000000 0.000000
+Kd 1.000000 0.800000 0.800000
+Ks 0.330000 0.330000 0.330000
 
 newmtl Tower
-Ns 96.078431
 Ka 0.000000 0.000000 0.000000
-Kd 0.330000 0.330000 0.330000
+Kd 0.462745 0.266667 0.223529
 Ks 0.330000 0.330000 0.330000
-Ke 0.000000 0.000000 0.000000
-Ni 1.000000
-d 1.000000
-illum 2
-map_Kd griegNormal/Tower.jpeg
+map_Kd GrieghallenFlipped/Tower.jpg
 
-newmtl Upper_floor
-Ns 96.078431
+newmtl Metal_Rusted
 Ka 0.000000 0.000000 0.000000
-Kd 0.330000 0.330000 0.330000
+Kd 0.721569 0.458824 0.356863
 Ks 0.330000 0.330000 0.330000
-Ke 0.000000 0.000000 0.000000
-Ni 1.000000
-d 1.000000
-illum 2
-map_Kd floor.jpg
+map_Kd GrieghallenFlipped/Metal_Rusted.jpg
 
-newmtl Weird_roof_wall
-Ns 96.078431
+newmtl _2
 Ka 0.000000 0.000000 0.000000
-Kd 0.330000 0.330000 0.330000
+Kd 0.745098 0.592157 0.505882
 Ks 0.330000 0.330000 0.330000
-Ke 0.000000 0.000000 0.000000
-Ni 1.000000
-d 1.000000
-illum 2
-map_Kd Wall.jpeg
+map_Kd GrieghallenFlipped/_2.jpg
 
-newmtl [Blacktop_New]1
-Ns 96.078431
+newmtl _Roofing_Slate_Dark_1
 Ka 0.000000 0.000000 0.000000
-Kd 0.330000 0.330000 0.330000
+Kd 0.380392 0.411765 0.415686
 Ks 0.330000 0.330000 0.330000
-Ke 0.000000 0.000000 0.000000
-Ni 1.000000
-d 1.000000
-illum 2
-map_Kd New.jpg
+map_Kd GrieghallenFlipped/_Roofing_Slate_Dark_1.jpg
 
-newmtl [Concrete_Form_4x8]1
-Ns 96.078431
+newmtl Big_Poster
 Ka 0.000000 0.000000 0.000000
-Kd 0.330000 0.330000 0.330000
-Ks 0.330000 0.330000 0.330000
-Ke 0.000000 0.000000 0.000000
-Ni 1.000000
-d 1.000000
-illum 2
-map_Kd griegNormal/Concrete_Form_4x8.jpg
+Kd 0.501961 0.501961 0.501961
+Ks 0.000000 0.000000 0.000000
+map_Kd GrieghallenFlipped/Big_Poster.jpg
 
-newmtl [Roofing_Slate_Dark]1
-Ns 96.078431
-Ka 0.000000 0.000000 0.000000
-Kd 0.330000 0.330000 0.330000
-Ks 0.330000 0.330000 0.330000
-Ke 0.000000 0.000000 0.000000
-Ni 1.000000
-d 1.000000
-illum 2
-map_Kd griegNormal/Roofing_Slate_Dark.jpg
