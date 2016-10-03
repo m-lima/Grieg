@@ -73,6 +73,7 @@ namespace
       };
 
       struct Triangle {
+          size_t matIdx;
           glm::ivec3 posIdx;
           glm::ivec3 texIdx;
           glm::ivec3 normIdx;
@@ -176,7 +177,7 @@ namespace
               nextToken<'/', false>(subtok, vt.z, subleft, subright);
               nextToken<'/', false>(subtok, vn.z, subleft, subright);
 
-              obj.trigs.push_back({v, vt, vn});
+              obj.trigs.push_back({obj.materials.size() - 1, v, vt, vn});
               obj.materials.back().count++;
           }
       }
@@ -186,21 +187,13 @@ namespace
 
   struct MtlFile {
       struct Material {
-          std::string name;
-          glm::vec3 ambient { };
-          glm::vec3 diffuse { };
-          glm::vec3 specular { };
-          std::string texture { };
-
-          Material() = default;
-
-          Material(const std::string &pName):
-              name(pName)
-          {
-          }
+          glm::vec3 ambient {};
+          glm::vec3 diffuse {};
+          glm::vec3 specular {};
+          Texture texture {};
       };
 
-      std::vector<Material> materials;
+      std::map<std::string, Material> materials;
   };
 
   MtlFile readMtlFile(const std::string &name) {
@@ -211,6 +204,8 @@ namespace
           fatal("Couldn't open material file {}", name);
 
       println("Loading materials: {}", name);
+
+      MtlFile::Material *mat = nullptr;
 
       while (!file.eof()) {
           std::string line, tmp;
@@ -225,25 +220,26 @@ namespace
           if (tmp == "newmtl") {
               std::string name;
               nextToken(line, name, left, right);
-              mtl.materials.emplace_back(name);
+              mat = &mtl.materials[name];
           } else if (tmp == "Ka") {
-              auto& vec = mtl.materials.back().ambient;
+              auto& vec = mat->ambient;
               nextToken(line, vec.r, left, right);
               nextToken(line, vec.g, left, right);
               nextToken(line, vec.b, left, right);
           } else if (tmp == "Kd") {
-              auto& vec = mtl.materials.back().diffuse;
+              auto& vec = mat->diffuse;
               nextToken(line, vec.r, left, right);
               nextToken(line, vec.g, left, right);
               nextToken(line, vec.b, left, right);
           } else if (tmp == "Ks") {
-              auto& vec = mtl.materials.back().specular;
+              auto& vec = mat->specular;
               nextToken(line, vec.r, left, right);
               nextToken(line, vec.g, left, right);
               nextToken(line, vec.b, left, right);
           } else if (tmp == "map_Kd") {
-              auto& str = mtl.materials.back().texture;
+              std::string str;
               nextToken(line, str, left, right);
+              mat->texture.load(str);
           }
       }
 
@@ -293,6 +289,9 @@ void Object::load(const std::string &name)
     };
     std::vector<Vertex> vertices;
     std::vector<GLuint> indices;
+
+    MaterialGroup *mat = nullptr;
+    size_t matIdx = 0;
     for (auto &f : obj.trigs) {
         normalizeIdx(posSize, f.posIdx);
         normalizeIdx(texSize, f.texIdx);
@@ -312,13 +311,13 @@ void Object::load(const std::string &name)
         vertices.emplace_back(obj.positions[f.posIdx.z],
                               obj.texCoords[f.texIdx.z],
                               obj.normals[f.normIdx.z]);
-    }
 
-    for (const auto &mat : obj.materials) {
-        if (mat.count == 0)
-            continue;
-
-        mMaterialGroups.emplace_back(mat.count);
+        if (!mat || f.matIdx != matIdx) {
+            auto&& objMat = obj.materials[matIdx];
+            mMaterialGroups.emplace_back(objMat.count, std::move(mtl.materials[objMat.name].texture));
+            matIdx = f.matIdx;
+            mat = &mMaterialGroups.back();
+        }
     }
 
     println("  positions:      {}", obj.positions.size());
@@ -384,7 +383,8 @@ void Object::draw()
 {
     const GLuint *start = nullptr;
     for (const auto &mat : mMaterialGroups) {
-        glDrawElements(GL_LINE_LOOP, mat.count * 3, GL_UNSIGNED_INT, start);
+        mat.texture.bind();
+        glDrawElements(GL_TRIANGLES, mat.count * 3, GL_UNSIGNED_INT, start);
         start += mat.count * 3;
     }
 }

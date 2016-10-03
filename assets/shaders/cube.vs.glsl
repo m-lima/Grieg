@@ -15,5 +15,6 @@ void main()
 {
     vertexOut = position;
     gl_Position = projection * view * model * vec4(vertexOut, 1.0);
+    fTexCoord = texCoord;
     fNormal = normal;
 }

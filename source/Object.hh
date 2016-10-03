@@ -1,17 +1,18 @@
 #ifndef __INF251_OBJECT__68345092
 #define __INF251_OBJECT__68345092
 
+#include "Texture.hh"
 #include "infdef.hh"
 
 class Object
 {
     struct MaterialGroup {
         size_t count;
+        Texture texture;
 
-        MaterialGroup() = default;
-
-        MaterialGroup(size_t pCount):
-            count(pCount)
+        MaterialGroup(size_t pCount, Texture&& pTexture):
+            count(pCount),
+            texture(std::move(pTexture))
         {
         }
     };

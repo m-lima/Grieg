@@ -1,6 +1,7 @@
 #version 430
 
 in vec3 vertexOut;
+in vec2 fTexCoord;
 in vec3 fNormal; //Already normalized
 out vec4 fragColor;
 
@@ -9,6 +10,7 @@ uniform mat4 view;
 
 uniform vec3 sunPos; // Sun position in global coordinates
 
+uniform sampler2D tex;
 uniform sampler2D skybox;
 
 void main() {
@@ -18,5 +20,5 @@ void main() {
     float sunLight = dot(fNormal, sunPos);
     vec3 sunColor = vec3(sunLight);
 
-    fragColor = vec4((sunColor + flashlightColor), 1.0);
+    fragColor = vec4(texture(tex, fTexCoord).xyz * clamp((sunColor + flashlightColor), 0.3, 1.0), 1.0);
 }
