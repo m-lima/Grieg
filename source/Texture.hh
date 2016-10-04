@@ -24,6 +24,9 @@ struct Sampler2D {
     }
 };
 
+class Texture;
+using TexturePtr = std::shared_ptr<Texture>;
+
 class Texture
 {
     GLuint mTexture {};
@@ -47,6 +50,6 @@ public:
 
     void bind(Sampler2D sampler = 0) const;
 
-    static std::shared_ptr<Texture> cache(const std::string &name);
+    static TexturePtr cache(const std::string &name);
 };
 #endif //__INF251_TEXTURE__61287533

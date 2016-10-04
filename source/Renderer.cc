@@ -5,6 +5,7 @@
 #include "Shader.hh"
 #include "Trackball.hh"
 #include "Texture.hh"
+#include "Text.hh"
 
 namespace
 {
@@ -18,6 +19,10 @@ namespace
   Texture texture;
   GLuint gridVbo = 0;
   GLuint gridVao = 0;
+
+  uint32_t fpsLast = 0;
+  uint32_t fpsCount = 0;
+  Text fpsText({0, 0});
 
   std::vector<Shader*> mvpShaders;
 
@@ -67,6 +72,8 @@ void Renderer::init()
     mvpShaders.push_back(&shader);
     mvpShaders.push_back(&gridShader);
 
+    Text::setGlobalFont(Texture::cache("font.png"));
+
     //texture.load("Mollweide", "jpg");
 
     /* Create grid quad */
@@ -89,6 +96,8 @@ void Renderer::init()
 
     glClearColor(0, 0, 0, 1);
     glEnable(GL_DEPTH_TEST);
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 }
 
 void Renderer::draw(Update update)
@@ -148,4 +157,16 @@ void Renderer::draw(Update update)
     glDisableVertexAttribArray(1);
     glDisableVertexAttribArray(2);
     glUseProgram(0);
+
+    gridShader.use();
+    glDisable(GL_DEPTH_TEST);
+    Text::drawAll();
+    glEnable(GL_DEPTH_TEST);
+
+    if ((SDL_GetTicks() - fpsLast) >= 1000) {
+        fpsText.format("FPS: {}", fpsCount);
+        fpsCount = 0;
+        fpsLast = SDL_GetTicks();
+    }
+    fpsCount++;
 }

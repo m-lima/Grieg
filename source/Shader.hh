@@ -63,6 +63,11 @@ public:
     UniformProxy uniform(const std::string &name);
 
     void use() const;
+
+    operator bool() const
+    {
+        return mProgram != 0;
+    }
 };
 
 #endif //__INF251_SHADER__21548889

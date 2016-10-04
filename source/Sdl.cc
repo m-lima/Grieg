@@ -7,26 +7,26 @@
 extern GLuint gUseProgram;
 
 namespace {
-	std::ostream& operator<<(std::ostream& s, const SDL_version &v)
-	{
+  std::ostream& operator<<(std::ostream& s, const SDL_version &v)
+  {
       return s << format("{:d}.{:d}.{:d}", v.major, v.minor, v.patch);
-	}
+  }
 
-	SDL_Window* window;
-	SDL_GLContext glContext;
-	Sdl::GlInitProc _glInit;
-	Sdl::GlDisplayProc _glDisplay;
+  SDL_Window* window;
+  SDL_GLContext glContext;
+  Sdl::GlInitProc _glInit;
+  Sdl::GlDisplayProc _glDisplay;
 
 #ifdef GLAD_DEBUG
-	void glad_pre_callback(const char *, void *, int, ...) {
-	}
+  void glad_pre_callback(const char *, void *, int, ...) {
+  }
 
-	void glad_post_callback(const char *name, void *, int, ...) {
+  void glad_post_callback(const char *name, void *, int, ...) {
       GLenum err;
       err = glad_glGetError();
       if (err == GL_NO_ERROR)
           return;
-      println(stderr, "GL error(s) occurred after calling {}:", name, err);
+      println(stderr, "GL error(s) occurred after calling {} with error #{}:", name, err);
 
       int numLogs;
       glGetIntegerv(GL_DEBUG_LOGGED_MESSAGES, &numLogs);
@@ -40,19 +40,26 @@ namespace {
       auto ids = std::make_unique<GLuint[]>(numLogs);
       auto severities = std::make_unique<GLenum[]>(numLogs);
       auto lengths = std::make_unique<GLsizei[]>(numLogs);
-      glad_glGetDebugMessageLog(1, sizeof(log), sources.get(), types.get(), ids.get(), severities.get(), lengths.get(), log);
+      glad_glGetDebugMessageLog(numLogs, sizeof(log), sources.get(), types.get(), ids.get(), severities.get(), lengths.get(), log);
 #else
       GLenum sources[numLogs];
       GLenum types[numLogs];
       GLuint ids[numLogs];
       GLenum severities[numLogs];
       GLsizei lengths[numLogs];
-      glad_glGetDebugMessageLog(1, sizeof(log), sources, types, ids, severities, lengths, log);
+      glad_glGetDebugMessageLog(numLogs, sizeof(log), sources, types, ids, severities, lengths, log);
 #endif
-      println(stderr, "{}", log);
+
+      size_t off = 0;
+      println("--- GL MESSAGE LOG BEGIN ---");
+      for (auto&& len : lengths) {
+          println(stderr, "{}", log + off);
+          off += len;
+      }
+      println("---- GL MESSAGE LOG END ----");
 
       std::terminate();
-	}
+  }
 #endif //GLAD_DEBUG
 }
 
@@ -71,11 +78,11 @@ void Sdl::mainLoop()
     if (SDL_Init(SDL_INIT_EVERYTHING) < 0)
         fatal("Error initialising SDL: {}", SDL_GetError());
 
-    if (IMG_Init(IMG_INIT_JPG) < 0)
+    if (IMG_Init(IMG_INIT_JPG | IMG_INIT_PNG) < 0)
         fatal("Error initialising SDL_image: {}", IMG_GetError());
 
-            /* Print SDL version */
-            SDL_version compiled, linked;
+    /* Print SDL version */
+    SDL_version compiled, linked;
     SDL_VERSION(&compiled);
     SDL_GetVersion(&linked);
     println("SDL2 Header Version: {}", compiled);

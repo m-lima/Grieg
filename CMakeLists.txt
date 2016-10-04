@@ -69,6 +69,8 @@ set(SOURCES
   source/Sdl.hh
   source/Shader.cc
   source/Shader.hh
+  source/Text.cc
+  source/Text.hh
   source/Trackball.cc
   source/Trackball.hh
   source/Renderer.cc
@@ -77,8 +79,10 @@ set(SOURCES
 set(SHADERS
   assets/shaders/cube.vs.glsl
   assets/shaders/cube.fs.glsl
-  assets/shaders/triangle.vs.glsl
-  assets/shaders/triangle.fs.glsl)
+  assets/shaders/grid.vs.glsl
+  assets/shaders/grid.fs.glsl
+  assets/shaders/text.vs.glsl
+  assets/shaders/text.fs.glsl)
 
 ##------------------------------------------------------------------------------
 ## Targets
@@ -87,7 +91,7 @@ set(SHADERS
 add_custom_target(assets
   COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/assets ${CMAKE_BINARY_DIR}/assets)
 
-add_executable(inf251 ${SOURCES} ${SHADERS})
+add_executable(inf251 ${SOURCES})
 target_link_libraries(inf251 ${LIBRARIES})
 target_include_directories(inf251 PRIVATE ${INCLUDE_DIRS})
 add_dependencies(inf251 assets)

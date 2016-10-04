@@ -24,23 +24,32 @@ void Texture::load(const std::string & name)
     auto path = format("assets/textures/{}", name);
     auto surface = IMG_Load(path.c_str());
     if (!surface)
-        fatal("  Could not load texture");
+        fatal("  Could not load texture: {}", IMG_GetError());
 
+    println("  format:         {}", SDL_GetPixelFormatName(surface->format->format));
     println("  width:          {}", surface->w);
     println("  height:         {}", surface->h);
     println("  bytes/px:       {}", surface->format->BitsPerPixel);
 
+    {
+        auto rgbSurface = SDL_ConvertSurfaceFormat(surface, SDL_PIXELFORMAT_ABGR8888, 0);
+        if (!rgbSurface)
+            fatal("  Could not convert surface to RGBA: {}", SDL_GetError());
+        SDL_FreeSurface(surface);
+        surface = rgbSurface;
+    }
+
     init();
 
     glBindTexture(GL_TEXTURE_2D, mTexture);
-    glTexStorage2D(GL_TEXTURE_2D, 4, GL_RGB8, surface->w, surface->h);
+    glTexStorage2D(GL_TEXTURE_2D, 4, GL_RGBA8, surface->w, surface->h);
     glTexSubImage2D(GL_TEXTURE_2D,
                     0, /* mipmap level */
                     0, /* x-offset */
                     0, /* y-offset */
                     surface->w,
                     surface->h,
-                    GL_RGB,
+                    GL_RGBA,
                     GL_UNSIGNED_BYTE,
                     surface->pixels);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_R, GL_REPEAT);
