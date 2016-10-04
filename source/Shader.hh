@@ -14,14 +14,14 @@ class Shader {
 
     public:
         UniformProxy(const Shader& program, const GLint loc):
-                mProgram(program),
-                mLoc(loc)
+            mProgram(program),
+            mLoc(loc)
         {
         }
 
         void assertType(GLenum type);
 
-		UniformProxy& operator=(const Texture &texture);
+        UniformProxy& operator=(const Sampler2D texture);
 
         UniformProxy& operator=(const GLuint i);
 

@@ -4,26 +4,49 @@
 #include <SDL_image.h>
 #include "infdef.hh"
 
+struct Sampler2D {
+    GLuint index;
+
+    constexpr Sampler2D(GLuint pIndex):
+        index(pIndex)
+    {
+    }
+
+    Sampler2D& operator=(GLuint pIndex)
+    {
+        index = pIndex;
+        return *this;
+    }
+
+    explicit operator GLuint() const
+    {
+        return index;
+    }
+};
+
 class Texture
 {
-    //static unsigned int mTextureCount;
-
-    GLuint mTexture = 0;
-    GLuint mTextureOffset;
+    GLuint mTexture {};
 
     void init();
 
 public:
-    Texture() : mTextureOffset(0) {};//mTextureCount++) {};
+    Texture() = default;
+
+    ~Texture();
+
+    Texture(const Texture&) = delete;
 
     Texture(Texture&&) = default;
+
+    Texture& operator=(const Texture&) = delete;
 
     Texture& operator=(Texture&&) = default;
 
     void load(const std::string &name);
 
-    void bind() const;
+    void bind(Sampler2D sampler = 0) const;
 
-    GLuint texture() const { return mTextureOffset; };
+    static std::shared_ptr<Texture> cache(const std::string &name);
 };
 #endif //__INF251_TEXTURE__61287533

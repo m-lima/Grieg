@@ -190,7 +190,7 @@ namespace
           glm::vec3 ambient {};
           glm::vec3 diffuse {};
           glm::vec3 specular {};
-          Texture texture {};
+          std::shared_ptr<Texture> texture {};
       };
 
       std::map<std::string, Material> materials;
@@ -239,7 +239,8 @@ namespace
           } else if (tmp == "map_Kd") {
               std::string str;
               nextToken(line, str, left, right);
-              mat->texture.load(str);
+              mat->texture = std::make_shared<Texture>();
+              mat->texture->load(str);
           }
       }
 
@@ -314,7 +315,7 @@ void Object::load(const std::string &name)
 
         if (!mat || f.matIdx != matIdx) {
             auto&& objMat = obj.materials[matIdx];
-            mMaterialGroups.emplace_back(objMat.count, std::move(mtl.materials[objMat.name].texture));
+            mMaterialGroups.push_back({objMat.count, mtl.materials[objMat.name].texture});
             matIdx = f.matIdx;
             mat = &mMaterialGroups.back();
         }
@@ -383,7 +384,8 @@ void Object::draw()
 {
     const GLuint *start = nullptr;
     for (const auto &mat : mMaterialGroups) {
-        mat.texture.bind();
+        if (mat.texture)
+            mat.texture->bind();
         glDrawElements(GL_TRIANGLES, mat.count * 3, GL_UNSIGNED_INT, start);
         start += mat.count * 3;
     }

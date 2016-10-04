@@ -8,13 +8,7 @@ class Object
 {
     struct MaterialGroup {
         size_t count;
-        Texture texture;
-
-        MaterialGroup(size_t pCount, Texture&& pTexture):
-            count(pCount),
-            texture(std::move(pTexture))
-        {
-        }
+        std::shared_ptr<Texture> texture;
     };
 
     // Buffers

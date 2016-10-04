@@ -62,6 +62,8 @@ void Renderer::init()
     shader.load("cube");
     gridShader.load("grid");
 
+    shader.uniform("tex") = Sampler2D(0);
+
     mvpShaders.push_back(&shader);
     mvpShaders.push_back(&gridShader);
 

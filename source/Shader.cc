@@ -102,14 +102,14 @@ void Shader::UniformProxy::assertType(GLenum pType)
               name, mProgram.name(), Debug::GlslType(type), Debug::GlslType(pType));
 }
 
-Shader::UniformProxy& Shader::UniformProxy::operator=(const Texture &texture)
+Shader::UniformProxy& Shader::UniformProxy::operator=(const Sampler2D sampler)
 {
     if (mLoc < 0)
         return * this;
 
     assertType(GL_SAMPLER_2D);
     mProgram.use();
-    glUniform1i(mLoc, texture.texture());
+    glUniform1i(mLoc, sampler.index);
     return *this;
 }
 

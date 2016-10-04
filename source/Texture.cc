@@ -1,4 +1,15 @@
+#include <unordered_map>
 #include "Texture.hh"
+
+namespace {
+  std::unordered_map<std::string, std::shared_ptr<Texture>> _cache;
+}
+
+Texture::~Texture()
+{
+    if (mTexture)
+        glDeleteTextures(1, &mTexture);
+}
 
 void Texture::init()
 {
@@ -21,7 +32,6 @@ void Texture::load(const std::string & name)
 
     init();
 
-    glActiveTexture(GL_TEXTURE0 + mTextureOffset);
     glBindTexture(GL_TEXTURE_2D, mTexture);
     glTexStorage2D(GL_TEXTURE_2D, 4, GL_RGB8, surface->w, surface->h);
     glTexSubImage2D(GL_TEXTURE_2D,
@@ -42,7 +52,22 @@ void Texture::load(const std::string & name)
     SDL_FreeSurface(surface);
 }
 
-void Texture::bind() const
+void Texture::bind(Sampler2D sampler) const
 {
+    glActiveTexture(GL_TEXTURE0 + sampler.index);
     glBindTexture(GL_TEXTURE_2D, mTexture);
+}
+
+std::shared_ptr<Texture> Texture::cache(const std::string &name)
+{
+    auto it = _cache.find(name);
+
+    if (it != _cache.cend())
+        return it->second;
+
+    auto tex = std::make_shared<Texture>();
+    tex->load(name);
+    _cache[name] = tex;
+
+    return tex;
 }
