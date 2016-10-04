@@ -12,10 +12,13 @@ namespace {
       return s << format("{:d}.{:d}.{:d}", v.major, v.minor, v.patch);
   }
 
-  SDL_Window* window;
-  SDL_GLContext glContext;
-  Sdl::GlInitProc _glInit;
-  Sdl::GlDisplayProc _glDisplay;
+  SDL_Window* _window;
+  SDL_GLContext _glContext;
+  Sdl::GlInitProc _glInit = nullptr;
+  Sdl::GlResizeProc _glResize = nullptr;
+  Sdl::GlDisplayProc _glDisplay = nullptr;
+  bool _fullscreen = false;
+  glm::ivec2 _windowSize = { 800, 600 };
 
 #ifdef GLAD_DEBUG
   void glad_pre_callback(const char *, void *, int, ...) {
@@ -68,6 +71,11 @@ void Sdl::setGlInit(GlInitProc glInit)
     _glInit = glInit;
 }
 
+void Sdl::setGlResize(GlResizeProc glResize)
+{
+    _glResize = glResize;
+}
+
 void Sdl::setGlDisplay(GlDisplayProc glDisplay)
 {
     _glDisplay = glDisplay;
@@ -94,18 +102,18 @@ void Sdl::mainLoop()
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, SDL_GL_CONTEXT_FORWARD_COMPATIBLE_FLAG | SDL_GL_CONTEXT_DEBUG_FLAG);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
 
-    window = SDL_CreateWindow("SDL2 Window",
-                              SDL_WINDOWPOS_CENTERED,
-                              SDL_WINDOWPOS_CENTERED,
-                              800,
-                              600,
-                              SDL_WINDOW_OPENGL);
+    _window = SDL_CreateWindow("SDL2 Window",
+                               SDL_WINDOWPOS_CENTERED,
+                               SDL_WINDOWPOS_CENTERED,
+                               _windowSize.x,
+                               _windowSize.y,
+                               SDL_WINDOW_OPENGL);
 
-    if (!window)
+    if (!_window)
         fatal("Error creating SDL Window: {}", SDL_GetError());
 
-    glContext = SDL_GL_CreateContext(window);
-    if (!glContext)
+    _glContext = SDL_GL_CreateContext(_window);
+    if (!_glContext)
         fatal("Error creating OpenGL Context: {}", SDL_GetError());
 
     /* Init GL functions using GLAD */
@@ -180,8 +188,22 @@ void Sdl::mainLoop()
                 update.y = ev.wheel.y;
 
             case SDL_KEYUP:
-                if (ev.key.keysym.sym == SDLK_SPACE) {
+                switch (ev.key.keysym.sym) {
+                case SDLK_RETURN:
+                    if (ev.key.keysym.mod & KMOD_ALT) {
+                        _fullscreen = !_fullscreen;
+                        SDL_SetWindowFullscreen(_window, _fullscreen ? SDL_WINDOW_FULLSCREEN_DESKTOP : 0);
+                        if (_glResize)
+                            _glResize();
+                    }
+                    break;
+
+                case SDLK_SPACE:
                     update.state = States::togglePerspective;
+                    break;
+
+                default:
+                    break;
                 }
                 break;
 
@@ -194,7 +216,7 @@ void Sdl::mainLoop()
         gUseProgram = 0;
 
         _glDisplay(update);
-        SDL_GL_SwapWindow(window);
+        SDL_GL_SwapWindow(_window);
 
         /* Sleep for 10ms */
         SDL_Delay(10);
@@ -210,7 +232,10 @@ glm::ivec2 Sdl::mouseCoords()
 
 glm::ivec2 Sdl::screenCoords()
 {
+    if (!_fullscreen)
+        return _windowSize;
+
     glm::ivec2 rv;
-    SDL_GetWindowSize(window, &rv.x, &rv.y);
+    SDL_GL_GetDrawableSize(_window, &rv.x, &rv.y);
     return rv;
 }

@@ -8,6 +8,7 @@ namespace Renderer {
 
 	void init();
 	void draw(Update);
+  void resize();
 };
 
 #endif //__INF251_RENDERER__48721384

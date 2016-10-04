@@ -24,6 +24,8 @@ namespace
   uint32_t fpsCount = 0;
   Text fpsText({0, 0});
 
+  Text usageText;
+
   std::vector<Shader*> mvpShaders;
 
   template <class T>
@@ -74,6 +76,13 @@ void Renderer::init()
 
     Text::setGlobalFont(Texture::cache("font.png"));
 
+    usageText.setPosition({0, 48 - 4});
+    usageText.format(
+        "Left mouse:   Translate\n"
+        "Right mouse:  Rotate\n"
+        "Middle mouse: Reset view\n"
+        "Spacebar:     Toggle perspective");
+
     //texture.load("Mollweide", "jpg");
 
     /* Create grid quad */
@@ -98,6 +107,11 @@ void Renderer::init()
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+}
+
+void Renderer::resize()
+{
+    glViewport(0, 0, Sdl::screenCoords().x, Sdl::screenCoords().y);
 }
 
 void Renderer::draw(Update update)

@@ -6,34 +6,37 @@
 
 enum struct States {
     none,
-	reset,
+    reset,
     translate,
     rotate,
     rotateLight,
-	zoom,
-	togglePerspective
+    zoom,
+    togglePerspective
 };
 
 struct Update {
     States state = States::none;
     int x = 0;
     int y = 0;
-	int oX = 0;
-	int oY = 0;
+    int oX = 0;
+    int oY = 0;
 };
 
 namespace Sdl {
-	using GlInitProc = void (*)();
-	using GlDisplayProc = void (*)(Update);
+  using GlInitProc = void (*)();
+  using GlResizeProc = void (*)();
+  using GlDisplayProc = void (*)(Update);
 
-    void setGlInit(GlInitProc glInit);
+  void setGlInit(GlInitProc glInit);
 
-    void setGlDisplay(GlDisplayProc glDisplay);
+  void setGlResize(GlResizeProc glResize);
 
-    void mainLoop();
+  void setGlDisplay(GlDisplayProc glDisplay);
 
-    glm::ivec2 mouseCoords();
-    glm::ivec2 screenCoords();
+  void mainLoop();
+
+  glm::ivec2 mouseCoords();
+  glm::ivec2 screenCoords();
 };
 
 #endif //__INF251_SDL__24851580

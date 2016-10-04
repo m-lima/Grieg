@@ -23,6 +23,7 @@ std::string readFileContents(const std::string &file)
 int main()
 {
     Sdl::setGlInit(Renderer::init);
+    Sdl::setGlResize(Renderer::resize);
     Sdl::setGlDisplay(Renderer::draw);
     Sdl::mainLoop();
 }
