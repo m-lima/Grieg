@@ -129,6 +129,7 @@ void Renderer::draw(Update update)
     checkAndLoadUniforms();
 
     /* Draw grid before doing anything else */
+    glDisable(GL_DEPTH_TEST);
     glBindVertexArray(gridVao);
     glBindBuffer(GL_ARRAY_BUFFER, gridVbo);
     gridShader.use();
@@ -136,6 +137,7 @@ void Renderer::draw(Update update)
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_TRUE, sizeof(GLfloat) * 3, 0);
     glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
     glDisableVertexAttribArray(0);
+    glEnable(GL_DEPTH_TEST);
 
     shader.use();
     object.bind();
