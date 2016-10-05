@@ -91,7 +91,11 @@ set(SHADERS
 add_custom_target(assets
   COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/assets ${CMAKE_BINARY_DIR}/assets)
 
-add_executable(inf251 ${SOURCES})
+if(MSVC)
+  add_executable(inf251 ${SOURCES} ${SHADERS})
+else()
+  add_executable(inf251 ${SOURCES})
+endif()
 target_link_libraries(inf251 ${LIBRARIES})
 target_include_directories(inf251 PRIVATE ${INCLUDE_DIRS})
 add_dependencies(inf251 assets)
@@ -109,9 +113,9 @@ endif()
 if(WIN32)
   if(MSVC)
     add_custom_command(TARGET inf251 POST_BUILD
-      COMMAND ${CMAKE_COMMAND} -E copy_if_different
-      ${CMAKE_SOURCE_DIR}/extern/lib/x86/SDL2.dll
-      ${CMAKE_BINARY_DIR}/Debug/SDL2.dll)
+      COMMAND ${CMAKE_COMMAND} -E copy_directory
+      ${CMAKE_SOURCE_DIR}/extern/lib/x86
+      ${CMAKE_BINARY_DIR}/Debug)
     add_custom_command(TARGET inf251 POST_BUILD
       COMMAND ${CMAKE_COMMAND} -E copy_if_different
       ${CMAKE_SOURCE_DIR}/extern/lib/x86/SDL2_image.dll
