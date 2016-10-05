@@ -145,6 +145,10 @@ void Renderer::draw(Update update)
         trackball.togglePerspective();
         break;
 
+    case States::fullScreen:
+        trackball.projectionDirty = true;
+        break;
+
     default:
         break;
     }

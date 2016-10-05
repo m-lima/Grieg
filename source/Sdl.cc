@@ -55,10 +55,14 @@ namespace {
 
       size_t off = 0;
       println("--- GL MESSAGE LOG BEGIN ---");
-      for (auto&& len : lengths) {
-          println(stderr, "{}", log + off);
-          off += len;
+      for (int i = 0; i < numLogs; i++) {
+        println(stderr, "{}", log + off);
+        off += lengths[i];
       }
+      //for (auto&& len : lengths) {
+      //    println(stderr, "{}", log + off);
+      //    off += len;
+      //}
       println("---- GL MESSAGE LOG END ----");
 
       std::terminate();
@@ -195,6 +199,7 @@ void Sdl::mainLoop()
                         SDL_SetWindowFullscreen(_window, _fullscreen ? SDL_WINDOW_FULLSCREEN_DESKTOP : 0);
                         if (_glResize)
                             _glResize();
+                        update.state = States::fullScreen;
                     }
                     break;
 

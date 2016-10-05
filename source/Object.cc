@@ -64,7 +64,7 @@ namespace
       {
       }
   };
-  static_assert(sizeof(Vertex) == sizeof(GLfloat) * 8);
+  //static_assert(sizeof(Vertex) == sizeof(GLfloat) * 8);
 
   struct ObjFile {
       struct Material {
