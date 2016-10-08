@@ -16,7 +16,7 @@
 # **/compile_commands.json
 
 # CLion
-/.idea # This might be a bit too strict
+/.idea
 
 # QtCreator
 *.autosave
