@@ -2,7 +2,34 @@
 #define __INF251_SHADER__21548889
 
 #include "infdef.hh"
+#include "UniformBuffer.hh"
 #include "Texture.hh"
+
+template <class T>
+struct GlslTypeinfo;
+
+#define __GLSLASSIGN(Type, Enum, FuncSuffix, ...)                       \
+    template <>                                                         \
+    struct GlslTypeinfo<Type> {                                         \
+        static constexpr GLenum glslEnum = Enum;                        \
+        static void setUniform(GLuint program, GLuint uniform, const Type &val) { \
+            glProgram ## FuncSuffix(program, uniform, __VA_ARGS__);     \
+        }                                                               \
+    }
+
+__GLSLASSIGN(Sampler2D, GL_SAMPLER_2D, Uniform1f, val.index);
+__GLSLASSIGN(GLfloat, GL_FLOAT, Uniform1f, val);
+__GLSLASSIGN(GLdouble, GL_DOUBLE, Uniform1f, val);
+__GLSLASSIGN(GLuint, GL_UNSIGNED_INT, Uniform1i, val);
+__GLSLASSIGN(GLint, GL_INT, Uniform1i, val);
+__GLSLASSIGN(glm::vec2, GL_FLOAT_VEC2, Uniform2f, val.x, val.y);
+__GLSLASSIGN(glm::vec3, GL_FLOAT_VEC3, Uniform3f, val.x, val.y, val.z);
+__GLSLASSIGN(glm::vec4, GL_FLOAT_VEC4, Uniform4f, val.x, val.y, val.z, val.w);
+__GLSLASSIGN(glm::mat2, GL_FLOAT_MAT2, UniformMatrix2fv, 1, GL_FALSE, reinterpret_cast<const GLfloat*>(&val));
+__GLSLASSIGN(glm::mat3, GL_FLOAT_MAT3, UniformMatrix3fv, 1, GL_FALSE, reinterpret_cast<const GLfloat*>(&val));
+__GLSLASSIGN(glm::mat4, GL_FLOAT_MAT4, UniformMatrix4fv, 1, GL_FALSE, reinterpret_cast<const GLfloat*>(&val));
+
+#undef __GLSLASSIGN
 
 class Shader {
     uint32_t mProgram = 0;
@@ -12,6 +39,8 @@ class Shader {
         const Shader& mProgram;
         const GLint mLoc;
 
+        void assertType(GLenum type);
+
     public:
         UniformProxy(const Shader& program, const GLint loc):
             mProgram(program),
@@ -19,23 +48,18 @@ class Shader {
         {
         }
 
-        void assertType(GLenum type);
+        template <class T>
+        UniformProxy& operator=(const T &value)
+        {
+            using type = GlslTypeinfo<typename std::decay<T>::type>;
+            if (mLoc >= 0)
+            {
+                assertType(type::glslEnum);
+                type::setUniform(mProgram.mProgram, mLoc, value);
+            }
 
-        UniformProxy& operator=(const Sampler2D texture);
-
-        UniformProxy& operator=(const GLuint i);
-
-        UniformProxy& operator=(const float f);
-
-        UniformProxy& operator=(const Vec2 &vec2);
-
-        UniformProxy& operator=(const Vec3 &vec3);
-
-        UniformProxy& operator=(const Vec4 &vec4);
-
-        UniformProxy& operator=(const Mat3 &mat3);
-
-        UniformProxy& operator=(const Mat4 &mat4);
+            return *this;
+        }
     };
 
 public:
@@ -67,6 +91,16 @@ public:
     operator bool() const
     {
         return mProgram != 0;
+    }
+
+    template <class T>
+    void bindBuffer(const UniformBuffer<T> &ub)
+    {
+        auto loc = glGetUniformBlockIndex(mProgram, ub.name());
+        if (loc < 0)
+            fatal("Warning: Couldn't find uniform block \"{}\" in shader \"{}\"", mName, ub.name());
+
+        glUniformBlockBinding(mProgram, loc, ub.buffer());
     }
 };
 

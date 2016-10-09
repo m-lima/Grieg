@@ -1,20 +1,23 @@
 #version 430
 
-layout(location=0) in vec3 position;
-layout(location=1) in vec2 texCoord;
-layout(location=2) in vec3 normal;
-out vec3 vertexOut;
+layout(location=0) in vec3 vPosition;
+layout(location=1) in vec2 vTexCoord;
+layout(location=2) in vec3 vNormal;
+out vec3 fPosition;
 out vec2 fTexCoord;
 out vec3 fNormal;
 
-uniform mat4 projection;
-uniform mat4 view;
-uniform mat4 model;
+uniform MatrixBlock {
+    mat4 uProj;
+    mat4 uView;
+};
+
+uniform mat4 uModel;
 
 void main()
 {
-    vertexOut = position;
-    gl_Position = projection * view * model * vec4(vertexOut, 1.0);
-    fTexCoord = texCoord;
-    fNormal = normal;
+    gl_Position = uProj * uView * uModel * vec4(vPosition, 1.0);
+    fPosition = vPosition;
+    fTexCoord = vTexCoord;
+    fNormal = vNormal;
 }

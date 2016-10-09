@@ -6,6 +6,7 @@
 #include "Trackball.hh"
 #include "Texture.hh"
 #include "Text.hh"
+#include "UniformBuffer.hh"
 
 namespace
 {
@@ -28,6 +29,13 @@ namespace
 
   std::vector<Shader*> mvpShaders;
 
+  struct MatrixBlock {
+      glm::mat4 proj;
+      glm::mat4 view;
+  };
+
+  UniformBuffer<MatrixBlock> matrixBuffer("MatrixBlock");
+
   template <class T>
   void setUniform(const std::string &name, T&& value) {
       for (auto&& sh: mvpShaders) {
@@ -40,18 +48,20 @@ namespace
 void Renderer::checkAndLoadUniforms()
 {
     if (object.modelDirty) {
-        setUniform("model", object.modelTransform);
+        setUniform("uModel", object.modelTransform);
         object.modelDirty = false;
     }
 
     if (trackball.viewDirty) {
-        setUniform("view", trackball.rotation());
+        matrixBuffer->view = trackball.rotation();
+        matrixBuffer.update();
         shader.uniform("sunPos") = static_cast<Quat>(glm::inverse(trackball.rotation())) * glm::normalize(Vec3(1.0f));
         trackball.viewDirty = false;
     }
 
     if (trackball.projectionDirty) {
-        setUniform("projection", trackball.projection());
+        matrixBuffer->proj = trackball.projection();
+        matrixBuffer.update();
         trackball.projectionDirty = false;
     }
 
@@ -68,8 +78,10 @@ void Renderer::init()
 
     shader.load("cube");
     gridShader.load("grid");
+    shader.bindBuffer(matrixBuffer);
+    gridShader.bindBuffer(matrixBuffer);
 
-    shader.uniform("tex") = Sampler2D(0);
+    shader.uniform("uTexture") = Sampler2D(0);
 
     mvpShaders.push_back(&shader);
     mvpShaders.push_back(&gridShader);
