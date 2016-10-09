@@ -128,8 +128,9 @@ Mat4 Trackball::projection()
 
 	if (mOrtho) {
 		float zoom = mFov / 45.0f;
+    float ratio = static_cast<float>(screen.x >> 1) / screen.y;
 		zoom *= 2.0f;
-		return glm::ortho(-zoom, zoom, -zoom, zoom, 0.0f, 100.0f);
+		return glm::ortho(-zoom, zoom, -zoom * ratio, zoom * ratio, 0.0f, 100.0f);
 	}
 	else {
 		return glm::perspectiveFov(glm::radians(mFov), static_cast<float>(screen.x), static_cast<float>(screen.y), 0.1f, 100.0f);

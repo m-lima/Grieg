@@ -11,7 +11,8 @@ enum struct States {
     rotate,
     rotateLight,
     zoom,
-    togglePerspective
+    togglePerspective,
+    fullScreen
 };
 
 struct Update {

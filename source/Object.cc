@@ -64,7 +64,7 @@ namespace
       {
       }
   };
-  static_assert(sizeof(Vertex) == sizeof(GLfloat) * 8);
+  //static_assert(sizeof(Vertex) == sizeof(GLfloat) * 8);
 
   struct ObjFile {
       struct Material {
@@ -138,6 +138,7 @@ namespace
               glm::vec2 vec;
               nextToken(line, vec.s, left, right);
               nextToken(line, vec.t, left, right);
+              vec.t = 1.0f - vec.t;
               obj.texCoords.emplace_back(vec);
           }
           else if (tmp == "vn") {
