@@ -5,6 +5,7 @@
 #include "Sdl.hh"
 
 extern GLuint gUseProgram;
+extern bool gMoveLights;
 
 namespace {
   std::ostream& operator<<(std::ostream& s, const SDL_version &v)
@@ -201,6 +202,10 @@ void Sdl::mainLoop()
                             _glResize();
                         update.state = States::fullScreen;
                     }
+                    break;
+
+                case SDLK_F1:
+                    gMoveLights = !gMoveLights;
                     break;
 
                 case SDLK_SPACE:

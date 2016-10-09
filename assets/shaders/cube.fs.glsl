@@ -3,23 +3,44 @@
 in vec3 fPosition;
 in vec2 fTexCoord;
 in vec3 fNormal; //Already normalized
+in vec3 fEyePos;
 out vec4 FragColor;
-
-uniform vec3 lightPos; //Assumed to be normalized to avoid per-pixel normalization
-
-uniform vec3 sunPos; // Sun position in global coordinates
-
-uniform sampler2D skybox;
 
 uniform sampler2D uTexture;
 
+struct LightSource {
+    int type;
+    vec3 position;
+    vec3 normal;
+    vec3 color;
+    float intensity;
+    vec3 _pad1;
+};
+
+layout (std140) uniform LightBlock {
+    LightSource uLights[12];
+};
+
 void main() {
-    float flashlight = dot(fNormal, lightPos) * 0.5;
-    vec3 flashlightColor = vec3(flashlight);
+    vec3 color = vec3(0.0);
+    vec3 texel = texture(uTexture, fTexCoord).xyz;
+    for (int i = 0; i < 12; i++) {
+        if (uLights[i].type == 2) { /* Point light */
+            vec3 spec = vec3(0.0);
+            vec3 n = normalize(fNormal);
+            vec3 l = normalize(uLights[i].position - fPosition);
+            vec3 e = normalize(fEyePos);
+            float intensity = max(dot(l, n), 0.0);
 
-    float sunLight = dot(fNormal, sunPos);
-    vec3 sunColor = vec3(sunLight);
+            if (intensity > 0.0) {
+                vec3 h = normalize(l + e);
+                float intSpec = max(dot(h, n), 0.0);
+                spec = vec3(pow(intSpec, 128.0));
+            }
 
-    vec4 texel = texture(uTexture, fTexCoord);
-    FragColor = vec4(texel.xyz * clamp((sunColor + flashlightColor), 0.3, 1.0), texel.w);
+            color += max(intensity * uLights[i].color + spec, 0.1) * texel;
+        }
+    }
+
+    FragColor = vec4(color, 1.0);
 }

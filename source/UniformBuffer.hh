@@ -3,23 +3,19 @@
 
 #include "infdef.hh"
 
-template <class Block>
+template <class Block, GLuint Binding, size_t N = 1>
 class UniformBuffer {
     const char *mName;
-    Block mBlock {};
+    Block mBlock[N] {};
     GLuint mUbo {};
 
     void init()
     {
-        if (!mUbo)
+        if (!mUbo) {
             glGenBuffers(1, &mUbo);
-    }
-
-    void bind(GLuint index = 0)
-    {
-        init();
-        glBindBuffer(GL_UNIFORM_BUFFER, mUbo);
-        glBindBufferBase(GL_UNIFORM_BUFFER, index, mUbo);
+            glBindBuffer(GL_UNIFORM_BUFFER, mUbo);
+            glBufferData(GL_UNIFORM_BUFFER, sizeof(mBlock), mBlock, GL_DYNAMIC_DRAW);
+        }
     }
 
 public:
@@ -71,22 +67,32 @@ public:
 
     Block* operator->()
     {
-        return &mBlock;
+        return mBlock;
     }
 
     const Block* operator->() const
     {
-        return &mBlock;
+        return mBlock;
     }
 
     Block& operator*()
     {
-        return mBlock;
+        return mBlock[0];
     }
 
     const Block& operator*() const
     {
-        return mBlock;
+        return mBlock[0];
+    }
+
+    Block& operator[](size_t idx)
+    {
+        return mBlock[idx];
+    }
+
+    const Block& operator[](size_t idx) const
+    {
+        return mBlock[idx];
     }
 
     const char* name() const
@@ -99,10 +105,21 @@ public:
         return mUbo;
     }
 
+    void bind() const
+    {
+        glBindBufferBase(GL_UNIFORM_BUFFER, Binding, mUbo);
+    }
+
+    constexpr GLuint binding() const
+    {
+        return Binding;
+    }
+
     void update()
     {
+        init();
         bind();
-        glBufferData(GL_UNIFORM_BUFFER, sizeof(mBlock), &mBlock, GL_DYNAMIC_DRAW);
+        glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(mBlock), mBlock);
     }
 };
 

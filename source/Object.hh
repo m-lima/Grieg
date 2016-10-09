@@ -2,6 +2,7 @@
 #define __INF251_OBJECT__68345092
 
 #include "Texture.hh"
+#include "Shader.hh"
 #include "infdef.hh"
 
 class Object
@@ -18,19 +19,31 @@ class Object
 
     GLuint mTrigCount = 0;
 
+    glm::vec3 mPosition {};
+
     std::vector<MaterialGroup> mMaterialGroups;
+
+    std::shared_ptr<Shader> mShader {};
 
     void init();
 
 public:
-    Object() : modelDirty(true) {};
+    Object() = default;
     ~Object();
 
-    bool modelDirty : 1;
-    Mat4 modelTransform;
+    glm::mat4 modelTransform;
 
     void load(const std::string &name);
 
+    void setShader(std::shared_ptr<Shader> shader) {
+        mShader = shader;
+    }
+
+    void setPosition(glm::vec3 position) {
+        mPosition = position;
+    }
+
+    void update();
     void bind();
     void draw();
 };

@@ -6,6 +6,7 @@ layout(location=2) in vec3 vNormal;
 out vec3 fPosition;
 out vec2 fTexCoord;
 out vec3 fNormal;
+out vec3 fEyePos;
 
 uniform MatrixBlock {
     mat4 uProj;
@@ -20,4 +21,5 @@ void main()
     fPosition = vPosition;
     fTexCoord = vTexCoord;
     fNormal = vNormal;
+    fEyePos = (uView * vec4(vPosition, 1.0)).xyz;
 }

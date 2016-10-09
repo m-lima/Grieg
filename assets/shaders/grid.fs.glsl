@@ -14,5 +14,5 @@ void main()
     vec2 grid = abs(fract(coord - 0.5) - 0.5) / fwidth(coord);
     float line = min(grid.x, grid.y);
 
-    FragColor = mix(voidColor, gridColor, 1.0 - min(line, 1.0));
+    FragColor = vec4(1.0);//mix(voidColor, gridColor, 1.0 - min(line, 1.0));
 }

@@ -12,12 +12,12 @@ struct GlslTypeinfo;
     template <>                                                         \
     struct GlslTypeinfo<Type> {                                         \
         static constexpr GLenum glslEnum = Enum;                        \
-        static void setUniform(GLuint program, GLuint uniform, const Type &val) { \
-            glProgram ## FuncSuffix(program, uniform, __VA_ARGS__);     \
+        static void setUniform(GLuint program, GLuint loc, const Type &val) { \
+            glProgram ## FuncSuffix(program, loc, __VA_ARGS__);         \
         }                                                               \
     }
 
-__GLSLASSIGN(Sampler2D, GL_SAMPLER_2D, Uniform1f, val.index);
+__GLSLASSIGN(Sampler2D, GL_SAMPLER_2D, Uniform1i, val.index);
 __GLSLASSIGN(GLfloat, GL_FLOAT, Uniform1f, val);
 __GLSLASSIGN(GLdouble, GL_DOUBLE, Uniform1f, val);
 __GLSLASSIGN(GLuint, GL_UNSIGNED_INT, Uniform1i, val);
@@ -93,14 +93,15 @@ public:
         return mProgram != 0;
     }
 
-    template <class T>
-    void bindBuffer(const UniformBuffer<T> &ub)
+    template <class T, GLuint B, size_t N>
+    void bindBuffer(const UniformBuffer<T, B, N> &ub)
     {
+        ub.bind();
         auto loc = glGetUniformBlockIndex(mProgram, ub.name());
         if (loc < 0)
             fatal("Warning: Couldn't find uniform block \"{}\" in shader \"{}\"", mName, ub.name());
 
-        glUniformBlockBinding(mProgram, loc, ub.buffer());
+        glUniformBlockBinding(mProgram, loc, ub.binding());
     }
 };
 

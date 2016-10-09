@@ -1,6 +1,7 @@
 #include <map>
 #include <fstream>
 #include "Object.hh"
+#include <glm/gtc/matrix_transform.hpp>
 
 namespace
 {
@@ -349,6 +350,15 @@ void Object::load(const std::string &name)
     mTrigCount = static_cast<GLuint>(indices.size());
 }
 
+void Object::update()
+{
+    glm::mat4 mat {};
+    mat = glm::translate(mat, mPosition);
+    mat = mat * modelTransform;
+
+    mShader->uniform("uModel") = mat;
+}
+
 void Object::bind()
 {
     glBindVertexArray(mVao);
@@ -383,6 +393,8 @@ void Object::bind()
 
 void Object::draw()
 {
+    mShader->use();
+    bind();
     const GLuint *start = nullptr;
     for (const auto &mat : mMaterialGroups) {
         if (mat.texture)

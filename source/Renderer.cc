@@ -8,14 +8,16 @@
 #include "Text.hh"
 #include "UniformBuffer.hh"
 
+bool gMoveLights = false;
+
 namespace
 {
-  Shader shader;
-  Shader gridShader;
+  auto shader = std::make_shared<Shader>();
+  auto gridShader = std::make_shared<Shader>();
 
   Trackball trackball;
 
-  Object object;
+  Object grieghallen;
 
   Texture texture;
   GLuint gridVbo = 0;
@@ -27,35 +29,36 @@ namespace
 
   Text usageText;
 
-  std::vector<Shader*> mvpShaders;
-
   struct MatrixBlock {
       glm::mat4 proj;
       glm::mat4 view;
   };
 
-  UniformBuffer<MatrixBlock> matrixBuffer("MatrixBlock");
+  float _lightAngle {};
 
-  template <class T>
-  void setUniform(const std::string &name, T&& value) {
-      for (auto&& sh: mvpShaders) {
-          sh->use();
-          sh->uniform(name) = std::forward<T>(value);
-      }
-  }
+  UniformBuffer<MatrixBlock, 0> matrixBuffer("MatrixBlock");
+
+  struct LightBlock {
+      int type;
+      int _pad0[3];
+      glm::vec3 position;
+      float _pad1;
+      glm::vec3 normal;
+      float _pad2;
+      glm::vec3 color;
+      float _pad3;
+      float intensity;
+      float _pad4[3];
+  };
+
+  UniformBuffer<LightBlock, 1, 12> lightBuffer("LightBlock");
 }
 
 void Renderer::checkAndLoadUniforms()
 {
-    if (object.modelDirty) {
-        setUniform("uModel", object.modelTransform);
-        object.modelDirty = false;
-    }
-
     if (trackball.viewDirty) {
         matrixBuffer->view = trackball.rotation();
         matrixBuffer.update();
-        shader.uniform("sunPos") = static_cast<Quat>(glm::inverse(trackball.rotation())) * glm::normalize(Vec3(1.0f));
         trackball.viewDirty = false;
     }
 
@@ -64,38 +67,41 @@ void Renderer::checkAndLoadUniforms()
         matrixBuffer.update();
         trackball.projectionDirty = false;
     }
-
-    if (trackball.lightDirty) {
-        shader.uniform("lightPos") = trackball.lightPosition();
-        trackball.lightDirty = false;
-    }
 }
 
 void Renderer::init()
 {
-    object.load("grieghallen");
-    object.modelTransform = glm::scale(Mat4(), Vec3(0.02f, 0.02f, 0.02f));
+    grieghallen.load("grieghallen");
+    grieghallen.modelTransform = glm::scale(Mat4(), Vec3(0.02f, 0.02f, 0.02f));
 
-    shader.load("cube");
-    gridShader.load("grid");
-    shader.bindBuffer(matrixBuffer);
-    gridShader.bindBuffer(matrixBuffer);
+    shader->load("cube");
+    shader->bindBuffer(matrixBuffer);
+    shader->bindBuffer(lightBuffer);
 
-    shader.uniform("uTexture") = Sampler2D(0);
+    gridShader->load("grid");
+    gridShader->bindBuffer(matrixBuffer);
 
-    mvpShaders.push_back(&shader);
-    mvpShaders.push_back(&gridShader);
+    shader->uniform("uTexture") = Sampler2D(0);
+
+    grieghallen.setShader(shader);
+    grieghallen.update();
 
     Text::setGlobalFont(Texture::cache("font.png"));
 
-    usageText.setPosition({0, 48 - 4});
+    usageText.setPosition({0, 48 - 5});
     usageText.format(
         "Left mouse:   Translate\n"
         "Right mouse:  Rotate\n"
         "Middle mouse: Reset view\n"
-        "Spacebar:     Toggle perspective");
+        "Spacebar:     Toggle perspective\n"
+        "F1:           Toggle light movement");
 
-    //texture.load("Mollweide", "jpg");
+    /* Create lights */
+    lightBuffer[0].type = 2;
+    lightBuffer[0].color = { 1.0, 0.0, 0.0 };
+    lightBuffer[1].type = 2;
+    lightBuffer[1].color = { 0.0, 1.0, 0.0 };
+    lightBuffer.update();
 
     /* Create grid quad */
     constexpr float gridSize = 1000.0f;
@@ -165,6 +171,25 @@ void Renderer::draw(Update update)
         break;
     }
 
+    {
+        auto &position = lightBuffer[0].position;
+        position = {cos(_lightAngle), 0.0f, sin(_lightAngle)};
+        position *= 500.0f;
+        lightBuffer[0].normal = -position;
+        lightBuffer.update();
+    }
+
+    {
+        auto &position = lightBuffer[1].position;
+        position = {cos(-_lightAngle), 0.0f, sin(-_lightAngle)};
+        position *= 500.0f;
+        lightBuffer[1].normal = -position;
+        lightBuffer.update();
+    }
+
+    if (gMoveLights)
+        _lightAngle += 0.02;
+
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     checkAndLoadUniforms();
@@ -173,22 +198,15 @@ void Renderer::draw(Update update)
     glDisable(GL_DEPTH_TEST);
     glBindVertexArray(gridVao);
     glBindBuffer(GL_ARRAY_BUFFER, gridVbo);
-    gridShader.use();
+    gridShader->use();
     glEnableVertexAttribArray(0);
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_TRUE, sizeof(GLfloat) * 3, 0);
     glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
     glDisableVertexAttribArray(0);
     glEnable(GL_DEPTH_TEST);
 
-    shader.use();
-    object.bind();
-    object.draw();
-    glDisableVertexAttribArray(0);
-    glDisableVertexAttribArray(1);
-    glDisableVertexAttribArray(2);
-    glUseProgram(0);
+    grieghallen.draw();
 
-    gridShader.use();
     glDisable(GL_DEPTH_TEST);
     Text::drawAll();
     glEnable(GL_DEPTH_TEST);
