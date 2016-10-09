@@ -7,20 +7,6 @@ out vec3 fPosition;
 out vec2 fTexCoord;
 out vec3 fNormal;
 out vec3 fEyePos;
-out vec3 fLightDir;
-
-struct LightSource {
-    int type;
-    vec3 position;
-    vec3 normal;
-    vec3 color;
-    float intensity;
-    vec3 _pad1;
-};
-
-layout (std140) uniform LightBlock {
-    LightSource uLights[12];
-};
 
 uniform MatrixBlock {
     mat4 uProj;

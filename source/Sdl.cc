@@ -5,6 +5,8 @@
 #include "Sdl.hh"
 
 extern GLuint gUseProgram;
+extern bool gSun;
+extern bool gSpotlight;
 extern bool gMoveLights;
 extern int gNumLights;
 
@@ -211,6 +213,14 @@ void Sdl::mainLoop()
 
                 case SDLK_F2:
                     gNumLights = (gNumLights + 1) % 3;
+                    break;
+
+                case SDLK_F3:
+                    gSun = !gSun;
+                    break;
+
+                case SDLK_F4:
+                    gSpotlight = !gSpotlight;
                     break;
 
                 case SDLK_SPACE:
