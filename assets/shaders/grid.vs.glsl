@@ -8,10 +8,8 @@ uniform MatrixBlock {
     mat4 uView;
 };
 
-uniform mat4 uModel;
-
 void main()
 {
     fPosition = vPosition;
-    gl_Position = uProj * uView * uModel * vec4(vPosition, 1.0);
+    gl_Position = uProj * uView * vec4(vPosition, 1.0);
 }

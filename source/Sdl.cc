@@ -6,6 +6,7 @@
 
 extern GLuint gUseProgram;
 extern bool gMoveLights;
+extern int gNumLights;
 
 namespace {
   std::ostream& operator<<(std::ostream& s, const SDL_version &v)
@@ -206,6 +207,10 @@ void Sdl::mainLoop()
 
                 case SDLK_F1:
                     gMoveLights = !gMoveLights;
+                    break;
+
+                case SDLK_F2:
+                    gNumLights = (gNumLights + 1) % 3;
                     break;
 
                 case SDLK_SPACE:

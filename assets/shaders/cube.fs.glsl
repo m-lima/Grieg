@@ -7,6 +7,7 @@ in vec3 fEyePos;
 out vec4 FragColor;
 
 uniform sampler2D uTexture;
+uniform int uHaveTexture;
 
 struct LightSource {
     int type;
@@ -23,24 +24,28 @@ layout (std140) uniform LightBlock {
 
 void main() {
     vec3 color = vec3(0.0);
-    vec3 texel = texture(uTexture, fTexCoord).xyz;
+    vec3 texel = vec3(1.0);
+    if (uHaveTexture > 0)
+        texel = texture(uTexture, fTexCoord).xyz;
+
+    float accum = 0.0;
     for (int i = 0; i < 12; i++) {
         if (uLights[i].type == 2) { /* Point light */
-            vec3 spec = vec3(0.0);
             vec3 n = normalize(fNormal);
             vec3 l = normalize(uLights[i].position - fPosition);
             vec3 e = normalize(fEyePos);
-            float intensity = max(dot(l, n), 0.0);
+            float dist = distance(uLights[i].position, fPosition);
+            float att = 1.0 / (1.0 - 0.00001 * dist * dist);
 
+            float intensity = max(dot(n, l), 0.0);
             if (intensity > 0.0) {
                 vec3 h = normalize(l + e);
-                float intSpec = max(dot(h, n), 0.0);
-                spec = vec3(pow(intSpec, 128.0));
+                float specularIntensity = max(dot(h, n), 0.0);
+                intensity += 0.5 * pow(specularIntensity, 128.0);
             }
 
-            color += max(intensity * uLights[i].color + spec, 0.1) * texel;
+            accum += max(intensity * att, 0.0);
         }
     }
-
-    FragColor = vec4(color, 1.0);
+    FragColor = vec4(texel * accum, 1.0);
 }

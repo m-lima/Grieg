@@ -277,7 +277,7 @@ void Object::init()
 void Object::load(const std::string &name)
 {
     auto obj = readObjFile(name);
-    auto mtl = readMtlFile(obj.materialLib);
+    auto mtl = !obj.materialLib.empty() ? readMtlFile(obj.materialLib) : MtlFile {};
 
     /* The indices start from 1 and 0, so subtract if positive.
      * If negative, then the index refers to the vertices from the end of the list
@@ -317,7 +317,11 @@ void Object::load(const std::string &name)
 
         if (!mat || f.matIdx != matIdx) {
             auto&& objMat = obj.materials[matIdx];
-            mMaterialGroups.push_back({objMat.count, mtl.materials[objMat.name].texture});
+            if (obj.materialLib.empty()) {
+                mMaterialGroups.push_back({objMat.count, nullptr});
+            } else {
+                mMaterialGroups.push_back({objMat.count, mtl.materials[objMat.name].texture});
+            }
             matIdx = f.matIdx;
             mat = &mMaterialGroups.back();
         }
@@ -357,6 +361,7 @@ void Object::update()
     mat = mat * modelTransform;
 
     mShader->uniform("uModel") = mat;
+    mShader->uniform("uHaveTexture") = static_cast<int>(haveTexture);
 }
 
 void Object::bind()
@@ -393,13 +398,19 @@ void Object::bind()
 
 void Object::draw()
 {
+    update();
     mShader->use();
     bind();
     const GLuint *start = nullptr;
     for (const auto &mat : mMaterialGroups) {
         if (mat.texture)
             mat.texture->bind();
-        glDrawElements(GL_TRIANGLES, mat.count * 3, GL_UNSIGNED_INT, start);
-        start += mat.count * 3;
+        auto count = mat.count;
+
+        if (mMaterialGroups.size() == 1)
+            count = mTrigCount;
+
+        glDrawElements(GL_TRIANGLES, count * 3, GL_UNSIGNED_INT, start);
+        start += count * 3;
     }
 }

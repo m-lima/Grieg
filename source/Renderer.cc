@@ -8,6 +8,7 @@
 #include "Text.hh"
 #include "UniformBuffer.hh"
 
+int gNumLights = 1;
 bool gMoveLights = false;
 
 namespace
@@ -18,6 +19,8 @@ namespace
   Trackball trackball;
 
   Object grieghallen;
+  Object suzanne1;
+  Object suzanne2;
 
   Texture texture;
   GLuint gridVbo = 0;
@@ -71,36 +74,47 @@ void Renderer::checkAndLoadUniforms()
 
 void Renderer::init()
 {
-    grieghallen.load("grieghallen");
-    grieghallen.modelTransform = glm::scale(Mat4(), Vec3(0.02f, 0.02f, 0.02f));
+    gridShader->load("grid");
+    gridShader->bindBuffer(matrixBuffer);
 
     shader->load("cube");
     shader->bindBuffer(matrixBuffer);
     shader->bindBuffer(lightBuffer);
-
-    gridShader->load("grid");
-    gridShader->bindBuffer(matrixBuffer);
-
     shader->uniform("uTexture") = Sampler2D(0);
 
+    grieghallen.load("grieghallen");
+    grieghallen.modelTransform = glm::scale(Mat4(), Vec3(0.02f, 0.02f, 0.02f));
     grieghallen.setShader(shader);
-    grieghallen.update();
+    grieghallen.haveTexture = true;
+
+    suzanne1.load("suzanne");
+    suzanne1.modelTransform = glm::scale(Mat4(), Vec3(0.02f, 0.02f, 0.02f));
+    suzanne1.setShader(shader);
+
+    suzanne2.load("suzanne");
+    suzanne2.modelTransform = glm::scale(Mat4(), Vec3(0.02f, 0.02f, 0.02f));
+    suzanne2.setShader(shader);
 
     Text::setGlobalFont(Texture::cache("font.png"));
 
-    usageText.setPosition({0, 48 - 5});
+    usageText.setPosition({0, 48 - 6});
     usageText.format(
         "Left mouse:   Translate\n"
         "Right mouse:  Rotate\n"
         "Middle mouse: Reset view\n"
         "Spacebar:     Toggle perspective\n"
-        "F1:           Toggle light movement");
+        "F1:           Toggle light movement\n"
+        "F2:           Change number of lights");
 
     /* Create lights */
-    lightBuffer[0].type = 2;
-    lightBuffer[0].color = { 1.0, 0.0, 0.0 };
+    lightBuffer[0].type = 1;
+    lightBuffer[1].normal = { 0.0f, -1.0f, 0.0f };
+    lightBuffer[1].color = { 1.0f, 1.0f, 1.0f };
     lightBuffer[1].type = 2;
-    lightBuffer[1].color = { 0.0, 1.0, 0.0 };
+    lightBuffer[1].intensity = 1.0f;
+    lightBuffer[2].type = 2;
+    lightBuffer[2].color = { 0.0f, 1.0f, 0.0f };
+    lightBuffer[2].intensity = 1.0f;
     lightBuffer.update();
 
     /* Create grid quad */
@@ -172,19 +186,23 @@ void Renderer::draw(Update update)
     }
 
     {
-        auto &position = lightBuffer[0].position;
+        auto &position = lightBuffer[1].position;
         position = {cos(_lightAngle), 0.0f, sin(_lightAngle)};
-        position *= 500.0f;
-        lightBuffer[0].normal = -position;
+        position *= 30.0f + 25.0f * sin(_lightAngle);
+        lightBuffer[1].normal = -position;
+        lightBuffer[1].type = (gNumLights >= 1) ? 2 : 0;
         lightBuffer.update();
+        suzanne1.setPosition(position / 20.0f);
     }
 
     {
-        auto &position = lightBuffer[1].position;
+        auto &position = lightBuffer[2].position;
         position = {cos(-_lightAngle), 0.0f, sin(-_lightAngle)};
-        position *= 500.0f;
-        lightBuffer[1].normal = -position;
+        position *= 50.0f;
+        lightBuffer[2].normal = -position;
+        lightBuffer[2].type = (gNumLights >= 2) ? 2 : 0;
         lightBuffer.update();
+        suzanne2.setPosition(position / 20.0f);
     }
 
     if (gMoveLights)
@@ -206,10 +224,15 @@ void Renderer::draw(Update update)
     glEnable(GL_DEPTH_TEST);
 
     grieghallen.draw();
+    if (gNumLights >= 1)
+        suzanne1.draw();
+    if (gNumLights >= 2)
+        suzanne2.draw();
 
     glDisable(GL_DEPTH_TEST);
     Text::drawAll();
     glEnable(GL_DEPTH_TEST);
+    glUseProgram(0);
 
     if ((SDL_GetTicks() - fpsLast) >= 1000) {
         fpsText.format("FPS: {}", fpsCount);

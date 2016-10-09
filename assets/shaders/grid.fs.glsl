@@ -5,7 +5,7 @@ out vec4 FragColor;
 
 const vec4 gridColor = vec4(1.0, 0.0, 1.0, 0.2);
 const vec4 voidColor = vec4(0.0, 0.0, 0.0, 0.0);
-const float interval = 50.0;
+const float interval = 1.0;
 
 void main()
 {
@@ -14,5 +14,5 @@ void main()
     vec2 grid = abs(fract(coord - 0.5) - 0.5) / fwidth(coord);
     float line = min(grid.x, grid.y);
 
-    FragColor = vec4(1.0);//mix(voidColor, gridColor, 1.0 - min(line, 1.0));
+    FragColor = mix(voidColor, gridColor, 1.0 - min(line, 1.0));
 }
