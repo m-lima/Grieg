@@ -74,13 +74,13 @@ void main() {
         // Angle between the direction of the light and direction from the light to the surface
         float angle = dot(normalize(fPosition - uLights[i].position), normalize(uLights[i].direction));
 
-        if (angle < (1.0 - uLights[i].aperture)) {
-          /*
-          * TODO
-          * Make penumbra
-          */
-          attenuation = 0.0;
-        }
+		// Aplying aperture limit (angle < 1.0 - aperture)
+		angle += uLights[i].aperture;
+
+        // Penumbra
+		angle = min(angle, 1.0);
+        attenuation = pow(angle, 16);
+
       };
     }
 
@@ -97,10 +97,6 @@ void main() {
       // Angle between the reflection and the viewing angle
       float viewingAngle = dot(normalize(fEyePos - fPosition), specularReflection);
 
-      /*
-      * TODO
-      * Re check this equation.. It's kinda broken :(
-      */
       // If the light is being reflected towards the eye, calculate the specular color
       vec3 specular = viewingAngle > 0.0 ? uLights[i].specularLevel * pow(viewingAngle, uLights[i].specularIndex) * uLights[i].color : vec3(0.0);
 
