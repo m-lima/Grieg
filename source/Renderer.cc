@@ -194,9 +194,9 @@ void Renderer::draw(Update update) {
   }
 
   {
-    auto &position = lightBuffer[0].position;
-    position = { cos(_lightAngle) * sin(_lightAngle), cos(_lightAngle), sin(_lightAngle) * sin(_lightAngle) };
-    position *= 10.0f;
+    auto &direction = lightBuffer[0].direction;
+    direction = { cos(_lightAngle) * sin(_lightAngle), cos(_lightAngle), sin(_lightAngle) * sin(_lightAngle) };
+    direction *= 10.0f;
     lightBuffer[0].type = (gSun) ? 1 : 0;
     lightBuffer.update();
   }
