@@ -17,9 +17,9 @@ uniform mat4 uModel;
 
 void main()
 {
+    fPosition = vPosition;
     gl_Position = uProj * uView * uModel * vec4(vPosition, 1.0);
-    fPosition = (uView * uModel * vec4(vPosition, 1.0)).xyz;
     fTexCoord = vTexCoord;
-    fNormal = vNormal;
-    fEyePos = -(uView * uModel * vec4(vPosition, 1.0)).xyz;
+    fNormal = normalize(vNormal);
+    fEyePos = vec3(0, 0, 1.0);//-(uView * uModel * vec4(vPosition, 1.0)).xyz;
 }

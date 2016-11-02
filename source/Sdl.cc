@@ -9,6 +9,7 @@ extern bool gSun;
 extern bool gSpotlight;
 extern bool gMoveLights;
 extern int gNumLights;
+extern float gAmbient;
 
 namespace {
   std::ostream& operator<<(std::ostream& s, const SDL_version &v)
@@ -226,6 +227,20 @@ void Sdl::mainLoop()
                 case SDLK_SPACE:
                     update.state = States::togglePerspective;
                     break;
+
+                case SDLK_EQUALS:
+                  gAmbient += 0.1f;
+                  if (gAmbient > 1.0f) {
+                    gAmbient = 1.0f;
+                  }
+                  break;
+
+                case SDLK_MINUS:
+                  gAmbient -= 0.1f;
+                  if (gAmbient < 0.0f) {
+                    gAmbient = 0.0f;
+                  }
+                  break;
 
                 default:
                     break;

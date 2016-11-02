@@ -19,7 +19,7 @@ struct GlslTypeinfo;
 
 __GLSLASSIGN(Sampler2D, GL_SAMPLER_2D, Uniform1i, val.index);
 __GLSLASSIGN(GLfloat, GL_FLOAT, Uniform1f, val);
-__GLSLASSIGN(GLdouble, GL_DOUBLE, Uniform1f, val);
+__GLSLASSIGN(GLdouble, GL_DOUBLE, Uniform1d, val);
 __GLSLASSIGN(GLuint, GL_UNSIGNED_INT, Uniform1i, val);
 __GLSLASSIGN(GLint, GL_INT, Uniform1i, val);
 __GLSLASSIGN(glm::vec2, GL_FLOAT_VEC2, Uniform2f, val.x, val.y);

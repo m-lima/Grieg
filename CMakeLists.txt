@@ -108,26 +108,25 @@ add_definitions(-DSPHERICAL_TRACKBALL)
 
 if(MSVC)
   source_group("Shaders" FILES ${SHADERS})
+
+  if(${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION} GREATER 3.5)
+    set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT inf251)
+  endif()
 endif()
 
 if(WIN32)
-  if(MSVC)
+  #if(CMAKE_SIZEOF_VOID_P EQUAL 8)
+    ## 32 bits
+    #add_custom_command(TARGET inf251 POST_BUILD
+      #COMMAND ${CMAKE_COMMAND} -E copy_directory
+      #${CMAKE_SOURCE_DIR}/extern/lib/x86
+      #${CMAKE_BINARY_DIR})
+    #
+    #else()
+    ## 64 bits
     add_custom_command(TARGET inf251 POST_BUILD
       COMMAND ${CMAKE_COMMAND} -E copy_directory
-      ${CMAKE_SOURCE_DIR}/extern/lib/x86
-      ${CMAKE_BINARY_DIR}/Debug)
-    add_custom_command(TARGET inf251 POST_BUILD
-      COMMAND ${CMAKE_COMMAND} -E copy_if_different
-      ${CMAKE_SOURCE_DIR}/extern/lib/x86/SDL2_image.dll
-      ${CMAKE_BINARY_DIR}/Debug/SDL2_image.dll)
-  else()
-    add_custom_command(TARGET inf251 POST_BUILD
-      COMMAND ${CMAKE_COMMAND} -E copy_if_different
-      ${CMAKE_SOURCE_DIR}/extern/lib/x86/SDL2.dll
-      ${CMAKE_BINARY_DIR}/SDL2.dll)
-    add_custom_command(TARGET inf251 POST_BUILD
-      COMMAND ${CMAKE_COMMAND} -E copy_if_different
-      ${CMAKE_SOURCE_DIR}/extern/lib/x86/SDL2_image.dll
-      ${CMAKE_BINARY_DIR}/SDL2_image.dll)
-  endif()
+      ${CMAKE_SOURCE_DIR}/extern/lib/x64
+      ${CMAKE_BINARY_DIR})
+    #endif()
 endif()

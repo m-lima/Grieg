@@ -12,9 +12,9 @@ bool gSun = true;
 int gNumLights = 2;
 bool gMoveLights = true;
 bool gSpotlight = false;
+float gAmbient = 0.0f;
 
-namespace
-{
+namespace {
   auto shader = std::make_shared<Shader>();
   auto gridShader = std::make_shared<Shader>();
 
@@ -30,231 +30,240 @@ namespace
 
   uint32_t fpsLast = 0;
   uint32_t fpsCount = 0;
-  Text fpsText({0, 0});
+  Text fpsText({ 0, 0 });
 
   Text usageText;
 
   struct MatrixBlock {
-      glm::mat4 proj;
-      glm::mat4 view;
+    glm::mat4 proj;
+    glm::mat4 view;
   };
 
-  float _lightAngle {};
+  float _lightAngle{};
+  float _lightTilt{};
+  float _tiltFactor{ 0.01f };
 
   UniformBuffer<MatrixBlock, 0> matrixBuffer("MatrixBlock");
 
   struct LightBlock {
-      int type;
-      int _pad0[3];
-      glm::vec3 position;
-      float _pad1;
-      glm::vec3 direction;
-      float _pad2;
-      glm::vec3 color;
-      float _pad3;
-      float ambientCoeff;
-      float _pad4[3];
+    int type;
+    int _pad0[3];
+    glm::vec3 position;
+    float _pad1;
+    glm::vec3 color;
+    float intensity;
+    glm::vec3 direction;
+    float aperture;
   };
 
   UniformBuffer<LightBlock, 1, 12> lightBuffer("LightBlock");
 }
 
-void Renderer::checkAndLoadUniforms()
-{
-    if (trackball.viewDirty) {
-        matrixBuffer->view = trackball.rotation();
-        matrixBuffer.update();
-        trackball.viewDirty = false;
-    }
+void Renderer::checkAndLoadUniforms() {
+  if (trackball.viewDirty) {
+    matrixBuffer->view = trackball.rotation();
+    matrixBuffer.update();
+    trackball.viewDirty = false;
+  }
 
-    if (trackball.projectionDirty) {
-        matrixBuffer->proj = trackball.projection();
-        matrixBuffer.update();
-        trackball.projectionDirty = false;
-    }
+  if (trackball.projectionDirty) {
+    matrixBuffer->proj = trackball.projection();
+    matrixBuffer.update();
+    trackball.projectionDirty = false;
+  }
 }
 
-void Renderer::init()
-{
-    gridShader->load("grid");
-    gridShader->bindBuffer(matrixBuffer);
+void Renderer::init() {
+  gridShader->load("grid");
+  gridShader->bindBuffer(matrixBuffer);
 
-    shader->load("cube");
-    shader->bindBuffer(matrixBuffer);
-    shader->bindBuffer(lightBuffer);
-    shader->uniform("uTexture") = Sampler2D(0);
+  shader->load("cube");
+  shader->bindBuffer(matrixBuffer);
+  shader->bindBuffer(lightBuffer);
+  shader->uniform("uTexture") = Sampler2D(0);
 
-    grieghallen.load("grieghallen");
-    grieghallen.modelTransform = glm::scale(Mat4(), Vec3(0.02f, 0.02f, 0.02f));
-    grieghallen.setShader(shader);
-    grieghallen.haveTexture = true;
+  grieghallen.load("grieghallen");
+  grieghallen.modelTransform = glm::scale(Mat4(), Vec3(0.02f, 0.02f, 0.02f));
+  grieghallen.setShader(shader);
+  grieghallen.haveTexture = true;
 
-    suzanne1.load("suzanne");
-    suzanne1.modelTransform = glm::scale(Mat4(), Vec3(0.02f, 0.02f, 0.02f));
-    suzanne1.setShader(shader);
+  suzanne1.load("suzanne");
+  suzanne1.modelTransform = glm::scale(Mat4(), Vec3(0.02f, 0.02f, 0.02f));
+  suzanne1.setShader(shader);
 
-    suzanne2.load("suzanne");
-    suzanne2.modelTransform = glm::scale(Mat4(), Vec3(0.02f, 0.02f, 0.02f));
-    suzanne2.setShader(shader);
+  suzanne2.load("suzanne");
+  suzanne2.modelTransform = glm::scale(Mat4(), Vec3(0.02f, 0.02f, 0.02f));
+  suzanne2.setShader(shader);
 
-    Text::setGlobalFont(Texture::cache("font.png"));
+  Text::setGlobalFont(Texture::cache("font.png"));
 
-    usageText.setPosition({1, 47 - 8});
-    usageText.format(
-        "Left mouse:   Translate\n"
-        "Right mouse:  Rotate\n"
-        "Middle mouse: Reset view\n"
-        "Spacebar:     Toggle perspective\n"
-        "F1:           Toggle light movement\n"
-        "F2:           Change number of lights\n"
-        "F3:           Toggle sun\n"
-        "F4:           Toggle spotlight/point light");
+  usageText.setPosition({ 1, 47 - 9 });
+  usageText.format(
+    "Left mouse:   Translate\n"
+    "Right mouse:  Rotate\n"
+    "Middle mouse: Reset view\n"
+    "Spacebar:     Toggle perspective\n"
+    "F1:           Toggle light movement\n"
+    "F2:           Change number of lights\n"
+    "F3:           Toggle sun\n"
+    "F4:           Toggle spotlight/point light\n"
+    "-/+:          Darken/brighten ambient light\n");
 
-    /* Create lights */
-    lightBuffer[0].type = 1; /* Directional */
-    lightBuffer[0].color = { 1.0f, 1.0f, 1.0f };
-    lightBuffer[0].position = { 0.0, 10.0f, 0.0f };
-    lightBuffer[0].ambientCoeff = 0.1f;
+  /* Create lights */
+  lightBuffer[0].type = 1; /* Directional */
+  lightBuffer[0].color = { 1.0f, 1.0f, 1.0f };
+  lightBuffer[0].position = { 0.0, 10.0f, 0.0f };
+  lightBuffer[0].intensity = 1.0f;
 
-    lightBuffer[1].type = 3; /* Point light */
-    lightBuffer[1].color = { 0.0f, 0.0f, 1.0f };
-    lightBuffer[1].ambientCoeff = 0.0f;
-    lightBuffer[1].direction = { 1.0f, 0.0f, 0.0f };
+  lightBuffer[1].type = 2; /* Point light */
+  lightBuffer[1].color = { 0.0f, 0.0f, 1.0f };
+  lightBuffer[1].direction = { 1.0f, 0.0f, 0.0f };
+  lightBuffer[1].intensity = 1.0f;
+  lightBuffer[1].aperture = 0.2f;
 
-    lightBuffer[2].type = 2; /* Point light */
-    lightBuffer[2].color = { 0.0f, 1.0f, 0.0f };
-    lightBuffer[2].ambientCoeff = 0.0f;
-    lightBuffer.update();
+  lightBuffer[2].type = 2; /* Point light */
+  lightBuffer[2].color = { 0.0f, 1.0f, 0.0f };
+  lightBuffer[2].intensity = 0.5f;
+  lightBuffer[2].aperture = 0.4f;
+  lightBuffer.update();
 
-    /* Create grid quad */
-    constexpr float gridSize = 1000.0f;
-    const glm::vec3 gridQuad[] = {
-        { -gridSize, 0.0f, -gridSize },
-        {  gridSize, 0.0f, -gridSize },
-        {  gridSize, 0.0f,  gridSize },
-        { -gridSize, 0.0f,  gridSize }
-    };
-    glGenVertexArrays(1, &gridVao);
-    glBindVertexArray(gridVao);
+  /* Create grid quad */
+  constexpr float gridSize = 1000.0f;
+  const glm::vec3 gridQuad[] = {
+      { -gridSize, 0.0f, -gridSize },
+      {  gridSize, 0.0f, -gridSize },
+      {  gridSize, 0.0f,  gridSize },
+      { -gridSize, 0.0f,  gridSize }
+  };
+  glGenVertexArrays(1, &gridVao);
+  glBindVertexArray(gridVao);
 
-    glGenBuffers(1, &gridVbo);
-    glBindBuffer(GL_ARRAY_BUFFER, gridVbo);
-    glBufferData(GL_ARRAY_BUFFER,
-                 sizeof(gridQuad),
-                 &gridQuad[0],
-                 GL_STATIC_DRAW);
+  glGenBuffers(1, &gridVbo);
+  glBindBuffer(GL_ARRAY_BUFFER, gridVbo);
+  glBufferData(GL_ARRAY_BUFFER,
+               sizeof(gridQuad),
+               &gridQuad[0],
+               GL_STATIC_DRAW);
 
-    glClearColor(0, 0, 0, 1);
-    glEnable(GL_DEPTH_TEST);
-    glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+  glClearColor(0, 0, 0, 1);
+  glEnable(GL_DEPTH_TEST);
+  glEnable(GL_BLEND);
+  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 }
 
-void Renderer::resize()
-{
-    glViewport(0, 0, Sdl::screenCoords().x, Sdl::screenCoords().y);
+void Renderer::resize() {
+  glViewport(0, 0, Sdl::screenCoords().x, Sdl::screenCoords().y);
 }
 
-void Renderer::draw(Update update)
-{
-    if (update.oX > 0 || update.oY > 0) {
-        trackball.anchorRotation(update.oX, update.oY);
-    }
+void Renderer::draw(Update update) {
+  if (update.oX > 0 || update.oY > 0) {
+    trackball.anchorRotation(update.oX, update.oY);
+  }
 
-    switch (update.state) {
+  switch (update.state) {
     case States::reset:
-        trackball.reset();
-        break;
+      trackball.reset();
+      break;
 
     case States::rotate:
-        trackball.rotate(update.x, update.y);
-        break;
+      trackball.rotate(update.x, update.y);
+      break;
 
     case States::rotateLight:
-        trackball.rotateLight(update.x, update.y);
-        break;
+      trackball.rotateLight(update.x, update.y);
+      break;
 
     case States::translate:
-        trackball.translate(update.x, update.y);
-        break;
+      trackball.translate(update.x, update.y);
+      break;
 
     case States::zoom:
-        trackball.zoom(update.y);
-        break;
+      trackball.zoom(update.y);
+      break;
 
     case States::togglePerspective:
-        trackball.togglePerspective();
-        break;
+      trackball.togglePerspective();
+      break;
 
     case States::fullScreen:
-        trackball.projectionDirty = true;
-        break;
+      trackball.projectionDirty = true;
+      break;
 
     default:
-        break;
-    }
+      break;
+  }
 
-    {
-        auto &position = lightBuffer[0].position;
-        position = { cos(_lightAngle) * sin(_lightAngle), cos(_lightAngle), sin(_lightAngle) * sin(_lightAngle) };
-        position *= 10.0f;
-        lightBuffer[0].type = (gSun) ? 1 : 0;
-        lightBuffer.update();
-    }
+  {
+    auto &position = lightBuffer[0].position;
+    position = { cos(_lightAngle) * sin(_lightAngle), cos(_lightAngle), sin(_lightAngle) * sin(_lightAngle) };
+    position *= 10.0f;
+    lightBuffer[0].type = (gSun) ? 1 : 0;
+    lightBuffer.update();
+  }
 
-    {
-        auto &position = lightBuffer[1].position;
-        position = {cos(_lightAngle), 0.0f, sin(_lightAngle)};
-        position *= 30.0f + 25.0f * sin(_lightAngle);
-        lightBuffer[1].direction = glm::normalize(-position);
-        lightBuffer[1].type = (gNumLights >= 1) ? (gSpotlight ? 3 : 2) : 0;
-        lightBuffer.update();
-        suzanne1.setPosition(position / 20.0f);
-    }
+  {
+    auto &position = lightBuffer[1].position;
+    position = { cos(_lightAngle), 0.0f, sin(_lightAngle) };
+    position *= 70.0f + 25.0f * sin(_lightAngle);
+    lightBuffer[1].type = (gNumLights >= 1) ? (gSpotlight ? 3 : 2) : 0;
+    lightBuffer[1].direction = glm::normalize(-position);
+    lightBuffer[1].direction.y -= _lightTilt;
+    lightBuffer.update();
+    suzanne1.setPosition(position / 20.0f);
+  }
 
-    {
-        auto &position = lightBuffer[2].position;
-        position = {cos(-_lightAngle), 0.0f, sin(-_lightAngle)};
-        position *= 50.0f;
-        lightBuffer[2].type = (gNumLights >= 2) ? (gSpotlight ? 3 : 2) : 0;
-        lightBuffer[2].direction = glm::normalize(-position);
-        lightBuffer.update();
-        suzanne2.setPosition(position / 20.0f);
-    }
+  {
+    auto &position = lightBuffer[2].position;
+    position = { cos(-_lightAngle), 0.0f, sin(-_lightAngle) };
+    position *= 50.0f;
+    lightBuffer[2].type = (gNumLights >= 2) ? (gSpotlight ? 3 : 2) : 0;
+    lightBuffer[2].direction = glm::normalize(-position);
+    lightBuffer[2].direction.y += _lightTilt;
+    lightBuffer.update();
+    suzanne2.setPosition(position / 20.0f);
+  }
 
-    if (gMoveLights)
-        _lightAngle += 0.005;
+  if (gMoveLights) {
+    _lightAngle += 0.005f;
+  }
 
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+  _lightTilt += _tiltFactor;
+  if (_lightTilt > 1.0f || _lightTilt < -1.0f) {
+    _tiltFactor *= -1.0f;
+  }
 
-    checkAndLoadUniforms();
+  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    /* Draw grid before doing anything else */
-    glDisable(GL_DEPTH_TEST);
-    glBindVertexArray(gridVao);
-    glBindBuffer(GL_ARRAY_BUFFER, gridVbo);
-    gridShader->use();
-    glEnableVertexAttribArray(0);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_TRUE, sizeof(GLfloat) * 3, 0);
-    glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
-    glDisableVertexAttribArray(0);
-    glEnable(GL_DEPTH_TEST);
+  checkAndLoadUniforms();
 
-    grieghallen.draw();
-    if (gNumLights >= 1)
-        suzanne1.draw();
-    if (gNumLights >= 2)
-        suzanne2.draw();
+  /* Draw grid before doing anything else */
+  glDisable(GL_DEPTH_TEST);
+  glBindVertexArray(gridVao);
+  glBindBuffer(GL_ARRAY_BUFFER, gridVbo);
+  gridShader->use();
+  glEnableVertexAttribArray(0);
+  glVertexAttribPointer(0, 3, GL_FLOAT, GL_TRUE, sizeof(GLfloat) * 3, 0);
+  glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
+  glDisableVertexAttribArray(0);
+  glEnable(GL_DEPTH_TEST);
 
-    glDisable(GL_DEPTH_TEST);
-    Text::drawAll();
-    glEnable(GL_DEPTH_TEST);
-    glUseProgram(0);
+  shader->uniform("uAmbientLight") = glm::vec3(gAmbient);
 
-    if ((SDL_GetTicks() - fpsLast) >= 1000) {
-        fpsText.format("FPS: {}", fpsCount);
-        fpsCount = 0;
-        fpsLast = SDL_GetTicks();
-    }
-    fpsCount++;
+  grieghallen.draw();
+  if (gNumLights >= 1)
+    suzanne1.draw();
+  if (gNumLights >= 2)
+    suzanne2.draw();
+
+  glDisable(GL_DEPTH_TEST);
+  Text::drawAll();
+  glEnable(GL_DEPTH_TEST);
+  glUseProgram(0);
+
+  if ((SDL_GetTicks() - fpsLast) >= 1000) {
+    fpsText.format("FPS: {}", fpsCount);
+    fpsCount = 0;
+    fpsLast = SDL_GetTicks();
+  }
+  fpsCount++;
 }
