@@ -139,7 +139,5 @@ Mat4 Trackball::projection()
 
 Vec3 Trackball::lightPosition()
 {
-	//Vec3 yo = glm::normalize(mCurrentLightPos);
-	//println("X: {} | Y: {} | Z: {}", yo.x, yo.y, yo.z);
 	return glm::normalize(mCurrentLightPos);
 }

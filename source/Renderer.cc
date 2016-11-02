@@ -47,13 +47,15 @@ namespace {
 
   struct LightBlock {
     int type;
-    int _pad0[3];
-    glm::vec3 position;
-    float _pad1;
-    glm::vec3 color;
-    float intensity;
+    float specularIndex = 256.0f;
+    float specularLevel = 1.0f;
+    float diffuseLevel = 1.0f;
     glm::vec3 direction;
     float aperture;
+    glm::vec3 color;
+    float intensity = 1.0f;
+    glm::vec3 position;
+    int _pad;
   };
 
   UniformBuffer<LightBlock, 1, 12> lightBuffer("LightBlock");
@@ -113,12 +115,10 @@ void Renderer::init() {
   lightBuffer[0].type = 1; /* Directional */
   lightBuffer[0].color = { 1.0f, 1.0f, 1.0f };
   lightBuffer[0].position = { 0.0, 10.0f, 0.0f };
-  lightBuffer[0].intensity = 1.0f;
 
   lightBuffer[1].type = 2; /* Point light */
   lightBuffer[1].color = { 0.0f, 0.0f, 1.0f };
   lightBuffer[1].direction = { 1.0f, 0.0f, 0.0f };
-  lightBuffer[1].intensity = 1.0f;
   lightBuffer[1].aperture = 0.2f;
 
   lightBuffer[2].type = 2; /* Point light */
