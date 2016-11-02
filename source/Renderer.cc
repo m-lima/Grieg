@@ -12,7 +12,8 @@ bool gSun = true;
 int gNumLights = 2;
 bool gMoveLights = true;
 bool gSpotlight = false;
-float gAmbient = 0.0f;
+float gAmbient = 0.2f;
+bool gRotateModel = false;
 
 namespace {
   auto shader = std::make_shared<Shader>();
@@ -99,12 +100,13 @@ void Renderer::init() {
 
   Text::setGlobalFont(Texture::cache("font.png"));
 
-  usageText.setPosition({ 1, 47 - 9 });
+  usageText.setPosition({ 1, 47 - 10 });
   usageText.format(
     "Left mouse:   Translate\n"
     "Right mouse:  Rotate\n"
     "Middle mouse: Reset view\n"
     "Spacebar:     Toggle perspective\n"
+    "R:            Toggle model rotation\n"
     "F1:           Toggle light movement\n"
     "F2:           Change number of lights\n"
     "F3:           Toggle sun\n"
@@ -195,7 +197,10 @@ void Renderer::draw(Update update) {
 
   {
     auto &direction = lightBuffer[0].direction;
-    direction = { cos(_lightAngle) * sin(_lightAngle), cos(_lightAngle), sin(_lightAngle) * sin(_lightAngle) };
+    direction = {
+      cos(_lightAngle) * sin(_lightAngle),
+      cos(_lightAngle),
+      sin(_lightAngle) * sin(_lightAngle) };
     direction *= 10.0f;
     lightBuffer[0].type = (gSun) ? 1 : 0;
     lightBuffer.update();
@@ -230,6 +235,11 @@ void Renderer::draw(Update update) {
   _lightTilt += _tiltFactor;
   if (_lightTilt > 1.0f || _lightTilt < -1.0f) {
     _tiltFactor *= -1.0f;
+  }
+
+  if (gRotateModel) {
+    grieghallen.modelTransform = glm::rotate(
+      grieghallen.modelTransform, 0.01f, glm::vec3(0, 1, 0));
   }
 
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
