@@ -3,6 +3,7 @@
 #include "Sdl.hh"
 #include "Renderer.hh"
 
+#ifdef _WIN32
 // Force high performance GPU
 extern "C" {
   // NVidia
@@ -11,6 +12,7 @@ extern "C" {
   // AMD
   __declspec(dllexport) int AmdPowerXpressRequestHighPerformance = 1;
 }
+#endif
 
 std::string readFileContents(const std::string &file)
 {

@@ -2,7 +2,7 @@
 #define __INF251_SHADER__21548889
 
 #include "infdef.hh"
-#include "UniformBuffer.hh"
+#include "ShaderStorage.hh"
 #include "Texture.hh"
 
 template <class T>
@@ -93,15 +93,15 @@ public:
         return mProgram != 0;
     }
 
-    template <class T, GLuint B, size_t N>
-    void bindBuffer(const UniformBuffer<T, B, N> &ub)
+    template <class T, size_t N>
+    void bindBuffer(const ShaderStorage<T, N> &ub)
     {
         ub.bind();
-        auto loc = glGetUniformBlockIndex(mProgram, ub.name());
+        auto loc = glGetProgramResourceIndex(mProgram, GL_SHADER_STORAGE_BLOCK, ub.name);
         if (loc < 0)
-            fatal("Warning: Couldn't find uniform block \"{}\" in shader \"{}\"", mName, ub.name());
+            fatal("Warning: Couldn't find shader storage block \"{}\" in shader \"{}\"", mName, ub.name);
 
-        glUniformBlockBinding(mProgram, loc, ub.binding());
+        glShaderStorageBlockBinding(mProgram, loc, ub.binding);
     }
 };
 

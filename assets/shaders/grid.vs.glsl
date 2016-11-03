@@ -3,7 +3,7 @@
 layout(location=0) in vec3 vPosition;
 out vec3 fPosition;
 
-uniform MatrixBlock {
+layout(std430, binding = 0) buffer MatrixBlock {
     mat4 uProj;
     mat4 uView;
 };

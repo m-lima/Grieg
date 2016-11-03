@@ -8,7 +8,7 @@ out vec2 fTexCoord;
 out vec3 fNormal;
 out vec3 fEyePos;
 
-uniform MatrixBlock {
+layout(std430, binding = 0) buffer MatrixBlock {
     mat4 uProj;
     mat4 uView;
 };
