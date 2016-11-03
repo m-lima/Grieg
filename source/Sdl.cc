@@ -10,6 +10,7 @@ extern bool gSpotlight;
 extern bool gMoveLights;
 extern int gNumLights;
 extern float gAmbient;
+extern bool gRotateModel;
 
 namespace {
   std::ostream& operator<<(std::ostream& s, const SDL_version &v)
@@ -207,6 +208,10 @@ void Sdl::mainLoop()
                         update.state = States::fullScreen;
                     }
                     break;
+
+                case SDLK_r:
+                  gRotateModel = !gRotateModel;
+                  break;
 
                 case SDLK_F1:
                     gMoveLights = !gMoveLights;
