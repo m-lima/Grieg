@@ -17,14 +17,18 @@ struct LightSource {
     vec3 color;
     vec3 position;
     float specularIndex;
-    float specularLevel;
-    float diffuseLevel;
     float aperture;
     float intensity;
 };
 
 layout(std430, binding = 1) buffer LightBlock{
     LightSource uLights[12];
+};
+
+layout(std430, binding = 2) buffer MaterialBlock {
+    vec3 uAmbient;
+    vec3 uDiffuse;
+    vec3 uSpecular;
 };
 
 void main() {
@@ -89,7 +93,9 @@ void main() {
 
         // If the light is facing the normal, illuminate
         if (angleOfIncidence > 0.0) {
-            vec3 diffuse = uLights[i].diffuseLevel * angleOfIncidence * texel * uLights[i].color;
+            vec3 ambient = uAmbient * texel * uLights[i].color;
+
+            vec3 diffuse = uDiffuse * angleOfIncidence * texel * uLights[i].color;
 
             // Direction in which the light reflects
             vec3 specularReflection = normalize(dot(2 * fNormal, lightIncidence) * fNormal - lightIncidence);
@@ -98,9 +104,9 @@ void main() {
             float viewingAngle = dot(normalize(fEyePos - fPosition), specularReflection);
 
             // If the light is being reflected towards the eye, calculate the specular color
-            vec3 specular = viewingAngle > 0.0 ? uLights[i].specularLevel * pow(viewingAngle, uLights[i].specularIndex) * uLights[i].color : vec3(0.0);
+            vec3 specular = viewingAngle > 0.0 ? uSpecular * pow(viewingAngle, uLights[i].specularIndex) * uLights[i].color : vec3(0.0);
 
-            color += uLights[i].intensity * attenuation * (diffuse + specular);
+            color += uLights[i].intensity * (ambient + attenuation * (diffuse + specular));
         }
     }
 

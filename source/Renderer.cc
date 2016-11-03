@@ -57,8 +57,6 @@ namespace {
       alignas(16) glm::vec3 color;
       alignas(16) glm::vec3 position;
       float specularIndex = 256.0f;
-      float specularLevel = 1.0f;
-      float diffuseLevel = 1.0f;
       float aperture;
       float intensity = 1.0f;
   };

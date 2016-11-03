@@ -65,7 +65,7 @@ namespace
       {
       }
   };
-  //static_assert(sizeof(Vertex) == sizeof(GLfloat) * 8);
+  static_assert(sizeof(Vertex) == sizeof(GLfloat) * 8, "sizeof Vertex is incorrect");
 
   struct ObjFile {
       struct Material {
@@ -248,6 +248,17 @@ namespace
 
       return mtl;
   }
+
+  struct MaterialBlock {
+      static constexpr auto name = "MaterialBlock";
+      static constexpr auto binding = 2;
+
+      alignas(16) glm::vec3 ambient;
+      alignas(16) glm::vec3 diffuse;
+      alignas(16) glm::vec3 specular;
+  };
+
+  ShaderStorage<MaterialBlock> matBlock;
 }
 
 Object::~Object()
@@ -317,10 +328,11 @@ void Object::load(const std::string &name)
 
         if (!mat || f.matIdx != matIdx) {
             auto&& objMat = obj.materials[matIdx];
+            auto&& mtlMat = mtl.materials[objMat.name];
             if (obj.materialLib.empty()) {
-                mMaterialGroups.push_back({objMat.count, nullptr});
+                mMaterialGroups.push_back({objMat.count, nullptr, mtlMat.ambient, mtlMat.diffuse, mtlMat.specular});
             } else {
-                mMaterialGroups.push_back({objMat.count, mtl.materials[objMat.name].texture});
+                mMaterialGroups.push_back({objMat.count, mtlMat.texture, mtlMat.ambient, mtlMat.diffuse, mtlMat.specular});
             }
             matIdx = f.matIdx;
             mat = &mMaterialGroups.back();
@@ -400,11 +412,18 @@ void Object::draw()
 {
     update();
     mShader->use();
+    mShader->bindBuffer(matBlock);
     bind();
     const GLuint *start = nullptr;
     for (const auto &mat : mMaterialGroups) {
         if (mat.texture)
             mat.texture->bind();
+
+        matBlock->ambient = mat.ambient;
+        matBlock->diffuse = mat.diffuse;
+        matBlock->specular = mat.specular;
+        matBlock.update();
+
         auto count = mat.count;
 
         if (mMaterialGroups.size() == 1)
@@ -413,4 +432,5 @@ void Object::draw()
         glDrawElements(GL_TRIANGLES, count * 3, GL_UNSIGNED_INT, start);
         start += count * 3;
     }
+    // mShader->unbindBuffer(matBlock);
 }

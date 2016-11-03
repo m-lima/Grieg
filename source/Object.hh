@@ -10,6 +10,9 @@ class Object
     struct MaterialGroup {
         size_t count;
         std::shared_ptr<Texture> texture;
+        glm::vec3 ambient;
+        glm::vec3 diffuse;
+        glm::vec3 specular;
     };
 
     // Buffers

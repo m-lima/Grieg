@@ -103,6 +103,17 @@ public:
 
         glShaderStorageBlockBinding(mProgram, loc, ub.binding);
     }
+
+    void unbindBuffer(GLuint binding)
+    {
+        glShaderStorageBlockBinding(mProgram, 0, binding);
+    }
+
+    template <class T, size_t N>
+    void unbindBuffer(const ShaderStorage<T, N> &ub)
+    {
+        unbindBuffer(ub.binding);
+    }
 };
 
 #endif //__INF251_SHADER__21548889
