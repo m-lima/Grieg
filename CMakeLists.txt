@@ -77,8 +77,12 @@ set(SOURCES
   source/Renderer.hh)
 
 set(SHADERS
-  assets/shaders/cube.vs.glsl
-  assets/shaders/cube.fs.glsl
+  assets/shaders/basic.vs.glsl
+  assets/shaders/basic.fs.glsl
+  assets/shaders/normals.vs.glsl
+  assets/shaders/normals.fs.glsl
+  assets/shaders/toon.vs.glsl
+  assets/shaders/toon.fs.glsl
   assets/shaders/grid.vs.glsl
   assets/shaders/grid.fs.glsl
   assets/shaders/text.vs.glsl

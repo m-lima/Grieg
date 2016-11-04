@@ -35,6 +35,9 @@ namespace {
 
   Text usageText;
 
+  GLuint frameBuffer;
+  GLuint frameBufferTexture;
+
   struct MatrixBlock {
       static constexpr auto name = "MatrixBlock";
       static constexpr auto binding = 0;
@@ -63,6 +66,25 @@ namespace {
   };
 
   ShaderStorage<LightBlock[], 12> lightBuffer;
+
+  void generateFrameBuffer() {
+    glGenTextures(1, &frameBuffer);
+    glActiveTexture(frameBuffer);
+    glBindTexture(GL_TEXTURE_2D, frameBuffer);
+
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+
+    auto screen = Sdl::screenCoords();
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, screen.x, screen.y, 0, GL_RGB, GL_UNSIGNED_BYTE, 0);
+
+    glGenFramebuffers(1, frameBuffer, FRAME_BUFFER_FRONT);
+    glBindFramebuffer(GL2.GL_FRAMEBUFFER, frameBuffer[FRAME_BUFFER_FRONT]);
+    glFramebufferTexture2D(GL2.GL_FRAMEBUFFER, GL2.GL_COLOR_ATTACHMENT0, GL2.GL_TEXTURE_2D, textureLocation[TEXTURE_FRAME_BUFFER], 0);
+
+  }
 }
 
 void Renderer::checkAndLoadUniforms() {
@@ -83,7 +105,7 @@ void Renderer::init() {
     gridShader->load("grid");
     gridShader->bindBuffer(matrixBuffer);
 
-    shader->load("cube");
+    shader->load("normals");
     shader->bindBuffer(matrixBuffer);
     shader->bindBuffer(lightBuffer);
     shader->uniform("uTexture") = Sampler2D(0);
@@ -103,13 +125,14 @@ void Renderer::init() {
 
     Text::setGlobalFont(Texture::cache("font.png"));
 
-  usageText.setPosition({ 1, 47 - 10 });
+  usageText.setPosition({ 1, 47 - 11 });
   usageText.format(
     "Left mouse:   Translate\n"
     "Right mouse:  Rotate\n"
     "Middle mouse: Reset view\n"
     "Spacebar:     Toggle perspective\n"
     "R:            Toggle model rotation\n"
+    "S:            Cycle shader\n"
     "F1:           Toggle light movement\n"
     "F2:           Change number of lights\n"
     "F3:           Toggle sun\n"
@@ -154,6 +177,8 @@ void Renderer::init() {
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+    generateFrameBuffer();
 }
 
 void Renderer::resize() {

@@ -73,7 +73,7 @@ Shader::UniformProxy Shader::uniform(const std::string &name)
     auto loc = glGetUniformLocation(mProgram, name.c_str());
 
     if (loc < 0) {
-        println("Warning: Couldn't get uniform location \"{}\" in shader \"{}\"", name, mName);
+        //println("Warning: Couldn't get uniform location \"{}\" in shader \"{}\"", name, mName);
         return { *this, -1 };
     }
 
