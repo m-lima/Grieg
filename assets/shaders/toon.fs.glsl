@@ -30,8 +30,7 @@ layout(std430, binding = 2) buffer MaterialBlock {
 };
 
 float linearDepth(vec2 coord) {
-  float z = texture(uDepthbuffer, coord).r;
-  return z;
+  return texture(uDepthbuffer, coord).r;
 }
 
 void main() {
@@ -43,7 +42,6 @@ void main() {
   vec2 currentPixel = vec2(gl_FragCoord.x / uScreenSize.x, gl_FragCoord.y / uScreenSize.y);
 
   vec3 currentColor = texture(uFramebuffer, currentPixel).rgb;
-  //vec3 currentColor = vec3(linearDepth(currentPixel));
 
   // Horizontal normal gradient
   float horizontalDeltaNormal = distance(

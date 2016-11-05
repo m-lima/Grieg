@@ -215,7 +215,7 @@ void Sdl::mainLoop()
                   break;
 
                 case SDLK_s:
-                  gShaderMode = (gShaderMode + 1) % 2;
+                  gShaderMode = (gShaderMode + 1) % 3;
                   break;
 
                 case SDLK_F1:
