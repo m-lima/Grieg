@@ -41,6 +41,7 @@ namespace {
 
   GLuint frameBuffer;
   GLuint frameBufferTexture;
+  GLuint depthBuffer;
 
   struct MatrixBlock {
     static constexpr auto name = "MatrixBlock";
@@ -72,6 +73,9 @@ namespace {
   ShaderStorage<LightBlock[], 12> lightBuffer;
 
   void generateFrameBuffer() {
+    auto screen = Sdl::screenCoords();
+
+    // Color attachment
     glGenTextures(1, &frameBufferTexture);
     glActiveTexture(GL_TEXTURE0 + frameBufferTexture);
     glBindTexture(GL_TEXTURE_2D, frameBufferTexture);
@@ -81,14 +85,27 @@ namespace {
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
 
-    auto screen = Sdl::screenCoords();
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, screen.x, screen.y, 0, GL_RGB, GL_UNSIGNED_BYTE, 0);
 
+    // Depth attachment
+    glGenTextures(1, &depthBuffer);
+    glActiveTexture(GL_TEXTURE0 + depthBuffer);
+    glBindTexture(GL_TEXTURE_2D, depthBuffer);
+
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT24, screen.x, screen.y, 0, GL_DEPTH_COMPONENT, GL_FLOAT, 0);
+
+    // Actual frame buffer
     glGenFramebuffers(1, &frameBuffer);
     glBindFramebuffer(GL_FRAMEBUFFER, frameBuffer);
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, frameBufferTexture, 0);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, depthBuffer, 0);
 
-    glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
   }
 }
 
@@ -119,13 +136,13 @@ void Renderer::init() {
   basicShader->uniform("uTexture") = Sampler2D(0);
 
   normalShader->load("normals");
-  normalShader->uniform("uFramebuffer") = Sampler2D(frameBufferTexture);
 
   toonShader->load("toon");
   toonShader->bindBuffer(matrixBuffer);
   toonShader->bindBuffer(lightBuffer);
   toonShader->uniform("uTexture") = Sampler2D(0);
   toonShader->uniform("uFramebuffer") = Sampler2D(frameBufferTexture);
+  toonShader->uniform("uScreenSize") = glm::vec2(Sdl::screenCoords().x, Sdl::screenCoords().y);
 
   grieghallen.load("grieghallen");
   grieghallen.modelTransform = glm::scale(Mat4(), Vec3(0.02f, 0.02f, 0.02f));
@@ -205,7 +222,13 @@ void Renderer::resize() {
   glBindTexture(GL_TEXTURE_2D, frameBufferTexture);
   glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, screen.x, screen.y, 0, GL_RGB, GL_UNSIGNED_BYTE, 0);
 
+  glActiveTexture(GL_TEXTURE0 + depthBuffer);
+  glBindTexture(GL_TEXTURE_2D, depthBuffer);
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT24, screen.x, screen.y, 0, GL_DEPTH_COMPONENT, GL_FLOAT, 0);
+
   glViewport(0, 0, screen.x, screen.y);
+
+  toonShader->uniform("uScreenSize") = glm::vec2(screen.x, screen.y);
 }
 
 void Renderer::draw(Update update) {
@@ -324,17 +347,18 @@ void Renderer::draw(Update update) {
       suzanne2.setShader(normalShader);
 
       glBindFramebuffer(GL_FRAMEBUFFER, frameBuffer);
+      glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
       grieghallen.draw();
       if (gNumLights >= 1)
         suzanne1.draw();
       if (gNumLights >= 2)
         suzanne2.draw();
-      glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
+      glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
       grieghallen.setShader(toonShader);
       suzanne1.setShader(toonShader);
       suzanne2.setShader(toonShader);
-      toonShader->uniform("uScreenSize") = glm::vec2(Sdl::screenCoords().x, Sdl::screenCoords().y);
+      toonShader->uniform("uAmbientLight") = glm::vec3(gAmbient);
       break;
   }
 
@@ -345,9 +369,7 @@ void Renderer::draw(Update update) {
     suzanne2.draw();
 
   glDisable(GL_DEPTH_TEST);
-  glDisable(GL_CULL_FACE);
   Text::drawAll();
-  glEnable(GL_CULL_FACE);
   glEnable(GL_DEPTH_TEST);
   glUseProgram(0);
 
