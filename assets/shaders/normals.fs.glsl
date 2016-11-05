@@ -1,15 +1,7 @@
 #version 430
 
-in vec3 fPosition;
-in vec2 fTexCoord;
 in vec3 fNormal; //Already normalized
-in vec3 fEyePos;
 out vec4 FragColor;
-
-uniform sampler2D uTexture;
-uniform int uHaveTexture;
-
-uniform vec3 uAmbientLight;
 
 struct LightSource {
     int type;

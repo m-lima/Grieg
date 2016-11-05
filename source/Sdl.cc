@@ -11,6 +11,7 @@ extern bool gMoveLights;
 extern int gNumLights;
 extern float gAmbient;
 extern bool gRotateModel;
+extern int gShaderMode;
 
 namespace {
   std::ostream& operator<<(std::ostream& s, const SDL_version &v)
@@ -211,6 +212,10 @@ void Sdl::mainLoop()
 
                 case SDLK_r:
                   gRotateModel = !gRotateModel;
+                  break;
+
+                case SDLK_s:
+                  gShaderMode = (gShaderMode + 1) % 2;
                   break;
 
                 case SDLK_F1:

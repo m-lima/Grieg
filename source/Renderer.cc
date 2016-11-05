@@ -14,10 +14,13 @@ bool gMoveLights = true;
 bool gSpotlight = false;
 float gAmbient = 0.2f;
 bool gRotateModel = false;
+int gShaderMode = 0;
 
 namespace {
-  auto shader = std::make_shared<Shader>();
-  auto shader2 = std::make_shared<Shader>();
+  auto basicShader = std::make_shared<Shader>();
+  auto normalShader = std::make_shared<Shader>();
+  auto toonShader = std::make_shared<Shader>();
+  auto metalShader = std::make_shared<Shader>();
   auto gridShader = std::make_shared<Shader>();
 
   Trackball trackball;
@@ -85,6 +88,7 @@ namespace {
     glBindFramebuffer(GL_FRAMEBUFFER, frameBuffer);
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, frameBufferTexture, 0);
 
+    glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
   }
 }
 
@@ -109,29 +113,29 @@ void Renderer::init() {
   gridShader->load("grid");
   gridShader->bindBuffer(matrixBuffer);
 
-  shader->load("normals");
-  shader->bindBuffer(matrixBuffer);
-  shader->bindBuffer(lightBuffer);
-  shader->uniform("uTexture") = Sampler2D(0);
+  basicShader->load("basic");
+  basicShader->bindBuffer(matrixBuffer);
+  basicShader->bindBuffer(lightBuffer);
+  basicShader->uniform("uTexture") = Sampler2D(0);
 
-  shader2->load("toon");
-  shader2->bindBuffer(matrixBuffer);
-  shader2->bindBuffer(lightBuffer);
-  shader2->uniform("uTexture") = Sampler2D(0);
-  shader2->uniform("uFramebuffer") = Sampler2D(frameBufferTexture);
+  normalShader->load("normals");
+  normalShader->uniform("uFramebuffer") = Sampler2D(frameBufferTexture);
+
+  toonShader->load("toon");
+  toonShader->bindBuffer(matrixBuffer);
+  toonShader->bindBuffer(lightBuffer);
+  toonShader->uniform("uTexture") = Sampler2D(0);
+  toonShader->uniform("uFramebuffer") = Sampler2D(frameBufferTexture);
 
   grieghallen.load("grieghallen");
   grieghallen.modelTransform = glm::scale(Mat4(), Vec3(0.02f, 0.02f, 0.02f));
-  grieghallen.setShader(shader);
   grieghallen.haveTexture = true;
 
   suzanne1.load("suzanne");
   suzanne1.modelTransform = glm::scale(Mat4(), Vec3(0.02f, 0.02f, 0.02f));
-  suzanne1.setShader(shader);
 
   suzanne2.load("suzanne");
   suzanne2.modelTransform = glm::scale(Mat4(), Vec3(0.02f, 0.02f, 0.02f));
-  suzanne2.setShader(shader);
 
   Text::setGlobalFont(Texture::cache("font.png"));
 
@@ -184,13 +188,24 @@ void Renderer::init() {
                GL_STATIC_DRAW);
 
   glClearColor(0, 0, 0, 1);
+  glEnable(GL_CULL_FACE);
+  glCullFace(GL_BACK);
   glEnable(GL_DEPTH_TEST);
   glEnable(GL_BLEND);
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+  glActiveTexture(GL_TEXTURE0 + frameBufferTexture);
+  glBindTexture(GL_TEXTURE_2D, frameBufferTexture);
 }
 
 void Renderer::resize() {
-  glViewport(0, 0, Sdl::screenCoords().x, Sdl::screenCoords().y);
+  auto screen = Sdl::screenCoords();
+
+  glActiveTexture(GL_TEXTURE0 + frameBufferTexture);
+  glBindTexture(GL_TEXTURE_2D, frameBufferTexture);
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, screen.x, screen.y, 0, GL_RGB, GL_UNSIGNED_BYTE, 0);
+
+  glViewport(0, 0, screen.x, screen.y);
 }
 
 void Renderer::draw(Update update) {
@@ -282,38 +297,46 @@ void Renderer::draw(Update update) {
 
   checkAndLoadUniforms();
 
-  glBindFramebuffer(GL_FRAMEBUFFER, frameBuffer);
-  grieghallen.setShader(shader);
-  suzanne1.setShader(shader);
-  suzanne2.setShader(shader);
-
   /* Draw grid before doing anything else */
-  //glDisable(GL_DEPTH_TEST);
-  //glBindVertexArray(gridVao);
-  //glBindBuffer(GL_ARRAY_BUFFER, gridVbo);
-  //gridShader->use();
-  //glEnableVertexAttribArray(0);
-  //glVertexAttribPointer(0, 3, GL_FLOAT, GL_TRUE, sizeof(GLfloat) * 3, 0);
-  //glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
-  //glDisableVertexAttribArray(0);
-  //glEnable(GL_DEPTH_TEST);
+  glDisable(GL_DEPTH_TEST);
+  glDisable(GL_CULL_FACE);
+  glBindVertexArray(gridVao);
+  glBindBuffer(GL_ARRAY_BUFFER, gridVbo);
+  gridShader->use();
+  glEnableVertexAttribArray(0);
+  glVertexAttribPointer(0, 3, GL_FLOAT, GL_TRUE, sizeof(GLfloat) * 3, 0);
+  glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
+  glDisableVertexAttribArray(0);
+  glEnable(GL_CULL_FACE);
+  glEnable(GL_DEPTH_TEST);
 
-  shader->uniform("uAmbientLight") = glm::vec3(gAmbient);
-  shader2->uniform("uAmbientLight") = glm::vec3(gAmbient);
-  shader2->uniform("uScreenSize") = glm::vec2(Sdl::screenCoords().x, Sdl::screenCoords().y);
+  switch (gShaderMode) {
+    case 0:
+      grieghallen.setShader(basicShader);
+      suzanne1.setShader(basicShader);
+      suzanne2.setShader(basicShader);
+      basicShader->uniform("uAmbientLight") = glm::vec3(gAmbient);
+      break;
 
-  grieghallen.draw();
-  if (gNumLights >= 1)
-    suzanne1.draw();
-  if (gNumLights >= 2)
-    suzanne2.draw();
+    case 1:
+      grieghallen.setShader(normalShader);
+      suzanne1.setShader(normalShader);
+      suzanne2.setShader(normalShader);
 
-  glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
-  grieghallen.setShader(shader2);
-  suzanne1.setShader(shader2);
-  suzanne2.setShader(shader2);
-  glActiveTexture(GL_TEXTURE0 + frameBufferTexture);
-  glBindTexture(GL_TEXTURE_2D, frameBufferTexture);
+      glBindFramebuffer(GL_FRAMEBUFFER, frameBuffer);
+      grieghallen.draw();
+      if (gNumLights >= 1)
+        suzanne1.draw();
+      if (gNumLights >= 2)
+        suzanne2.draw();
+      glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
+
+      grieghallen.setShader(toonShader);
+      suzanne1.setShader(toonShader);
+      suzanne2.setShader(toonShader);
+      toonShader->uniform("uScreenSize") = glm::vec2(Sdl::screenCoords().x, Sdl::screenCoords().y);
+      break;
+  }
 
   grieghallen.draw();
   if (gNumLights >= 1)
@@ -322,7 +345,9 @@ void Renderer::draw(Update update) {
     suzanne2.draw();
 
   glDisable(GL_DEPTH_TEST);
+  glDisable(GL_CULL_FACE);
   Text::drawAll();
+  glEnable(GL_CULL_FACE);
   glEnable(GL_DEPTH_TEST);
   glUseProgram(0);
 
