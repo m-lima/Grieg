@@ -41,7 +41,7 @@ namespace {
 
   GLuint frameBuffer;
   GLuint frameBufferTexture;
-  GLuint depthBuffer;
+  GLuint depthBufferTexture;
 
   struct MatrixBlock {
     static constexpr auto name = "MatrixBlock";
@@ -88,14 +88,15 @@ namespace {
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, screen.x, screen.y, 0, GL_RGB, GL_UNSIGNED_BYTE, 0);
 
     // Depth attachment
-    glGenTextures(1, &depthBuffer);
-    glActiveTexture(GL_TEXTURE0 + depthBuffer);
-    glBindTexture(GL_TEXTURE_2D, depthBuffer);
+    glGenTextures(1, &depthBufferTexture);
+    glActiveTexture(GL_TEXTURE0 + depthBufferTexture);
+    glBindTexture(GL_TEXTURE_2D, depthBufferTexture);
 
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE, GL_NONE);
 
     glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT24, screen.x, screen.y, 0, GL_DEPTH_COMPONENT, GL_FLOAT, 0);
 
@@ -103,7 +104,7 @@ namespace {
     glGenFramebuffers(1, &frameBuffer);
     glBindFramebuffer(GL_FRAMEBUFFER, frameBuffer);
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, frameBufferTexture, 0);
-    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, depthBuffer, 0);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, depthBufferTexture, 0);
 
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
   }
@@ -138,10 +139,8 @@ void Renderer::init() {
   normalShader->load("normals");
 
   toonShader->load("toon");
-  toonShader->bindBuffer(matrixBuffer);
-  toonShader->bindBuffer(lightBuffer);
-  toonShader->uniform("uTexture") = Sampler2D(0);
   toonShader->uniform("uFramebuffer") = Sampler2D(frameBufferTexture);
+  toonShader->uniform("uDepthbuffer") = Sampler2D(depthBufferTexture);
   toonShader->uniform("uScreenSize") = glm::vec2(Sdl::screenCoords().x, Sdl::screenCoords().y);
 
   grieghallen.load("grieghallen");
@@ -222,8 +221,8 @@ void Renderer::resize() {
   glBindTexture(GL_TEXTURE_2D, frameBufferTexture);
   glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, screen.x, screen.y, 0, GL_RGB, GL_UNSIGNED_BYTE, 0);
 
-  glActiveTexture(GL_TEXTURE0 + depthBuffer);
-  glBindTexture(GL_TEXTURE_2D, depthBuffer);
+  glActiveTexture(GL_TEXTURE0 + depthBufferTexture);
+  glBindTexture(GL_TEXTURE_2D, depthBufferTexture);
   glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT24, screen.x, screen.y, 0, GL_DEPTH_COMPONENT, GL_FLOAT, 0);
 
   glViewport(0, 0, screen.x, screen.y);
@@ -358,7 +357,6 @@ void Renderer::draw(Update update) {
       grieghallen.setShader(toonShader);
       suzanne1.setShader(toonShader);
       suzanne2.setShader(toonShader);
-      toonShader->uniform("uAmbientLight") = glm::vec3(gAmbient);
       break;
   }
 
