@@ -353,6 +353,8 @@ void Renderer::draw(Update update) {
       if (gNumLights >= 2)
         suzanne2.draw();
       glBindFramebuffer(GL_FRAMEBUFFER, 0);
+      glActiveTexture(GL_TEXTURE0 + depthBufferTexture);
+      glBindTexture(GL_TEXTURE_2D, depthBufferTexture);
 
       grieghallen.setShader(toonShader);
       suzanne1.setShader(toonShader);

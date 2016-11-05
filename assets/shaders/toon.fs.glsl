@@ -30,43 +30,74 @@ layout(std430, binding = 2) buffer MaterialBlock {
 };
 
 float linearDepth(vec2 coord) {
-  float z = texture(uFramebuffer, coord).r;
-  return (NEAR * z) / (FAR - z * (FAR - NEAR));
-  //return (2.0 * NEAR) / (FAR + NEAR - z * (FAR - NEAR));
-  //return (2 * z - gl_DepthRange.near - gl_DepthRange.far) / (gl_DepthRange.far - gl_DepthRange.near);
-  //return pow(z, 1024.0);
-  //return z;
+  float z = texture(uDepthbuffer, coord).r;
+  return z;
 }
 
 void main() {
 
+  // If a depth step change has been detected
+  bool depthStepChange = false;
+
+  // Current pixel being rendered normalized from [0..1]
   vec2 currentPixel = vec2(gl_FragCoord.x / uScreenSize.x, gl_FragCoord.y / uScreenSize.y);
 
   vec3 currentColor = texture(uFramebuffer, currentPixel).rgb;
+  //vec3 currentColor = vec3(linearDepth(currentPixel));
 
+  // Horizontal normal gradient
   float horizontalDeltaNormal = distance(
     texture(uFramebuffer, vec2((gl_FragCoord.x - 1) / uScreenSize.x, currentPixel.y)).rgb,
     texture(uFramebuffer, vec2((gl_FragCoord.x + 1) / uScreenSize.x, currentPixel.y)).rgb
   );
-  
+
+  // Vertical normal gradient
   float verticalDeltaNormal = distance(
     texture(uFramebuffer, vec2(currentPixel.x, (gl_FragCoord.y - 1) / uScreenSize.y)).rgb,
     texture(uFramebuffer, vec2(currentPixel.x, (gl_FragCoord.y + 1) / uScreenSize.y)).rgb
   );
 
-  float horizontalDeltaDepth = distance(
-    texture(uDepthbuffer, vec2((gl_FragCoord.x - 1) / uScreenSize.x, currentPixel.y)).rgb,
-    texture(uDepthbuffer, vec2((gl_FragCoord.x + 1) / uScreenSize.x, currentPixel.y)).rgb
-  );
-  
-  float verticalDeltaDepth = distance(
-    texture(uDepthbuffer, vec2(currentPixel.x, (gl_FragCoord.y - 1) / uScreenSize.y)).rgb,
-    texture(uDepthbuffer, vec2(currentPixel.x, (gl_FragCoord.y + 1) / uScreenSize.y)).rgb
-  );
+  // Break in normal detected?
+  if (horizontalDeltaNormal > 0.5 || verticalDeltaNormal > 0.5) {
 
-  if (horizontalDeltaNormal > 0.5 || verticalDeltaNormal > 0.5 ||
-      horizontalDeltaDepth > 0.1 || verticalDeltaDepth > 0.1) {
+    // Draw contour
     currentColor = vec3(0);
+
+  // Try to detect break in depth
+  } else {
+  
+    // Left depth step change
+    float leftDeltaDepth =
+      linearDepth(vec2((gl_FragCoord.x - 1) / uScreenSize.x, currentPixel.y)) -
+      linearDepth(currentPixel);
+
+    // Right depth step change
+    float rightDeltaDepth = linearDepth(currentPixel) -
+      linearDepth(vec2((gl_FragCoord.x + 1) / uScreenSize.x, currentPixel.y));
+
+    // Down depth step change
+    float downDeltaDepth =
+      linearDepth(vec2(currentPixel.x, (gl_FragCoord.y - 1) / uScreenSize.y)) -
+      linearDepth(currentPixel);
+
+    // Up depth step change
+    float upDeltaDepth = linearDepth(currentPixel) -
+      linearDepth(vec2(currentPixel.x, (gl_FragCoord.y + 1) / uScreenSize.y));
+
+    // Detect a smooth gradient
+    if (leftDeltaDepth - rightDeltaDepth > 0.001) {
+
+      // It is in fact an edge, detect height jump
+      if (abs(leftDeltaDepth) > 0.0001) {
+        currentColor = vec3(0);
+      }
+
+    // Same for vertical
+    } else if (downDeltaDepth - upDeltaDepth > 0.001) {
+      if (abs(downDeltaDepth) > 0.0001) {
+        currentColor = vec3(0);
+      }
+    }
   }
 
   FragColor = vec4(currentColor, 1.0);
