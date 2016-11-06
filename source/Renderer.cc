@@ -34,7 +34,7 @@ namespace {
   Object grieghallen;
   Object suzanne1;
   Object suzanne2;
-  Object suzanne3;
+  Object bigSuzy;
 
   Texture texture;
   GLuint gridVbo = 0;
@@ -110,7 +110,7 @@ namespace {
     // Actual frame buffer
     glGenFramebuffers(1, &frameBuffer);
     glBindFramebuffer(GL_FRAMEBUFFER, frameBuffer);
-    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, frameBufferTexture, 0);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, frameBufferTexture, 0);
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, depthBufferTexture, 0);
 
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -164,11 +164,11 @@ void Renderer::init() {
   suzanne2.load("suzanne");
   suzanne2.modelTransform = glm::scale(Mat4(), Vec3(0.02f, 0.02f, 0.02f));
 
-  suzanne3.load("suzanne");
+  bigSuzy.load("suzanne");
 
   std::shared_ptr<Texture> bump = std::make_shared<Texture>();
   bump->load("Rock.jpg");
-  suzanne3.setBump(bump);
+  bigSuzy.setBump(bump);
 
   Text::setGlobalFont(Texture::cache("font.png"));
 
@@ -334,6 +334,8 @@ void Renderer::draw(Update update) {
   if (gRotateModel) {
     grieghallen.modelTransform = glm::rotate(
       grieghallen.modelTransform, 0.01f, glm::vec3(0, 1, 0));
+    bigSuzy.modelTransform = glm::rotate(
+      bigSuzy.modelTransform, 0.01f, glm::vec3(0, 1, 0));
   }
 
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -358,7 +360,7 @@ void Renderer::draw(Update update) {
       grieghallen.setShader(basicShader);
       suzanne1.setShader(basicShader);
       suzanne2.setShader(basicShader);
-      suzanne3.setShader(basicShader);
+      bigSuzy.setShader(basicShader);
       basicShader->uniform("uAmbientLight") = glm::vec3(gAmbient);
       break;
 
@@ -366,12 +368,12 @@ void Renderer::draw(Update update) {
       grieghallen.setShader(normalShader);
       suzanne1.setShader(normalShader);
       suzanne2.setShader(normalShader);
-      suzanne3.setShader(normalShader);
+      bigSuzy.setShader(normalShader);
 
       glBindFramebuffer(GL_FRAMEBUFFER, frameBuffer);
       glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
       if (gMonkerized) {
-        suzanne3.draw();
+        bigSuzy.draw();
       } else {
         grieghallen.draw();
       }
@@ -384,20 +386,20 @@ void Renderer::draw(Update update) {
       grieghallen.setShader(toonShader);
       suzanne1.setShader(toonShader);
       suzanne2.setShader(toonShader);
-      suzanne3.setShader(toonShader);
+      bigSuzy.setShader(toonShader);
       break;
 
     case 2:
       grieghallen.setShader(basicShader);
       suzanne1.setShader(basicShader);
       suzanne2.setShader(basicShader);
-      suzanne3.setShader(basicShader);
+      bigSuzy.setShader(basicShader);
       basicShader->uniform("uAmbientLight") = glm::vec3(gAmbient);
 
       glBindFramebuffer(GL_FRAMEBUFFER, frameBuffer);
       glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
       if (gMonkerized) {
-        suzanne3.draw();
+        bigSuzy.draw();
       } else {
         grieghallen.draw();
       }
@@ -410,12 +412,12 @@ void Renderer::draw(Update update) {
       grieghallen.setShader(depthShader);
       suzanne1.setShader(depthShader);
       suzanne2.setShader(depthShader);
-      suzanne3.setShader(depthShader);
+      bigSuzy.setShader(depthShader);
       break;
   }
 
   if (gMonkerized) {
-    suzanne3.draw();
+    bigSuzy.draw();
   } else {
     grieghallen.draw();
   }
