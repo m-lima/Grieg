@@ -39,11 +39,12 @@ void main() {
   // Current pixel being rendered normalized from [0..1]
   vec2 currentPixel = vec2(gl_FragCoord.x / uScreenSize.x, gl_FragCoord.y / uScreenSize.y);
 
-  vec3 currentColor = floor(texture(uNormalbuffer, currentPixel).rgb * 4) / 4;
-  vec3 currentBrightness = texture(uFramebuffer, currentPixel).rgb;
-  //vec3 currentColor = vec3(texture(uFramebuffer, currentPixel).r);
-  currentBrightness = floor(currentBrightness * 3) / 3;
-  currentColor *= currentBrightness;
+  vec3 currentColor = floor(texture(uFramebuffer, currentPixel).rgb * 3) / 3;
+  //vec3 currentColor = floor(texture(uNormalbuffer, currentPixel).rgb * 4) / 4;
+  //vec3 currentBrightness = texture(uFramebuffer, currentPixel).rgb;
+  ////vec3 currentColor = vec3(texture(uFramebuffer, currentPixel).r);
+  //currentBrightness = floor(currentBrightness * 3) / 3;
+  //currentColor *= currentBrightness;
 
   // Horizontal normal gradient
   float horizontalDeltaNormal = distance(

@@ -399,13 +399,16 @@ void Object::draw() {
     if (mat.texture && enableTexture) {
       mat.texture->bind();
       mShader->uniform("uHaveTexture") = 1;
+      matBlock->ambient = mat.ambient;
+      matBlock->diffuse = mat.diffuse;
+      matBlock->specular = mat.specular;
     } else {
+      matBlock->ambient = glm::vec3(0.0f);
+      matBlock->diffuse = glm::vec3(0.5f);
+      matBlock->specular = glm::vec3(0.3f);
       mShader->uniform("uHaveTexture") = 0;
     }
 
-    matBlock->ambient = mat.ambient;
-    matBlock->diffuse = mat.diffuse;
-    matBlock->specular = mat.specular;
     matBlock.update();
 
     auto count = mat.count;
