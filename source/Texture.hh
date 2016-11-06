@@ -29,9 +29,12 @@ using TexturePtr = std::shared_ptr<Texture>;
 
 class Texture
 {
-    GLuint mTexture {};
+    std::unique_ptr<GLuint[]> mTextures {};
 
-    void init();
+    int mFrame {};
+    int mNumFrames {};
+
+    void init(int numFrames);
 
 public:
     Texture() = default;
@@ -46,9 +49,9 @@ public:
 
     Texture& operator=(Texture&&) = default;
 
-    void load(const std::string &name);
+    void load(const std::string &name, int numFrames = 1);
 
-    void bind(Sampler2D sampler = 0) const;
+    void bind(Sampler2D sampler = 0);
 
     static TexturePtr cache(const std::string &name);
 };

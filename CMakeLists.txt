@@ -4,6 +4,9 @@ project(INF251 CXX)
 set(CMAKE_PREFIX_PATH "${CMAKE_SOURCE_DIR}/extern")
 set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
 
+# cmake-ide.el is stupid, so pretend we're doing:
+# add_definitions("-std=c++11")
+
 ##------------------------------------------------------------------------------
 ## Dependencies
 ##

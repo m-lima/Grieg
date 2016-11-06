@@ -16,6 +16,7 @@ float gAmbient = 0.4f;
 bool gRotateModel = false;
 int gShaderMode = 0;
 bool gMonkerized = false;
+bool gWaterized = false;
 
 namespace {
   constexpr int TEXTURE_LOCATION = 0;
@@ -36,6 +37,8 @@ namespace {
   Object suzanne2;
   Object bigSuzy;
 
+  auto water = std::make_shared<Texture>();
+  auto bump = std::make_shared<Texture>();
   Texture texture;
   GLuint gridVbo = 0;
   GLuint gridVao = 0;
@@ -49,6 +52,8 @@ namespace {
   GLuint frameBuffer;
   GLuint frameBufferTexture;
   GLuint depthBufferTexture;
+
+  bool currentWaterized = false;
 
   struct MatrixBlock {
     static constexpr auto name = "MatrixBlock";
@@ -135,6 +140,8 @@ void Renderer::init() {
 
   generateFrameBuffer();
 
+  water->load("water.jpg", 16);
+
   gridShader->load("grid");
   gridShader->bindBuffer(matrixBuffer);
 
@@ -166,13 +173,12 @@ void Renderer::init() {
 
   bigSuzy.load("suzanne");
 
-  std::shared_ptr<Texture> bump = std::make_shared<Texture>();
   bump->load("Rock.jpg");
   bigSuzy.setBump(bump);
 
   Text::setGlobalFont(Texture::cache("font.png"));
 
-  usageText.setPosition({ 1, 47 - 12 });
+  usageText.setPosition({ 1, 47 - 13 });
   usageText.format(
     "Left mouse:   Translate\n"
     "Right mouse:  Rotate\n"
@@ -181,6 +187,7 @@ void Renderer::init() {
     "R:            Toggle model rotation\n"
     "S:            Cycle shader\n"
     "M:            Monkerize\n"
+    "W:            Waterize\n"
     "F1:           Toggle light movement\n"
     "F2:           Change number of lights\n"
     "F3:           Toggle sun\n"
@@ -372,7 +379,24 @@ void Renderer::draw(Update update) {
 
       glBindFramebuffer(GL_FRAMEBUFFER, frameBuffer);
       glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+  glActiveTexture(GL_TEXTURE0 + FRAMEBUFFER_LOCATION);
+  glBindTexture(GL_TEXTURE_2D, frameBufferTexture);
+  glActiveTexture(GL_TEXTURE0 + DEPTHBUFFER_LOCATION);
+  glBindTexture(GL_TEXTURE_2D, depthBufferTexture);
       if (gMonkerized) {
+        if (gWaterized) {
+          if (!currentWaterized) {
+            bigSuzy.setMaterial(water);
+            currentWaterized = true;
+          }
+        } else {
+          if (currentWaterized) {
+            bigSuzy.setBump(bump);
+            currentWaterized = false;
+          }
+        }
+
         bigSuzy.draw();
       } else {
         grieghallen.draw();
@@ -398,7 +422,24 @@ void Renderer::draw(Update update) {
 
       glBindFramebuffer(GL_FRAMEBUFFER, frameBuffer);
       glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+  glActiveTexture(GL_TEXTURE0 + FRAMEBUFFER_LOCATION);
+  glBindTexture(GL_TEXTURE_2D, frameBufferTexture);
+  glActiveTexture(GL_TEXTURE0 + DEPTHBUFFER_LOCATION);
+  glBindTexture(GL_TEXTURE_2D, depthBufferTexture);
       if (gMonkerized) {
+        if (gWaterized) {
+          if (!currentWaterized) {
+            bigSuzy.setMaterial(water);
+            currentWaterized = true;
+          }
+        } else {
+          if (currentWaterized) {
+            bigSuzy.setBump(bump);
+            currentWaterized = false;
+          }
+        }
+
         bigSuzy.draw();
       } else {
         grieghallen.draw();
@@ -416,7 +457,24 @@ void Renderer::draw(Update update) {
       break;
   }
 
+  glActiveTexture(GL_TEXTURE0 + FRAMEBUFFER_LOCATION);
+  glBindTexture(GL_TEXTURE_2D, frameBufferTexture);
+  glActiveTexture(GL_TEXTURE0 + DEPTHBUFFER_LOCATION);
+  glBindTexture(GL_TEXTURE_2D, depthBufferTexture);
+
   if (gMonkerized) {
+    if (gWaterized) {
+      if (!currentWaterized) {
+        bigSuzy.setMaterial(water);
+        currentWaterized = true;
+      }
+    } else {
+      if (currentWaterized) {
+        bigSuzy.setBump(bump);
+        currentWaterized = false;
+      }
+    }
+
     bigSuzy.draw();
   } else {
     grieghallen.draw();

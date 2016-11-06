@@ -5,6 +5,7 @@ in vec2 fTexCoord;
 in vec3 fNormal; //Already normalized
 in vec3 fEyePos;
 out vec4 FragColor;
+out vec4 FragNormal;
 
 uniform sampler2D uTexture;
 uniform int uHaveTexture;
