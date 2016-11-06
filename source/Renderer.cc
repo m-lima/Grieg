@@ -115,10 +115,34 @@ namespace {
     // Actual frame buffer
     glGenFramebuffers(1, &frameBuffer);
     glBindFramebuffer(GL_FRAMEBUFFER, frameBuffer);
-    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, frameBufferTexture, 0);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, frameBufferTexture, 0);
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, depthBufferTexture, 0);
 
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
+  }
+
+  void drawAll() {
+    if (gMonkerized) {
+      if (gWaterized) {
+        if (!currentWaterized) {
+          bigSuzy.setMaterial(water);
+          currentWaterized = true;
+        }
+      } else {
+        if (currentWaterized) {
+          bigSuzy.setBump(bump);
+          currentWaterized = false;
+        }
+      }
+
+      bigSuzy.draw();
+    } else {
+      grieghallen.draw();
+    }
+    if (gNumLights >= 1)
+      suzanne1.draw();
+    if (gNumLights >= 2)
+      suzanne2.draw();
   }
 }
 
@@ -379,27 +403,7 @@ void Renderer::draw(Update update) {
 
       glBindFramebuffer(GL_FRAMEBUFFER, frameBuffer);
       glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-      if (gMonkerized) {
-        if (gWaterized) {
-          if (!currentWaterized) {
-            bigSuzy.setMaterial(water);
-            currentWaterized = true;
-          }
-        } else {
-          if (currentWaterized) {
-            bigSuzy.setBump(bump);
-            currentWaterized = false;
-          }
-        }
-
-        bigSuzy.draw();
-      } else {
-        grieghallen.draw();
-      }
-      if (gNumLights >= 1)
-        suzanne1.draw();
-      if (gNumLights >= 2)
-        suzanne2.draw();
+      drawAll();
       glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
       grieghallen.setShader(toonShader);
@@ -417,27 +421,7 @@ void Renderer::draw(Update update) {
 
       glBindFramebuffer(GL_FRAMEBUFFER, frameBuffer);
       glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-      if (gMonkerized) {
-        if (gWaterized) {
-          if (!currentWaterized) {
-            bigSuzy.setMaterial(water);
-            currentWaterized = true;
-          }
-        } else {
-          if (currentWaterized) {
-            bigSuzy.setBump(bump);
-            currentWaterized = false;
-          }
-        }
-
-        bigSuzy.draw();
-      } else {
-        grieghallen.draw();
-      }
-      if (gNumLights >= 1)
-        suzanne1.draw();
-      if (gNumLights >= 2)
-        suzanne2.draw();
+      drawAll();
       glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
       grieghallen.setShader(depthShader);
@@ -447,27 +431,7 @@ void Renderer::draw(Update update) {
       break;
   }
 
-  if (gMonkerized) {
-    if (gWaterized) {
-      if (!currentWaterized) {
-        bigSuzy.setMaterial(water);
-        currentWaterized = true;
-      }
-    } else {
-      if (currentWaterized) {
-        bigSuzy.setBump(bump);
-        currentWaterized = false;
-      }
-    }
-
-    bigSuzy.draw();
-  } else {
-    grieghallen.draw();
-  }
-  if (gNumLights >= 1)
-    suzanne1.draw();
-  if (gNumLights >= 2)
-    suzanne2.draw();
+  drawAll();
 
   glDisable(GL_DEPTH_TEST);
   Text::drawAll();
