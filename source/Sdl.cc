@@ -113,6 +113,8 @@ void Sdl::mainLoop()
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, SDL_GL_CONTEXT_FORWARD_COMPATIBLE_FLAG | SDL_GL_CONTEXT_DEBUG_FLAG);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
 
+    SDL_GL_SetSwapInterval(1);
+
     _window = SDL_CreateWindow("SDL2 Window",
                                SDL_WINDOWPOS_CENTERED,
                                SDL_WINDOWPOS_CENTERED,
@@ -273,7 +275,7 @@ void Sdl::mainLoop()
         SDL_GL_SwapWindow(_window);
 
         /* Sleep for 10ms */
-        SDL_Delay(10);
+        // SDL_Delay(10);
     }
 }
 
