@@ -37,6 +37,8 @@ public:
 
     glm::mat4 modelTransform;
 
+    bool enableTexture = true;
+
     void load(const std::string &name);
 
     void setShader(std::shared_ptr<Shader> shader) {

@@ -22,7 +22,8 @@ namespace {
   constexpr int TEXTURE_LOCATION = 0;
   constexpr int BUMP_LOCATION = 2;
   constexpr int FRAMEBUFFER_LOCATION = 10;
-  constexpr int DEPTHBUFFER_LOCATION = 11;
+  constexpr int NORMALBUFFER_LOCATION = 11;
+  constexpr int DEPTHBUFFER_LOCATION = 12;
 
   auto basicShader = std::make_shared<Shader>();
   auto normalShader = std::make_shared<Shader>();
@@ -51,6 +52,7 @@ namespace {
 
   GLuint frameBuffer;
   GLuint frameBufferTexture;
+  GLuint normalBufferTexture;
   GLuint depthBufferTexture;
 
   bool currentWaterized = false;
@@ -99,6 +101,18 @@ namespace {
 
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, screen.x, screen.y, 0, GL_RGB, GL_UNSIGNED_BYTE, 0);
 
+    // Normal attachment
+    glGenTextures(1, &normalBufferTexture);
+    glActiveTexture(GL_TEXTURE0 + FRAMEBUFFER_LOCATION);
+    glBindTexture(GL_TEXTURE_2D, normalBufferTexture);
+
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, screen.x, screen.y, 0, GL_RGB, GL_UNSIGNED_BYTE, 0);
+
     // Depth attachment
     glGenTextures(1, &depthBufferTexture);
     glActiveTexture(GL_TEXTURE0 + DEPTHBUFFER_LOCATION);
@@ -116,7 +130,11 @@ namespace {
     glGenFramebuffers(1, &frameBuffer);
     glBindFramebuffer(GL_FRAMEBUFFER, frameBuffer);
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, frameBufferTexture, 0);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, normalBufferTexture, 0);
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, depthBufferTexture, 0);
+
+    GLuint attachments[2] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1 };
+    glDrawBuffers(2, attachments);
 
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
   }
@@ -179,6 +197,7 @@ void Renderer::init() {
 
   toonShader->load("toon");
   toonShader->uniform("uFramebuffer") = Sampler2D(FRAMEBUFFER_LOCATION);
+  toonShader->uniform("uNormalbuffer") = Sampler2D(NORMALBUFFER_LOCATION);
   toonShader->uniform("uDepthbuffer") = Sampler2D(DEPTHBUFFER_LOCATION);
   toonShader->uniform("uScreenSize") = glm::vec2(Sdl::screenCoords().x, Sdl::screenCoords().y);
 
@@ -261,6 +280,8 @@ void Renderer::init() {
 
   glActiveTexture(GL_TEXTURE0 + FRAMEBUFFER_LOCATION);
   glBindTexture(GL_TEXTURE_2D, frameBufferTexture);
+  glActiveTexture(GL_TEXTURE0 + NORMALBUFFER_LOCATION);
+  glBindTexture(GL_TEXTURE_2D, normalBufferTexture);
   glActiveTexture(GL_TEXTURE0 + DEPTHBUFFER_LOCATION);
   glBindTexture(GL_TEXTURE_2D, depthBufferTexture);
 }
@@ -270,6 +291,10 @@ void Renderer::resize() {
 
   glActiveTexture(GL_TEXTURE0 + FRAMEBUFFER_LOCATION);
   glBindTexture(GL_TEXTURE_2D, frameBufferTexture);
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, screen.x, screen.y, 0, GL_RGB, GL_UNSIGNED_BYTE, 0);
+
+  glActiveTexture(GL_TEXTURE0 + NORMALBUFFER_LOCATION);
+  glBindTexture(GL_TEXTURE_2D, normalBufferTexture);
   glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, screen.x, screen.y, 0, GL_RGB, GL_UNSIGNED_BYTE, 0);
 
   glActiveTexture(GL_TEXTURE0 + DEPTHBUFFER_LOCATION);
@@ -386,20 +411,16 @@ void Renderer::draw(Update update) {
   glEnable(GL_CULL_FACE);
   glEnable(GL_DEPTH_TEST);
 
+  grieghallen.setShader(basicShader);
+  suzanne1.setShader(basicShader);
+  suzanne2.setShader(basicShader);
+  bigSuzy.setShader(basicShader);
+  basicShader->uniform("uAmbientLight") = glm::vec3(gAmbient);
+  
   switch (gShaderMode) {
-    case 0:
-      grieghallen.setShader(basicShader);
-      suzanne1.setShader(basicShader);
-      suzanne2.setShader(basicShader);
-      bigSuzy.setShader(basicShader);
-      basicShader->uniform("uAmbientLight") = glm::vec3(gAmbient);
-      break;
-
     case 1:
-      grieghallen.setShader(normalShader);
-      suzanne1.setShader(normalShader);
-      suzanne2.setShader(normalShader);
-      bigSuzy.setShader(normalShader);
+      //basicShader->uniform("uAmbientLight") = glm::vec3(0);
+      grieghallen.enableTexture = false;
 
       glBindFramebuffer(GL_FRAMEBUFFER, frameBuffer);
       glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -410,15 +431,10 @@ void Renderer::draw(Update update) {
       suzanne1.setShader(toonShader);
       suzanne2.setShader(toonShader);
       bigSuzy.setShader(toonShader);
+      grieghallen.enableTexture = true;
       break;
 
     case 2:
-      grieghallen.setShader(basicShader);
-      suzanne1.setShader(basicShader);
-      suzanne2.setShader(basicShader);
-      bigSuzy.setShader(basicShader);
-      basicShader->uniform("uAmbientLight") = glm::vec3(gAmbient);
-
       glBindFramebuffer(GL_FRAMEBUFFER, frameBuffer);
       glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
       drawAll();

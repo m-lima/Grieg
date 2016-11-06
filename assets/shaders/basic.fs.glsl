@@ -127,5 +127,5 @@ void main() {
   }
 
   FragColor = vec4(color, 1.0);
-  FragNormal = vec4(normal, 1.0);
+  FragNormal = vec4(fNormal / 2 + 0.5, 1.0);
 }

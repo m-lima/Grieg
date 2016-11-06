@@ -84,8 +84,6 @@ set(SHADERS
   assets/shaders/basic.fs.glsl
   assets/shaders/depth.vs.glsl
   assets/shaders/depth.fs.glsl
-  assets/shaders/normals.vs.glsl
-  assets/shaders/normals.fs.glsl
   assets/shaders/toon.vs.glsl
   assets/shaders/toon.fs.glsl
   assets/shaders/grid.vs.glsl

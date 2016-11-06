@@ -396,7 +396,7 @@ void Object::draw() {
   bind();
   const GLuint *start = nullptr;
   for (const auto &mat : mMaterialGroups) {
-    if (mat.texture) {
+    if (mat.texture && enableTexture) {
       mat.texture->bind();
       mShader->uniform("uHaveTexture") = 1;
     } else {

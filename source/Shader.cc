@@ -66,6 +66,9 @@ void Shader::load(const std::string &name)
 
     glDeleteShader(vertexShader);
     glDeleteShader(fragmentShader);
+
+    glBindFragDataLocation(mProgram, 0, "FragColor");
+    glBindFragDataLocation(mProgram, 1, "FragNormal");
 }
 
 Shader::UniformProxy Shader::uniform(const std::string &name)
