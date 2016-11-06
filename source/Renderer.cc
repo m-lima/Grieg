@@ -379,11 +379,6 @@ void Renderer::draw(Update update) {
 
       glBindFramebuffer(GL_FRAMEBUFFER, frameBuffer);
       glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-  glActiveTexture(GL_TEXTURE0 + FRAMEBUFFER_LOCATION);
-  glBindTexture(GL_TEXTURE_2D, frameBufferTexture);
-  glActiveTexture(GL_TEXTURE0 + DEPTHBUFFER_LOCATION);
-  glBindTexture(GL_TEXTURE_2D, depthBufferTexture);
       if (gMonkerized) {
         if (gWaterized) {
           if (!currentWaterized) {
@@ -422,11 +417,6 @@ void Renderer::draw(Update update) {
 
       glBindFramebuffer(GL_FRAMEBUFFER, frameBuffer);
       glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-  glActiveTexture(GL_TEXTURE0 + FRAMEBUFFER_LOCATION);
-  glBindTexture(GL_TEXTURE_2D, frameBufferTexture);
-  glActiveTexture(GL_TEXTURE0 + DEPTHBUFFER_LOCATION);
-  glBindTexture(GL_TEXTURE_2D, depthBufferTexture);
       if (gMonkerized) {
         if (gWaterized) {
           if (!currentWaterized) {
@@ -456,11 +446,6 @@ void Renderer::draw(Update update) {
       bigSuzy.setShader(depthShader);
       break;
   }
-
-  glActiveTexture(GL_TEXTURE0 + FRAMEBUFFER_LOCATION);
-  glBindTexture(GL_TEXTURE_2D, frameBufferTexture);
-  glActiveTexture(GL_TEXTURE0 + DEPTHBUFFER_LOCATION);
-  glBindTexture(GL_TEXTURE_2D, depthBufferTexture);
 
   if (gMonkerized) {
     if (gWaterized) {
