@@ -44,6 +44,11 @@ public:
         mShader = shader;
     }
 
+    void setMaterial(std::shared_ptr<Texture> texture, glm::vec3 ambient = { 1.0f, 1.0f, 1.0f }, glm::vec3 diffuse = { 1.0f, 1.0f, 1.0f }, glm::vec3 specular = { 1.0f, 1.0f, 1.0f }) {
+        mMaterialGroups.clear();
+        mMaterialGroups.push_back({mTrigCount, texture, ambient, diffuse, specular});
+    }
+
     void setPosition(glm::vec3 position) {
         mPosition = position;
     }
