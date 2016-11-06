@@ -42,7 +42,7 @@ void main() {
 
   vec3 normal = fNormal;
   if (uHaveBump > 0) {
-    normal = normalize(fNormal + 2 * texture(uBump, fTexCoord).xyz);
+    normal = normalize(fNormal + texture(uBump, fTexCoord).xyz);
   }
 
   // Initialize the color with the ambient lighting

@@ -15,6 +15,7 @@ bool gSpotlight = true;
 float gAmbient = 0.4f;
 bool gRotateModel = false;
 int gShaderMode = 0;
+bool gMonkerized = false;
 
 namespace {
   constexpr int TEXTURE_LOCATION = 0;
@@ -171,7 +172,7 @@ void Renderer::init() {
 
   Text::setGlobalFont(Texture::cache("font.png"));
 
-  usageText.setPosition({ 1, 47 - 11 });
+  usageText.setPosition({ 1, 47 - 12 });
   usageText.format(
     "Left mouse:   Translate\n"
     "Right mouse:  Rotate\n"
@@ -179,6 +180,7 @@ void Renderer::init() {
     "Spacebar:     Toggle perspective\n"
     "R:            Toggle model rotation\n"
     "S:            Cycle shader\n"
+    "M:            Monkerize\n"
     "F1:           Toggle light movement\n"
     "F2:           Change number of lights\n"
     "F3:           Toggle sun\n"
@@ -368,12 +370,15 @@ void Renderer::draw(Update update) {
 
       glBindFramebuffer(GL_FRAMEBUFFER, frameBuffer);
       glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-      grieghallen.draw();
+      if (gMonkerized) {
+        suzanne3.draw();
+      } else {
+        grieghallen.draw();
+      }
       if (gNumLights >= 1)
         suzanne1.draw();
       if (gNumLights >= 2)
         suzanne2.draw();
-      suzanne3.draw();
       glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
       grieghallen.setShader(toonShader);
@@ -391,12 +396,15 @@ void Renderer::draw(Update update) {
 
       glBindFramebuffer(GL_FRAMEBUFFER, frameBuffer);
       glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-      grieghallen.draw();
+      if (gMonkerized) {
+        suzanne3.draw();
+      } else {
+        grieghallen.draw();
+      }
       if (gNumLights >= 1)
         suzanne1.draw();
       if (gNumLights >= 2)
         suzanne2.draw();
-      suzanne3.draw();
       glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
       grieghallen.setShader(depthShader);
@@ -406,12 +414,15 @@ void Renderer::draw(Update update) {
       break;
   }
 
-  grieghallen.draw();
+  if (gMonkerized) {
+    suzanne3.draw();
+  } else {
+    grieghallen.draw();
+  }
   if (gNumLights >= 1)
     suzanne1.draw();
   if (gNumLights >= 2)
     suzanne2.draw();
-  suzanne3.draw();
 
   glDisable(GL_DEPTH_TEST);
   Text::drawAll();
