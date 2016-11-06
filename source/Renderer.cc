@@ -236,6 +236,7 @@ void Renderer::resize() {
   glViewport(0, 0, screen.x, screen.y);
 
   toonShader->uniform("uScreenSize") = glm::vec2(screen.x, screen.y);
+  depthShader->uniform("uScreenSize") = glm::vec2(screen.x, screen.y);
 }
 
 void Renderer::draw(Update update) {
