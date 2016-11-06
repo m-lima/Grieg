@@ -252,6 +252,10 @@ void Sdl::mainLoop()
                   }
                   break;
 
+                case SDLK_ESCAPE:
+                  exit(0);
+                  break;
+
                 default:
                     break;
                 }

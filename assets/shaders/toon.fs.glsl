@@ -83,13 +83,13 @@ void main() {
     if (leftDeltaDepth - rightDeltaDepth > 0.001) {
 
       // It is in fact an edge, detect height jump
-      if (abs(leftDeltaDepth) > 0.0001) {
+      if (abs(leftDeltaDepth) > 0.0001 || abs(rightDeltaDepth) > 0.0001) {
         currentColor = vec3(0);
       }
 
     // Same for vertical
     } else if (downDeltaDepth - upDeltaDepth > 0.001) {
-      if (abs(downDeltaDepth) > 0.0001) {
+      if (abs(downDeltaDepth) > 0.0001 || abs(upDeltaDepth) > 0.0001) {
         currentColor = vec3(0);
       }
     }
