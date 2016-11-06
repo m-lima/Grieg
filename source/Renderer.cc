@@ -16,6 +16,7 @@ float gAmbient = 0.4f;
 bool gRotateModel = false;
 int gShaderMode = 0;
 bool gMonkerized = false;
+bool gWaterized = false;
 
 namespace {
   constexpr int TEXTURE_LOCATION = 0;
@@ -36,6 +37,8 @@ namespace {
   Object suzanne2;
   Object suzanne3;
 
+  auto water = std::make_shared<Texture>();
+  auto bump = std::make_shared<Texture>();
   Texture texture;
   GLuint gridVbo = 0;
   GLuint gridVao = 0;
@@ -135,6 +138,8 @@ void Renderer::init() {
 
   generateFrameBuffer();
 
+  water->load("water.jpg", 16);
+
   gridShader->load("grid");
   gridShader->bindBuffer(matrixBuffer);
 
@@ -166,13 +171,12 @@ void Renderer::init() {
 
   suzanne3.load("suzanne");
 
-  std::shared_ptr<Texture> bump = std::make_shared<Texture>();
   bump->load("Rock.jpg");
   suzanne3.setBump(bump);
 
   Text::setGlobalFont(Texture::cache("font.png"));
 
-  usageText.setPosition({ 1, 47 - 12 });
+  usageText.setPosition({ 1, 47 - 13 });
   usageText.format(
     "Left mouse:   Translate\n"
     "Right mouse:  Rotate\n"
@@ -181,6 +185,7 @@ void Renderer::init() {
     "R:            Toggle model rotation\n"
     "S:            Cycle shader\n"
     "M:            Monkerize\n"
+    "W:            Waterize\n"
     "F1:           Toggle light movement\n"
     "F2:           Change number of lights\n"
     "F3:           Toggle sun\n"
@@ -412,6 +417,12 @@ void Renderer::draw(Update update) {
       suzanne2.setShader(depthShader);
       suzanne3.setShader(depthShader);
       break;
+  }
+
+  if (gWaterized) {
+      suzanne3.setMaterial(water);
+  } else {
+      suzanne3.setBump(bump);
   }
 
   if (gMonkerized) {

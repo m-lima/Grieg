@@ -13,6 +13,7 @@ extern float gAmbient;
 extern bool gRotateModel;
 extern int gShaderMode;
 extern bool gMonkerized;
+extern bool gWaterized;
 
 namespace {
   std::ostream& operator<<(std::ostream& s, const SDL_version &v)
@@ -224,6 +225,10 @@ void Sdl::mainLoop()
                 case SDLK_m:
                   gMonkerized = !gMonkerized;
                   break;
+
+                case SDLK_w:
+                    gWaterized = !gWaterized;
+                    break;
 
                 case SDLK_F1:
                     gMoveLights = !gMoveLights;
