@@ -11,8 +11,8 @@
 bool gSun = true;
 int gNumLights = 2;
 bool gMoveLights = true;
-bool gSpotlight = false;
-float gAmbient = 0.2f;
+bool gSpotlight = true;
+float gAmbient = 0.4f;
 bool gRotateModel = false;
 int gShaderMode = 0;
 
@@ -178,19 +178,19 @@ void Renderer::init() {
     "-/+:          Darken/brighten ambient light\n");
 
   /* Create lights */
-  lightBuffer[0].type = 1; /* Directional */
+  lightBuffer[0].type = 1;
   lightBuffer[0].color = { 1.0f, 1.0f, 1.0f };
   lightBuffer[0].position = { 0.0, 10.0f, 0.0f };
 
-  lightBuffer[1].type = 2; /* Point light */
+  lightBuffer[1].type = 3;
   lightBuffer[1].color = { 0.0f, 0.0f, 1.0f };
   lightBuffer[1].direction = { 1.0f, 0.0f, 0.0f };
-  lightBuffer[1].aperture = 0.2f;
+  lightBuffer[1].aperture = 0.01f;
 
-  lightBuffer[2].type = 2; /* Point light */
+  lightBuffer[2].type = 3;
   lightBuffer[2].color = { 0.0f, 1.0f, 0.0f };
   lightBuffer[2].intensity = 0.5f;
-  lightBuffer[2].aperture = 0.4f;
+  lightBuffer[2].aperture = 0.1f;
   lightBuffer.update();
 
   /* Create grid quad */
