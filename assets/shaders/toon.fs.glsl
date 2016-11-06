@@ -6,9 +6,6 @@ uniform sampler2D uFramebuffer;
 uniform sampler2D uDepthbuffer;
 uniform vec2 uScreenSize;
 
-const float NEAR = 1; // From Trackball.cc projection
-const float FAR = 20; // From Trackball.cc projection
-
 struct LightSource {
   int type;
   vec3 direction;

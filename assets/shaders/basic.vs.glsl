@@ -16,9 +16,9 @@ layout(std430, binding = 0) buffer MatrixBlock {
 uniform mat4 uModel;
 
 void main() {
-  fPosition = vPosition;
+  fPosition = (uModel * vec4(vPosition, 1.0)).xyz;
   gl_Position = uProj * uView * uModel * vec4(vPosition, 1.0);
   fTexCoord = vTexCoord;
-  fNormal = normalize(vNormal);
+  fNormal = normalize((uModel * vec4(vNormal, 1.0)).xyz);
   fEyePos = (inverse(uView) * inverse(uModel) * vec4(0.0, 0.0, 5.0, 1.0)).xyz;
 }
