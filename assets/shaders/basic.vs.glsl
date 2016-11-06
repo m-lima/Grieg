@@ -19,6 +19,6 @@ void main() {
   fPosition = vPosition;
   gl_Position = uProj * uView * uModel * vec4(vPosition, 1.0);
   fTexCoord = vTexCoord;
-  fNormal = normalize((uModel * vec4(vNormal, 1.0)).xyz);
+  fNormal = normalize((uModel * vec4(normalize(vNormal), 1.0)).xyz);
   fEyePos = (inverse(uView) * inverse(uModel) * vec4(0.0, 0.0, 5.0, 1.0)).xyz;
 }

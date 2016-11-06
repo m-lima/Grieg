@@ -17,6 +17,11 @@ bool gRotateModel = false;
 int gShaderMode = 0;
 
 namespace {
+  constexpr int TEXTURE_LOCATION = 0;
+  constexpr int BUMP_LOCATION = 2;
+  constexpr int FRAMEBUFFER_LOCATION = 10;
+  constexpr int DEPTHBUFFER_LOCATION = 11;
+
   auto basicShader = std::make_shared<Shader>();
   auto normalShader = std::make_shared<Shader>();
   auto toonShader = std::make_shared<Shader>();
@@ -28,6 +33,7 @@ namespace {
   Object grieghallen;
   Object suzanne1;
   Object suzanne2;
+  Object suzanne3;
 
   Texture texture;
   GLuint gridVbo = 0;
@@ -77,7 +83,7 @@ namespace {
 
     // Color attachment
     glGenTextures(1, &frameBufferTexture);
-    glActiveTexture(GL_TEXTURE0 + frameBufferTexture);
+    glActiveTexture(GL_TEXTURE0 + FRAMEBUFFER_LOCATION);
     glBindTexture(GL_TEXTURE_2D, frameBufferTexture);
 
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
@@ -89,14 +95,14 @@ namespace {
 
     // Depth attachment
     glGenTextures(1, &depthBufferTexture);
-    glActiveTexture(GL_TEXTURE0 + depthBufferTexture);
+    glActiveTexture(GL_TEXTURE0 + DEPTHBUFFER_LOCATION);
     glBindTexture(GL_TEXTURE_2D, depthBufferTexture);
 
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE, GL_NONE);
+    //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE, GL_NONE);
 
     glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT24, screen.x, screen.y, 0, GL_DEPTH_COMPONENT, GL_FLOAT, 0);
 
@@ -134,32 +140,34 @@ void Renderer::init() {
   basicShader->load("basic");
   basicShader->bindBuffer(matrixBuffer);
   basicShader->bindBuffer(lightBuffer);
-  basicShader->uniform("uTexture") = Sampler2D(0);
+  basicShader->uniform("uTexture") = Sampler2D(TEXTURE_LOCATION);
+  basicShader->uniform("uBump") = Sampler2D(BUMP_LOCATION);
 
   normalShader->load("normals");
 
   toonShader->load("toon");
-  toonShader->uniform("uFramebuffer") = Sampler2D(frameBufferTexture);
-  toonShader->uniform("uDepthbuffer") = Sampler2D(depthBufferTexture);
+  toonShader->uniform("uFramebuffer") = Sampler2D(FRAMEBUFFER_LOCATION);
+  toonShader->uniform("uDepthbuffer") = Sampler2D(DEPTHBUFFER_LOCATION);
   toonShader->uniform("uScreenSize") = glm::vec2(Sdl::screenCoords().x, Sdl::screenCoords().y);
 
   depthShader->load("depth");
-  basicShader->bindBuffer(matrixBuffer);
-  basicShader->bindBuffer(lightBuffer);
-  basicShader->uniform("uTexture") = Sampler2D(0);
-  depthShader->uniform("uFramebuffer") = Sampler2D(frameBufferTexture);
-  depthShader->uniform("uDepthbuffer") = Sampler2D(depthBufferTexture);
+  depthShader->uniform("uFramebuffer") = Sampler2D(FRAMEBUFFER_LOCATION);
   depthShader->uniform("uScreenSize") = glm::vec2(Sdl::screenCoords().x, Sdl::screenCoords().y);
 
   grieghallen.load("grieghallen");
   grieghallen.modelTransform = glm::scale(Mat4(), Vec3(0.02f, 0.02f, 0.02f));
-  grieghallen.haveTexture = true;
 
   suzanne1.load("suzanne");
   suzanne1.modelTransform = glm::scale(Mat4(), Vec3(0.02f, 0.02f, 0.02f));
 
   suzanne2.load("suzanne");
   suzanne2.modelTransform = glm::scale(Mat4(), Vec3(0.02f, 0.02f, 0.02f));
+
+  suzanne3.load("suzanne");
+
+  std::shared_ptr<Texture> bump = std::make_shared<Texture>();
+  bump->load("Rock.jpg");
+  suzanne3.setBump(bump);
 
   Text::setGlobalFont(Texture::cache("font.png"));
 
@@ -218,18 +226,20 @@ void Renderer::init() {
   glEnable(GL_BLEND);
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-  glActiveTexture(GL_TEXTURE0 + frameBufferTexture);
+  glActiveTexture(GL_TEXTURE0 + FRAMEBUFFER_LOCATION);
   glBindTexture(GL_TEXTURE_2D, frameBufferTexture);
+  glActiveTexture(GL_TEXTURE0 + DEPTHBUFFER_LOCATION);
+  glBindTexture(GL_TEXTURE_2D, depthBufferTexture);
 }
 
 void Renderer::resize() {
   auto screen = Sdl::screenCoords();
 
-  glActiveTexture(GL_TEXTURE0 + frameBufferTexture);
+  glActiveTexture(GL_TEXTURE0 + FRAMEBUFFER_LOCATION);
   glBindTexture(GL_TEXTURE_2D, frameBufferTexture);
   glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, screen.x, screen.y, 0, GL_RGB, GL_UNSIGNED_BYTE, 0);
 
-  glActiveTexture(GL_TEXTURE0 + depthBufferTexture);
+  glActiveTexture(GL_TEXTURE0 + DEPTHBUFFER_LOCATION);
   glBindTexture(GL_TEXTURE_2D, depthBufferTexture);
   glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT24, screen.x, screen.y, 0, GL_DEPTH_COMPONENT, GL_FLOAT, 0);
 
@@ -346,6 +356,7 @@ void Renderer::draw(Update update) {
       grieghallen.setShader(basicShader);
       suzanne1.setShader(basicShader);
       suzanne2.setShader(basicShader);
+      suzanne3.setShader(basicShader);
       basicShader->uniform("uAmbientLight") = glm::vec3(gAmbient);
       break;
 
@@ -353,6 +364,7 @@ void Renderer::draw(Update update) {
       grieghallen.setShader(normalShader);
       suzanne1.setShader(normalShader);
       suzanne2.setShader(normalShader);
+      suzanne3.setShader(normalShader);
 
       glBindFramebuffer(GL_FRAMEBUFFER, frameBuffer);
       glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -361,19 +373,20 @@ void Renderer::draw(Update update) {
         suzanne1.draw();
       if (gNumLights >= 2)
         suzanne2.draw();
+      suzanne3.draw();
       glBindFramebuffer(GL_FRAMEBUFFER, 0);
-      glActiveTexture(GL_TEXTURE0 + depthBufferTexture);
-      glBindTexture(GL_TEXTURE_2D, depthBufferTexture);
 
       grieghallen.setShader(toonShader);
       suzanne1.setShader(toonShader);
       suzanne2.setShader(toonShader);
+      suzanne3.setShader(toonShader);
       break;
 
     case 2:
       grieghallen.setShader(basicShader);
       suzanne1.setShader(basicShader);
       suzanne2.setShader(basicShader);
+      suzanne3.setShader(basicShader);
       basicShader->uniform("uAmbientLight") = glm::vec3(gAmbient);
 
       glBindFramebuffer(GL_FRAMEBUFFER, frameBuffer);
@@ -383,13 +396,13 @@ void Renderer::draw(Update update) {
         suzanne1.draw();
       if (gNumLights >= 2)
         suzanne2.draw();
+      suzanne3.draw();
       glBindFramebuffer(GL_FRAMEBUFFER, 0);
-      glActiveTexture(GL_TEXTURE0 + depthBufferTexture);
-      glBindTexture(GL_TEXTURE_2D, depthBufferTexture);
 
       grieghallen.setShader(depthShader);
       suzanne1.setShader(depthShader);
       suzanne2.setShader(depthShader);
+      suzanne3.setShader(depthShader);
       break;
   }
 
@@ -398,6 +411,7 @@ void Renderer::draw(Update update) {
     suzanne1.draw();
   if (gNumLights >= 2)
     suzanne2.draw();
+  suzanne3.draw();
 
   glDisable(GL_DEPTH_TEST);
   Text::drawAll();

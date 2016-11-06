@@ -10,6 +10,7 @@ class Object
     struct MaterialGroup {
         size_t count;
         std::shared_ptr<Texture> texture;
+        std::shared_ptr<Texture> bump;
         glm::vec3 ambient;
         glm::vec3 diffuse;
         glm::vec3 specular;
@@ -36,17 +37,20 @@ public:
 
     glm::mat4 modelTransform;
 
-    bool haveTexture { false };
-
     void load(const std::string &name);
 
     void setShader(std::shared_ptr<Shader> shader) {
         mShader = shader;
     }
 
-    void setMaterial(std::shared_ptr<Texture> texture, glm::vec3 ambient = { 1.0f, 1.0f, 1.0f }, glm::vec3 diffuse = { 1.0f, 1.0f, 1.0f }, glm::vec3 specular = { 1.0f, 1.0f, 1.0f }) {
+    void setMaterial(std::shared_ptr<Texture> texture, glm::vec3 ambient = { 0.0f, 0.0f, 0.0f }, glm::vec3 diffuse = { 0.5f, 0.5f, 0.5f }, glm::vec3 specular = { 0.3f, 0.3f, 0.3f }) {
         mMaterialGroups.clear();
-        mMaterialGroups.push_back({mTrigCount, texture, ambient, diffuse, specular});
+        mMaterialGroups.push_back({mTrigCount, texture, nullptr, ambient, diffuse, specular});
+    }
+
+    void setBump(std::shared_ptr<Texture> bump, glm::vec3 ambient = { 0.0f, 0.0f, 0.0f }, glm::vec3 diffuse = { 0.5f, 0.5f, 0.5f }, glm::vec3 specular = { 0.3f, 0.3f, 0.3f }) {
+      mMaterialGroups.clear();
+      mMaterialGroups.push_back({ mTrigCount, nullptr, bump, ambient, diffuse, specular });
     }
 
     void setPosition(glm::vec3 position) {

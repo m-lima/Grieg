@@ -8,6 +8,8 @@ out vec4 FragColor;
 
 uniform sampler2D uTexture;
 uniform int uHaveTexture;
+uniform sampler2D uBump;
+uniform int uHaveBump;
 
 uniform vec3 uAmbientLight;
 
@@ -38,8 +40,13 @@ void main() {
     texel = texture(uTexture, fTexCoord).xyz;
   }
 
+  vec3 normal = fNormal;
+  if (uHaveBump > 0) {
+    normal = normalize(fNormal + 2 * texture(uBump, fTexCoord).xyz);
+  }
+
   // Initialize the color with the ambient lighting
-  vec3 color = uAmbientLight * texel;
+  vec3 color = (uAmbientLight + uAmbient) * texel;
 
   for (int i = 0; i < 12; i++) {
 
@@ -93,17 +100,15 @@ void main() {
     }
 
     // Angle between the normal and incidence of light
-    float angleOfIncidence = dot(fNormal, lightIncidence);
+    float angleOfIncidence = dot(normal, lightIncidence);
 
     // If the light is facing the normal, illuminate
     if (angleOfIncidence > 0.0) {
-      vec3 ambient = uAmbient * texel * uLights[i].color;
-
       vec3 diffuse = uDiffuse * angleOfIncidence * texel * uLights[i].color;
 
       // Direction in which the light reflects
       vec3 specularReflection = normalize(
-        dot(2 * fNormal, lightIncidence) * fNormal - lightIncidence);
+        dot(2 * normal, lightIncidence) * normal - lightIncidence);
 
       // Angle between the reflection and the viewing angle
       float viewingAngle = dot(
@@ -116,8 +121,7 @@ void main() {
         uSpecular * pow(viewingAngle, uLights[i].specularIndex) * uLights[i].color
         : vec3(0.0);
 
-      color += uLights[i].intensity *
-        (ambient + attenuation * (diffuse + specular));
+      color += uLights[i].intensity * attenuation * (diffuse + specular);
     }
   }
 
