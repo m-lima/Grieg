@@ -418,6 +418,7 @@ void Renderer::draw(Update update) {
     case 1:
       //basicShader->uniform("uAmbientLight") = glm::vec3(0);
       grieghallen.enableTexture = false;
+      bigSuzy.enableTexture = false;
 
       glBindFramebuffer(GL_FRAMEBUFFER, frameBuffer);
       glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -429,6 +430,7 @@ void Renderer::draw(Update update) {
       suzanne2.setShader(toonShader);
       bigSuzy.setShader(toonShader);
       grieghallen.enableTexture = true;
+      bigSuzy.enableTexture = true;
       break;
 
     case 2:

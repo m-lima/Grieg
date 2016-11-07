@@ -20,6 +20,22 @@ The following features work:
 - Alternate shading functions exist and can be changed with S. We have basic
   shading (just Phong shading), toon shading and tilt-shift shading.
 
+- Controls:
+
+Left Mouse:   Translate
+Right Mouse:  Rotate
+Middle mouse: Reset view
+Spacebar:     Toggle perspective
+R:            Toggle model rotation
+S:            Cycle shader
+M:            Monkerize
+W:            Waterize
+F1:           Toggle light movement
+F2:           Change number of lights
+F3:           Toggle sun
+F4:           Toggle spotlight/point light
+-/+:          Darken/brighten ambient light
+
 OLD NOTES for Assignment 2:
 The model loading and textures work. The process is not very optimised, but it does its job.
 
