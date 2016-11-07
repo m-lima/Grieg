@@ -26,7 +26,6 @@ namespace {
   constexpr int DEPTHBUFFER_LOCATION = 12;
 
   auto basicShader = std::make_shared<Shader>();
-  auto normalShader = std::make_shared<Shader>();
   auto toonShader = std::make_shared<Shader>();
   auto depthShader = std::make_shared<Shader>();
   auto gridShader = std::make_shared<Shader>();
@@ -192,8 +191,6 @@ void Renderer::init() {
   basicShader->bindBuffer(lightBuffer);
   basicShader->uniform("uTexture") = Sampler2D(TEXTURE_LOCATION);
   basicShader->uniform("uBump") = Sampler2D(BUMP_LOCATION);
-
-  normalShader->load("normals");
 
   toonShader->load("toon");
   toonShader->uniform("uFramebuffer") = Sampler2D(FRAMEBUFFER_LOCATION);
