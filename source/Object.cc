@@ -1,7 +1,16 @@
 #include <map>
 #include <fstream>
 #include "Object.hh"
+#include "BinParser.hh"
 #include <glm/gtc/matrix_transform.hpp>
+
+#ifdef _WIN32
+#include <io.h>
+#define access _access_s
+#else
+#include <unistd.h>
+#endif // _WIN32
+
 
 namespace {
   // Returns true if token was read successfully
@@ -246,6 +255,7 @@ namespace {
   };
 
   ShaderStorage<MaterialBlock> matBlock;
+
 }
 
 Object::~Object() {
@@ -271,12 +281,31 @@ void Object::init() {
 }
 
 void Object::load(const std::string &name) {
+  // Check if a .obj version exists
+  if (access(format("assets/meshes/{}.obj", name).c_str(), 0) == 0) {
+    loadObjFile(name);
+    return;
+  } 
+
+  // Try to generate a cached .obj from a .bin, if it exists
+  // And load it
+  if (access(format("assets/meshes/{}.bin", name).c_str(), 0) == 0) {
+    BinParser::convertToObj(name);
+    loadObjFile(name);
+    return;
+  }
+
+  // Not a valid file
+  fatal("Unrecognized file name: {}", name);
+}
+
+void Object::loadObjFile(const std::string &name) {
   auto obj = readObjFile(name);
   auto mtl = !obj.materialLib.empty() ? readMtlFile(obj.materialLib) : MtlFile{};
 
   /* The indices start from 1 and 0, so subtract if positive.
-   * If negative, then the index refers to the vertices from the end of the list
-   * ie. -1 is the last vertex, -2 is next to last, and so on. */
+  * If negative, then the index refers to the vertices from the end of the list
+  * ie. -1 is the last vertex, -2 is next to last, and so on. */
   const auto posSize = static_cast<int>(obj.positions.size());
   const int texSize = static_cast<int>(obj.texCoords.size());
   const int normSize = static_cast<int>(obj.normals.size());
@@ -348,6 +377,7 @@ void Object::load(const std::string &name) {
                GL_STATIC_DRAW);
 
   mTrigCount = static_cast<GLuint>(indices.size());
+
 }
 
 void Object::update() {

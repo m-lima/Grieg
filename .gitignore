@@ -39,6 +39,7 @@ tags
 *.ko
 *.obj
 *.elf
+*.bin
 
 # Precompiled Headers
 *.gch

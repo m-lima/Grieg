@@ -77,7 +77,9 @@ set(SOURCES
   source/Trackball.cc
   source/Trackball.hh
   source/Renderer.cc
-  source/Renderer.hh)
+  source/Renderer.hh
+  source/BinParser.hh
+  )
 
 set(SHADERS
   assets/shaders/basic.vs.glsl

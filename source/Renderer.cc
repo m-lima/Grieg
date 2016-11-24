@@ -36,6 +36,7 @@ namespace {
   Object suzanne1;
   Object suzanne2;
   Object bigSuzy;
+  Object terrain;
 
   auto water = std::make_shared<Texture>();
   auto bump = std::make_shared<Texture>();
@@ -212,6 +213,8 @@ void Renderer::init() {
   suzanne2.modelTransform = glm::scale(Mat4(), Vec3(0.02f, 0.02f, 0.02f));
 
   bigSuzy.load("suzanne");
+
+  terrain.load("bergen_1024x918");
 
   bump->load("Rock.jpg");
   bigSuzy.setBump(bump);

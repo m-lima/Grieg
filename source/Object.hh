@@ -29,6 +29,8 @@ class Object
 
     std::shared_ptr<Shader> mShader {};
 
+    void loadObjFile(const std::string &name);
+    void loadBinFile(const std::string &name);
     void init();
 
 public:
