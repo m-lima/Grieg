@@ -12,7 +12,7 @@ extern int gNumLights;
 extern float gAmbient;
 extern bool gRotateModel;
 extern int gShaderMode;
-extern bool gMonkerized;
+extern int gModel;
 extern bool gWaterized;
 
 namespace {
@@ -214,7 +214,7 @@ void Sdl::mainLoop() {
               break;
 
             case SDLK_m:
-              gMonkerized = !gMonkerized;
+              gModel = (gModel + 1) % 3;
               break;
 
             case SDLK_w:

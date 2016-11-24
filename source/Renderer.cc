@@ -15,7 +15,7 @@ bool gSpotlight = true;
 float gAmbient = 0.4f;
 bool gRotateModel = false;
 int gShaderMode = 0;
-bool gMonkerized = false;
+int gModel = 0;
 bool gWaterized = false;
 
 namespace {
@@ -40,6 +40,7 @@ namespace {
 
   auto water = std::make_shared<Texture>();
   auto bump = std::make_shared<Texture>();
+  auto bergen = std::make_shared<Texture>();
   Texture texture;
   GLuint gridVbo = 0;
   GLuint gridVao = 0;
@@ -140,28 +141,36 @@ namespace {
   }
 
   void drawAll() {
-    if (gMonkerized) {
-      if (gWaterized) {
-        if (!currentWaterized) {
-          bigSuzy.setMaterial(water);
-          currentWaterized = true;
-        }
-      } else {
-        if (currentWaterized) {
-          bigSuzy.setBump(bump);
-          currentWaterized = false;
-        }
-      }
+    switch (gModel) {
+      case 0:
+        grieghallen.draw();
+        break;
 
-      bigSuzy.draw();
-    } else {
-      grieghallen.draw();
+      case 1:
+        if (gWaterized) {
+          if (!currentWaterized) {
+            bigSuzy.setMaterial(water);
+            currentWaterized = true;
+          }
+        } else {
+          if (currentWaterized) {
+            bigSuzy.setBump(bump);
+            currentWaterized = false;
+          }
+        }
+
+        bigSuzy.draw();
+        break;
+
+      case 2:
+        terrain.draw();
+        break;
     }
+
     if (gNumLights >= 1)
       suzanne1.draw();
     if (gNumLights >= 2)
       suzanne2.draw();
-    terrain.draw();
   }
 
   void setAllShaders(std::shared_ptr<Shader> shader) {
@@ -224,6 +233,10 @@ void Renderer::init() {
   bigSuzy.load("suzanne");
 
   terrain.load("bergen_1024x918");
+  terrain.modelTransform = glm::scale(Mat4(), Vec3(4.0f, 4.0f, 4.0f));
+
+  bergen->load("bergen_terrain_texture.png");
+  terrain.setMaterial(bergen);
 
   bump->load("Rock.jpg");
   bigSuzy.setBump(bump);
@@ -238,7 +251,7 @@ void Renderer::init() {
     "Spacebar:     Toggle perspective\n"
     "R:            Toggle model rotation\n"
     "S:            Cycle shader\n"
-    "M:            Monkerize\n"
+    "M:            Change model\n"
     "W:            Waterize\n"
     "F1:           Toggle light movement\n"
     "F2:           Change number of lights\n"
@@ -422,12 +435,12 @@ void Renderer::draw(Update update) {
 
   setAllShaders(basicShader);
   basicShader->uniform("uAmbientLight") = glm::vec3(gAmbient);
-  
+
   switch (gShaderMode) {
     case 1:
-      //basicShader->uniform("uAmbientLight") = glm::vec3(0);
       grieghallen.enableTexture = false;
       bigSuzy.enableTexture = false;
+      terrain.enableTexture = false;
 
       glBindFramebuffer(GL_FRAMEBUFFER, frameBuffer);
       glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -437,6 +450,7 @@ void Renderer::draw(Update update) {
       setAllShaders(toonShader);
       grieghallen.enableTexture = true;
       bigSuzy.enableTexture = true;
+      terrain.enableTexture = true;
       break;
 
     case 2:

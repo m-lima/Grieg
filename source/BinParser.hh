@@ -2,6 +2,7 @@
 #define __INF251_BINPARSER__66745623
 
 #include "infdef.hh"
+#include <algorithm>
 #include <glm/detail/func_geometric.hpp>
 
 namespace {
@@ -80,6 +81,8 @@ namespace {
   }
 
   /// Generates OpenGL-compatible vertices for the .bin file
+  /// The .obj can be normalized between [-1..1], if requested
+  template <bool Normalize>
   std::vector<Vec3> generateVertices(const Terrain &terrain) {
     std::vector<Vec3> vertices;
 
@@ -95,10 +98,23 @@ namespace {
     unsigned int row = 0;
     unsigned int col = 0;
 
-    for (auto & height : terrain.grid) {
+    // If we are normalizing, prepare the factor
+    float normalizeFactor = Normalize
+      ? std::abs(terrain.header.cellSize * std::max(terrain.header.columns,
+                                                    terrain.header.rows))
+      : 0;
+
+    for (auto height : terrain.grid) {
 
       // Some values are invalid. Only add if if higher than the threshold
       if (height > terrain.header.threshold) {
+
+        // If normalizing, see if any height is larger than the
+        // width and lenth
+        if (Normalize && std::abs(height) > normalizeFactor) {
+          normalizeFactor = height;
+        }
+
         vertices.push_back(Vec3(currentX, height, currentZ));
       }
 
@@ -117,6 +133,16 @@ namespace {
 
     // Shrink the vector. We might not need it to be so big
     vertices.shrink_to_fit();
+
+    // Normalize, if necessary
+    if (Normalize) {
+      normalizeFactor /= 2.0f;
+      for (auto & vertex : vertices) {
+        vertex.x = (vertex.x - terrain.header.xStart) / normalizeFactor - 1.0f;
+        vertex.z = (vertex.z - terrain.header.zStart) / normalizeFactor - 1.0f;
+        vertex.y /= normalizeFactor;
+      }
+    }
 
     return vertices;
   }
@@ -147,7 +173,9 @@ namespace {
         h = terrain.getHeight(col, row);
 
         // Invalid vertex should be ignored
-        if (h <= terrain.header.threshold) { continue; }
+        if (h <= terrain.header.threshold) {
+          continue;
+        }
 
         n = terrain.getHeight(col, row + 1);
         s = terrain.getHeight(col, row - 1);
@@ -155,10 +183,18 @@ namespace {
         w = terrain.getHeight(col - 1, row);
 
         // We also cannot use invalid vertices for gradient calculation
-        if (n <= terrain.header.threshold) { n = h; }
-        if (s <= terrain.header.threshold) { s = h; }
-        if (e <= terrain.header.threshold) { e = h; }
-        if (w <= terrain.header.threshold) { w = h; }
+        if (n <= terrain.header.threshold) {
+          n = h;
+        }
+        if (s <= terrain.header.threshold) {
+          s = h;
+        }
+        if (e <= terrain.header.threshold) {
+          e = h;
+        }
+        if (w <= terrain.header.threshold) {
+          w = h;
+        }
 
         // Calculate gradient
         x = s - n;
@@ -195,7 +231,7 @@ namespace {
 
         coords.push_back(Vec2(
           col / (terrain.header.columns - 1.0f),
-          row / (terrain.header.rows - 1.0f)
+          1 - (row / (terrain.header.rows - 1.0f))
         ));
       }
     }
@@ -319,6 +355,8 @@ namespace {
 }
 
 namespace BinParser {
+
+  template <bool Normalize = true>
   void convertToObj(const std::string &name) {
 
     println("Converting {} from .bin to .obj", name);
@@ -341,7 +379,7 @@ namespace BinParser {
     // Vertices
     {
       // Convert into vertices
-      auto vertices = generateVertices(terrain);
+      auto vertices = generateVertices<Normalize>(terrain);
 
       // Capture the actual number of vertices
       size = vertices.size();
