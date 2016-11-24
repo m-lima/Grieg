@@ -161,6 +161,15 @@ namespace {
       suzanne1.draw();
     if (gNumLights >= 2)
       suzanne2.draw();
+    terrain.draw();
+  }
+
+  void setAllShaders(std::shared_ptr<Shader> shader) {
+    grieghallen.setShader(shader);
+    suzanne1.setShader(shader);
+    suzanne2.setShader(shader);
+    bigSuzy.setShader(shader);
+    terrain.setShader(shader);
   }
 }
 
@@ -411,10 +420,7 @@ void Renderer::draw(Update update) {
   glEnable(GL_CULL_FACE);
   glEnable(GL_DEPTH_TEST);
 
-  grieghallen.setShader(basicShader);
-  suzanne1.setShader(basicShader);
-  suzanne2.setShader(basicShader);
-  bigSuzy.setShader(basicShader);
+  setAllShaders(basicShader);
   basicShader->uniform("uAmbientLight") = glm::vec3(gAmbient);
   
   switch (gShaderMode) {
@@ -428,10 +434,7 @@ void Renderer::draw(Update update) {
       drawAll();
       glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-      grieghallen.setShader(toonShader);
-      suzanne1.setShader(toonShader);
-      suzanne2.setShader(toonShader);
-      bigSuzy.setShader(toonShader);
+      setAllShaders(toonShader);
       grieghallen.enableTexture = true;
       bigSuzy.enableTexture = true;
       break;
@@ -442,10 +445,7 @@ void Renderer::draw(Update update) {
       drawAll();
       glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-      grieghallen.setShader(depthShader);
-      suzanne1.setShader(depthShader);
-      suzanne2.setShader(depthShader);
-      bigSuzy.setShader(depthShader);
+      setAllShaders(depthShader);
       break;
   }
 

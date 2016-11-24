@@ -92,8 +92,8 @@ namespace {
     // the multiplication for every vertex)
     double currentX = terrain.header.xStart;
     double currentZ = terrain.header.zStart;
-    int row = 0;
-    int col = 0;
+    unsigned int row = 0;
+    unsigned int col = 0;
 
     for (auto & height : terrain.grid) {
 
@@ -142,8 +142,8 @@ namespace {
     float h, n, s, e, w, x, z;
 
     // Infer a X and Z coord system for easier gradient calculation
-    for (int col = 0; col < terrain.header.columns; ++col) {
-      for (int row = 0; row < terrain.header.rows; ++row) {
+    for (unsigned int col = 0; col < terrain.header.columns; ++col) {
+      for (unsigned int row = 0; row < terrain.header.rows; ++row) {
         h = terrain.getHeight(col, row);
 
         // Invalid vertex should be ignored
@@ -185,8 +185,8 @@ namespace {
     coords.reserve(size);
 
     // Infer a X and Z coord system for easier coord calculation
-    for (int col = 0; col < terrain.header.columns; ++col) {
-      for (int row = 0; row < terrain.header.rows; ++row) {
+    for (unsigned int col = 0; col < terrain.header.columns; ++col) {
+      for (unsigned int row = 0; row < terrain.header.rows; ++row) {
 
         // Invalid vertex should be ignored
         if (terrain.getHeight(col, row) <= terrain.header.threshold) {
@@ -220,21 +220,22 @@ namespace {
 
     // We don't know if we will need all this, but in worst-case
     // we will have two triangles per vertex
+    // Actually: (col - 1)*(row - 1)*2, but close enough
     faces.reserve(size * 2);
 
     // Since some vertices are ignored, a mapping vector must be generated
     // to allow for proper reference pointing;
     std::vector<int> indexMapper;
     indexMapper.reserve(terrain.grid.size());
-    int currentIndex = 0;
+    int currentIndex = 1;
     for (auto & height : terrain.grid) {
       if (height > terrain.header.threshold) {
         indexMapper.push_back(currentIndex++);
       } else {
         indexMapper.push_back(-1);
 
-        // This will help see if there is an invlid vertex later
-        height = terrain.header.threshold;
+        // This will help see if there is an invalid vertex later
+        height = static_cast<float>(terrain.header.threshold);
       }
     }
 
@@ -245,8 +246,8 @@ namespace {
     float a, b, c, d;
 
     // Infer a X and Z coord system for easier index calculation
-    for (int col = 0; col < terrain.header.columns; ++col) {
-      for (int row = 0; row < terrain.header.rows; ++row) {
+    for (unsigned int col = 0; col < terrain.header.columns; ++col) {
+      for (unsigned int row = 0; row < terrain.header.rows; ++row) {
 
         // We substract the thresholh because above we know that no number
         // is less than it. This will facilitate the check later
@@ -320,6 +321,8 @@ namespace {
 namespace BinParser {
   void convertToObj(const std::string &name) {
 
+    println("Converting {} from .bin to .obj", name);
+
     // Before we even start, check to see if we will be able to save at
     // end of the parsing process
     std::ofstream file(format("assets/meshes/{}.obj", name));
@@ -328,6 +331,7 @@ namespace BinParser {
       fatal("Cannot write into {}.obj", name);
     }
     fmt::print(file, "# Cached parsed file\n");
+    fmt::print(file, "usemtl bergen_terrain_texture.png\n");
 
     size_t size;
 
