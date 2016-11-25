@@ -1,13 +1,16 @@
 #include <fstream>
 #include <sstream>
 
+//#include "Sdl.hh"
+#include "infdef.hh"
+#include "Renderer.hh"
+
 #include <QApplication>
 #include <QSurfaceFormat>
 #include <QDesktopWidget>
 
-#include "Sdl.hh"
-#include "Renderer.hh"
 #include "qt/MainWindow.hh"
+#include "qt/OpenGLWidget.hh"
 
 #ifdef _WIN32
 // Force high performance GPU
@@ -70,6 +73,14 @@ int main(int argc, char * argv[])
   uiQT::MainWindow mainWindow;
   mainWindow.resize(800, 600);
   center(mainWindow);
+  
+  uiQT::OpenGLWidget openGLwidget(&mainWindow);
+  openGLwidget.setInitGL(Renderer::init);
+  openGLwidget.setResizeGL(Renderer::resize);
+  openGLwidget.setDrawGL(Renderer::draw);
+
+  mainWindow.attachRenderer(&openGLwidget);
+
   mainWindow.show();
   return app.exec();  
 

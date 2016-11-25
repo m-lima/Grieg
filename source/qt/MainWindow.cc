@@ -1,7 +1,5 @@
 #include "MainWindow.hh"
 
-#include "OpenGLWidget.hh"
-
 #include <QMenu>
 #include <QMenuBar>
 #include <memory>
@@ -16,6 +14,9 @@ namespace uiQT {
     setMenuBar(mnbMenu);
 
     setAttribute(Qt::WA_QuitOnClose);
-    setCentralWidget(new OpenGLWidget(this));
+  }
+
+  void MainWindow::attachRenderer(OpenGLWidget * openGL) {
+    setCentralWidget(openGL);
   }
 }

@@ -87,9 +87,7 @@ namespace {
 
   ShaderStorage<LightBlock[], 12> lightBuffer;
 
-  void generateFrameBuffer() {
-    auto screen = Sdl::screenCoords();
-
+  void generateFrameBuffer(int width, int height) {
     // Color attachment
     glGenTextures(1, &frameBufferTexture);
     glActiveTexture(GL_TEXTURE0 + FRAMEBUFFER_LOCATION);
@@ -100,7 +98,7 @@ namespace {
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
 
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, screen.x, screen.y, 0, GL_RGB, GL_UNSIGNED_BYTE, 0);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, 0);
 
     // Normal attachment
     glGenTextures(1, &normalBufferTexture);
@@ -112,7 +110,7 @@ namespace {
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
 
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, screen.x, screen.y, 0, GL_RGB, GL_UNSIGNED_BYTE, 0);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, 0);
 
     // Depth attachment
     glGenTextures(1, &depthBufferTexture);
@@ -125,7 +123,7 @@ namespace {
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
     //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE, GL_NONE);
 
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT24, screen.x, screen.y, 0, GL_DEPTH_COMPONENT, GL_FLOAT, 0);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT24, width, height, 0, GL_DEPTH_COMPONENT, GL_FLOAT, 0);
 
     // Actual frame buffer
     glGenFramebuffers(1, &frameBuffer);
@@ -196,9 +194,9 @@ void Renderer::checkAndLoadUniforms() {
   }
 }
 
-void Renderer::init() {
+void Renderer::init(int width, int height) {
 
-  generateFrameBuffer();
+  generateFrameBuffer(width, height);
 
   water->load("water.jpg", 16);
 
@@ -215,11 +213,11 @@ void Renderer::init() {
   toonShader->uniform("uFramebuffer") = Sampler2D(FRAMEBUFFER_LOCATION);
   toonShader->uniform("uNormalbuffer") = Sampler2D(NORMALBUFFER_LOCATION);
   toonShader->uniform("uDepthbuffer") = Sampler2D(DEPTHBUFFER_LOCATION);
-  toonShader->uniform("uScreenSize") = glm::vec2(Sdl::screenCoords().x, Sdl::screenCoords().y);
+  toonShader->uniform("uScreenSize") = glm::vec2(width, height);
 
   depthShader->load("depth");
   depthShader->uniform("uFramebuffer") = Sampler2D(FRAMEBUFFER_LOCATION);
-  depthShader->uniform("uScreenSize") = glm::vec2(Sdl::screenCoords().x, Sdl::screenCoords().y);
+  depthShader->uniform("uScreenSize") = glm::vec2(width, height);
 
   grieghallen.load("grieghallen");
   grieghallen.modelTransform = glm::scale(Mat4(), Vec3(0.02f, 0.02f, 0.02f));
@@ -310,64 +308,63 @@ void Renderer::init() {
   glBindTexture(GL_TEXTURE_2D, depthBufferTexture);
 }
 
-void Renderer::resize() {
-  auto screen = Sdl::screenCoords();
+void Renderer::resize(int width, int height) {
 
   glActiveTexture(GL_TEXTURE0 + FRAMEBUFFER_LOCATION);
   glBindTexture(GL_TEXTURE_2D, frameBufferTexture);
-  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, screen.x, screen.y, 0, GL_RGB, GL_UNSIGNED_BYTE, 0);
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, 0);
 
   glActiveTexture(GL_TEXTURE0 + NORMALBUFFER_LOCATION);
   glBindTexture(GL_TEXTURE_2D, normalBufferTexture);
-  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, screen.x, screen.y, 0, GL_RGB, GL_UNSIGNED_BYTE, 0);
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, 0);
 
   glActiveTexture(GL_TEXTURE0 + DEPTHBUFFER_LOCATION);
   glBindTexture(GL_TEXTURE_2D, depthBufferTexture);
-  glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT24, screen.x, screen.y, 0, GL_DEPTH_COMPONENT, GL_FLOAT, 0);
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT24, width, height, 0, GL_DEPTH_COMPONENT, GL_FLOAT, 0);
 
-  glViewport(0, 0, screen.x, screen.y);
+  glViewport(0, 0, width, height);
 
-  toonShader->uniform("uScreenSize") = glm::vec2(screen.x, screen.y);
-  depthShader->uniform("uScreenSize") = glm::vec2(screen.x, screen.y);
+  toonShader->uniform("uScreenSize") = glm::vec2(width, height);
+  depthShader->uniform("uScreenSize") = glm::vec2(width, height);
 }
 
-void Renderer::draw(Update update) {
-  if (update.oX > 0 || update.oY > 0) {
-    trackball.anchorRotation(update.oX, update.oY);
-  }
+void Renderer::draw() {
+  //if (update.oX > 0 || update.oY > 0) {
+  //  trackball.anchorRotation(update.oX, update.oY);
+  //}
 
-  switch (update.state) {
-    case States::reset:
-      trackball.reset();
-      break;
+  //switch (update.state) {
+  //  case States::reset:
+  //    trackball.reset();
+  //    break;
 
-    case States::rotate:
-      trackball.rotate(update.x, update.y);
-      break;
+  //  case States::rotate:
+  //    trackball.rotate(update.x, update.y);
+  //    break;
 
-    case States::rotateLight:
-      trackball.rotateLight(update.x, update.y);
-      break;
+  //  case States::rotateLight:
+  //    trackball.rotateLight(update.x, update.y);
+  //    break;
 
-    case States::translate:
-      trackball.translate(update.x, update.y);
-      break;
+  //  case States::translate:
+  //    trackball.translate(update.x, update.y);
+  //    break;
 
-    case States::zoom:
-      trackball.zoom(update.y);
-      break;
+  //  case States::zoom:
+  //    trackball.zoom(update.y);
+  //    break;
 
-    case States::togglePerspective:
-      trackball.togglePerspective();
-      break;
+  //  case States::togglePerspective:
+  //    trackball.togglePerspective();
+  //    break;
 
-    case States::fullScreen:
-      trackball.projectionDirty = true;
-      break;
+  //  case States::fullScreen:
+  //    trackball.projectionDirty = true;
+  //    break;
 
-    default:
-      break;
-  }
+  //  default:
+  //    break;
+  //}
 
   {
     auto &direction = lightBuffer[0].direction;
