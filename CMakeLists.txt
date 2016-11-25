@@ -32,6 +32,15 @@ list(APPEND LIBRARIES fmt)
 # OpenGL Math library
 list(APPEND INCLUDE_DIRS glm)
 
+# QT
+if (MSVC)
+  # GOTTA FIX THIS!! CMake keeps pointing to 32bit version of QT
+  # and this was the only way I found to force a 64bit linkage
+  set (CMAKE_PREFIX_PATH "C:\\Qt\\Qt5.7.0\\5.7\\msvc2015_64\\")
+endif()
+set(CMAKE_AUTOMOC ON)
+find_package(Qt5Widgets)
+
 ##------------------------------------------------------------------------------
 ## GLAD
 ##
@@ -81,6 +90,13 @@ set(SOURCES
   source/BinParser.hh
   )
 
+set(QT_STUFF
+  source/qt/MainWindow.cc
+  source/qt/MainWindow.hh
+  source/qt/OpenGLWidget.cc
+  source/qt/OpenGLWidget.hh
+)
+
 set(SHADERS
   assets/shaders/basic.vs.glsl
   assets/shaders/basic.fs.glsl
@@ -101,11 +117,12 @@ add_custom_target(assets
   COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/assets ${CMAKE_BINARY_DIR}/assets)
 
 if(MSVC)
-  add_executable(inf251 ${SOURCES} ${SHADERS})
+  add_executable(inf251 ${SOURCES} ${SHADERS} ${QT_STUFF})
 else()
-  add_executable(inf251 ${SOURCES})
+  add_executable(inf251 ${SOURCES} ${QT_STUFF})
 endif()
 target_link_libraries(inf251 ${LIBRARIES})
+target_link_libraries(inf251 Qt5::Widgets)
 target_include_directories(inf251 PRIVATE ${INCLUDE_DIRS})
 add_dependencies(inf251 assets)
 set_target_properties(inf251 PROPERTIES CXX_LANGUAGE_STANDARD 11)
@@ -117,6 +134,7 @@ add_definitions(-DSPHERICAL_TRACKBALL)
 
 if(MSVC)
   source_group("Shaders" FILES ${SHADERS})
+  source_group("Qt" FILES ${QT_STUFF})
 
   if(${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION} GREATER 3.5)
     set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT inf251)

@@ -1,7 +1,13 @@
 #include <fstream>
 #include <sstream>
+
+#include <QApplication>
+#include <QSurfaceFormat>
+#include <QDesktopWidget>
+
 #include "Sdl.hh"
 #include "Renderer.hh"
+#include "qt/MainWindow.hh"
 
 #ifdef _WIN32
 // Force high performance GPU
@@ -31,10 +37,44 @@ std::string readFileContents(const std::string &file)
   return buf;
 }
 
-int main()
+void center(QWidget &widget) {
+  int x, y;
+  int screenWidth;
+  int screenHeight;
+
+  int WIDTH = widget.width();
+  int HEIGHT = widget.height();
+
+  QDesktopWidget *desktop = QApplication::desktop();
+
+  screenWidth = desktop->screen()->width();
+  screenHeight = desktop->screen()->height();
+
+  x = (screenWidth - WIDTH) / 2;
+  y = (screenHeight - HEIGHT) / 2;
+
+  widget.setGeometry(x, y, WIDTH, HEIGHT);
+  widget.setFixedSize(WIDTH, HEIGHT);
+}
+
+int main(int argc, char * argv[])
 {
-  Sdl::setGlInit(Renderer::init);
-  Sdl::setGlResize(Renderer::resize);
-  Sdl::setGlDisplay(Renderer::draw);
-  Sdl::mainLoop();
+  QApplication app(argc, argv);
+
+  QSurfaceFormat surfaceFormat;
+  surfaceFormat.setDepthBufferSize(24);
+  surfaceFormat.setVersion(4, 3);
+  surfaceFormat.setProfile(QSurfaceFormat::CoreProfile);
+  QSurfaceFormat::setDefaultFormat(surfaceFormat);
+
+  uiQT::MainWindow mainWindow;
+  mainWindow.resize(800, 600);
+  center(mainWindow);
+  mainWindow.show();
+  return app.exec();  
+
+  //Sdl::setGlInit(Renderer::init);
+  //Sdl::setGlResize(Renderer::resize);
+  //Sdl::setGlDisplay(Renderer::draw);
+  //Sdl::mainLoop();
 }
