@@ -67,6 +67,13 @@ namespace {
 
     // Read the header
     file.read(reinterpret_cast<char*>(&header), sizeof(TerrainHeader));
+    //header.threshold = 0;
+    println("  columns:        {}", header.columns);
+    println("  rows:           {}", header.rows);
+    println("  X start:        {}", header.xStart);
+    println("  Z start:        {}", header.zStart);
+    println("  cell size:      {}", header.cellSize);
+    println("  threshold:      {}", header.threshold);
     Terrain terrain(header);
 
     // Read the grid points
@@ -93,56 +100,39 @@ namespace {
 
     // Prepare global coordinates (use memory in lieu of recomputing
     // the multiplication for every vertex)
-    double currentX = terrain.header.xStart;
-    double currentZ = terrain.header.zStart;
+    double currentX = Normalize ? -1.0 : terrain.header.xStart;
+    double currentZ = Normalize ? -1.0 : terrain.header.zStart;
     unsigned int row = 0;
     unsigned int col = 0;
 
     // If we are normalizing, prepare the factor
-    float normalizeFactor = Normalize
-      ? std::abs(terrain.header.cellSize * std::max(terrain.header.columns,
-                                                    terrain.header.rows))
-      : 0;
+    float scale = 
+      Normalize ? 2.0f / std::abs(terrain.header.cellSize * 
+      (std::max(terrain.header.columns, terrain.header.rows) - 1.0f))
+      : 1.0f;
 
     for (auto height : terrain.grid) {
 
       // Some values are invalid. Only add if if higher than the threshold
       if (height > terrain.header.threshold) {
-
-        // If normalizing, see if any height is larger than the
-        // width and lenth
-        if (Normalize && std::abs(height) > normalizeFactor) {
-          normalizeFactor = height;
-        }
-
-        vertices.push_back(Vec3(currentX, height, currentZ));
+        vertices.push_back(Vec3(currentX, height * scale, currentZ));
       }
 
       // Move to the next position
       row++;
-      currentZ += terrain.header.cellSize;
+      currentZ += terrain.header.cellSize * scale;
 
       // And overflow if necessary
       if (row >= terrain.header.rows) {
         row = 0;
-        currentZ = terrain.header.zStart;
+        currentZ = Normalize ? -1.0 : terrain.header.zStart;
         col++;
-        currentX += terrain.header.cellSize;
+        currentX += terrain.header.cellSize * scale;
       }
     }
 
     // Shrink the vector. We might not need it to be so big
     vertices.shrink_to_fit();
-
-    // Normalize, if necessary
-    if (Normalize) {
-      normalizeFactor /= 2.0f;
-      for (auto & vertex : vertices) {
-        vertex.x = (vertex.x - terrain.header.xStart) / normalizeFactor - 1.0f;
-        vertex.z = (vertex.z - terrain.header.zStart) / normalizeFactor - 1.0f;
-        vertex.y /= normalizeFactor;
-      }
-    }
 
     return vertices;
   }
@@ -230,8 +220,8 @@ namespace {
         }
 
         coords.push_back(Vec2(
-          col / (terrain.header.columns - 1.0f),
-          1 - (row / (terrain.header.rows - 1.0f))
+          static_cast<float>(col) / (terrain.header.columns - 1.0f),
+          1.0f - (static_cast<float>(row) / (terrain.header.rows - 1.0f))
         ));
       }
     }
@@ -261,14 +251,14 @@ namespace {
 
     // Since some vertices are ignored, a mapping vector must be generated
     // to allow for proper reference pointing;
-    std::vector<int> indexMapper;
+    std::vector<size_t> indexMapper;
     indexMapper.reserve(terrain.grid.size());
     int currentIndex = 1;
     for (auto & height : terrain.grid) {
       if (height > terrain.header.threshold) {
         indexMapper.push_back(currentIndex++);
       } else {
-        indexMapper.push_back(-1);
+        indexMapper.push_back(0);
 
         // This will help see if there is an invalid vertex later
         height = static_cast<float>(terrain.header.threshold);
@@ -378,6 +368,8 @@ namespace BinParser {
 
     // Vertices
     {
+      print("  Vertices generation:            ");
+
       // Convert into vertices
       auto vertices = generateVertices<Normalize>(terrain);
 
@@ -391,42 +383,49 @@ namespace BinParser {
 
       // Free the used memory
       vertices = std::vector<Vec3>(0);
+
+      println("DONE");
     }
 
     // Texture coordinates
     {
-      // Calculate texture coordinates
+      print("  Texture coordinates generation: ");
       auto coords = generateTexCoords(terrain, size);
       for (auto coord : coords) {
         fmt::print(file, "vt {:f} {:f}\n", coord.x, coord.y);
       }
       coords = std::vector<Vec2>(0);
+      println("DONE");
     }
 
     // Normals
     {
-      // Calculate normals
+      print("  Normals generation:             ");
       auto normals = generateNormals(terrain, size);
       for (auto normal : normals) {
         fmt::print(file, "vn {:f} {:f} {:f}\n", normal.x, normal.y, normal.z);
       }
       normals = std::vector<Vec3>(0);
+      println("DONE");
     }
 
     // Faces
     {
-      // Generate faces
+      print("  Faces generation:               ");
       auto faces = generateFaces(terrain, size);
       for (auto face : faces) {
         fmt::print(
           file,
-          "f {0}/{0}/{0} {1}/{1}/{1} {2}/{2}/{2}\n",
+          "f {0:.0f}/{0:.0f}/{0:.0f}"
+          " {1:.0f}/{1:.0f}/{1:.0f}"
+          " {2:.0f}/{2:.0f}/{2:.0f}\n",
           face.x,
           face.y,
           face.z
         );
       }
       faces = std::vector<Vec3>(0);
+      println("DONE");
     }
   }
 }
