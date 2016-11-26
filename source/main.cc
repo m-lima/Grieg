@@ -22,6 +22,8 @@ extern "C" {
   __declspec(dllexport) int AmdPowerXpressRequestHighPerformance = 1;
 }
 #endif
+  
+QOpenGLFunctions_4_3_Core gl;
 
 std::string readFileContents(const std::string &file)
 {
@@ -69,6 +71,8 @@ int main(int argc, char * argv[])
   surfaceFormat.setVersion(4, 3);
   surfaceFormat.setProfile(QSurfaceFormat::CoreProfile);
   QSurfaceFormat::setDefaultFormat(surfaceFormat);
+
+  gl = QOpenGLFunctions_4_3_Core();
 
   Ui::MainWindow mainWindow;
   mainWindow.resize(800, 600);

@@ -3,7 +3,7 @@
 
 #include "Texture.hh"
 
-class Text : protected QOpenGLFunctions_4_3_Core {
+class Text {
     TexturePtr mFont {};
     GLuint mVbo {};
     GLuint mIbo {};

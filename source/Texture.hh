@@ -27,7 +27,7 @@ struct Sampler2D {
 class Texture;
 using TexturePtr = std::shared_ptr<Texture>;
 
-class Texture : protected QOpenGLFunctions_4_3_Core
+class Texture
 {
     std::unique_ptr<GLuint[]> mTextures {};
 

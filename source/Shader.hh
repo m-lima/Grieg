@@ -13,7 +13,6 @@ struct GlslTypeinfo;
     struct GlslTypeinfo<Type> {                                         \
         static constexpr GLenum glslEnum = Enum;                        \
         static void setUniform(GLuint program, GLuint loc, const Type &val) { \
-            QOpenGLFunctions_4_3_Core gl;                               \
             gl.glProgram ## FuncSuffix(program, loc, __VA_ARGS__);      \
         }                                                               \
     }
@@ -32,11 +31,11 @@ __GLSLASSIGN(glm::mat4, GL_FLOAT_MAT4, UniformMatrix4fv, 1, GL_FALSE, reinterpre
 
 #undef __GLSLASSIGN
 
-class Shader : protected QOpenGLFunctions_4_3_Core {
-    GLuint mProgram = 0;
+class Shader {
+    uint32_t mProgram = 0;
     std::string mName = "";
 
-    class UniformProxy : protected QOpenGLFunctions_4_3_Core {
+    class UniformProxy {
         const Shader& mProgram;
         const GLint mLoc;
 
@@ -98,16 +97,16 @@ public:
     void bindBuffer(const ShaderStorage<T, N> &ub)
     {
         ub.bind();
-        auto loc = glGetProgramResourceIndex(mProgram, GL_SHADER_STORAGE_BLOCK, ub.name);
+        auto loc = gl.glGetProgramResourceIndex(mProgram, GL_SHADER_STORAGE_BLOCK, ub.name);
         if (loc < 0)
             fatal("Warning: Couldn't find shader storage block \"{}\" in shader \"{}\"", mName, ub.name);
 
-        glShaderStorageBlockBinding(mProgram, loc, ub.binding);
+        gl.glShaderStorageBlockBinding(mProgram, loc, ub.binding);
     }
 
     void unbindBuffer(GLuint binding)
     {
-        glShaderStorageBlockBinding(mProgram, 0, binding);
+        gl.glShaderStorageBlockBinding(mProgram, 0, binding);
     }
 
     template <class T, size_t N>

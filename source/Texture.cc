@@ -62,9 +62,9 @@ void Texture::load(const std::string & name, int numFrames)
 
     auto frameHeight = surface->h / mNumFrames;
     for (int i = 0; i < mNumFrames; i++) {
-        glBindTexture(GL_TEXTURE_2D, mTextures[i]);
-        glTexStorage2D(GL_TEXTURE_2D, 4, GL_RGBA8, surface->w, frameHeight);
-        glTexSubImage2D(GL_TEXTURE_2D,
+        gl.glBindTexture(GL_TEXTURE_2D, mTextures[i]);
+        gl.glTexStorage2D(GL_TEXTURE_2D, 4, GL_RGBA8, surface->w, frameHeight);
+        gl.glTexSubImage2D(GL_TEXTURE_2D,
                         0, /* mipmap level */
                         0, /* x-offset */
                         0, /* y-offset */
@@ -73,11 +73,11 @@ void Texture::load(const std::string & name, int numFrames)
                         GL_RGBA,
                         GL_UNSIGNED_BYTE,
                         reinterpret_cast<char*>(surface->pixels) + surface->pitch * frameHeight * i);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_R, GL_REPEAT);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-        glGenerateMipmap(GL_TEXTURE_2D);
+        gl.glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_R, GL_REPEAT);
+        gl.glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+        gl.glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+        gl.glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        gl.glGenerateMipmap(GL_TEXTURE_2D);
     }
 
     SDL_FreeSurface(surface);
@@ -90,8 +90,8 @@ void Texture::bind(Sampler2D sampler)
         _lastUpdate = _clock::now();
     }
 
-    glActiveTexture(GL_TEXTURE0 + sampler.index);
-    glBindTexture(GL_TEXTURE_2D, mTextures[mFrame]);
+    gl.glActiveTexture(GL_TEXTURE0 + sampler.index);
+    gl.glBindTexture(GL_TEXTURE_2D, mTextures[mFrame]);
 }
 
 std::shared_ptr<Texture> Texture::cache(const std::string &name)

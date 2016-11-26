@@ -20,8 +20,6 @@ bool gWaterized = false;
 
 namespace {
 
-  QOpenGLFunctions_4_3_Core gl;
-
   constexpr int TEXTURE_LOCATION = 0;
   constexpr int BUMP_LOCATION = 2;
   constexpr int FRAMEBUFFER_LOCATION = 10;
@@ -472,10 +470,10 @@ void Renderer::draw() {
   gl.glEnable(GL_DEPTH_TEST);
   gl.glUseProgram(0);
 
-  if ((SDL_GetTicks() - fpsLast) >= 1000) {
-    fpsText.format("FPS: {}", fpsCount);
-    fpsCount = 0;
-    fpsLast = SDL_GetTicks();
-  }
+  //if ((SDL_GetTicks() - fpsLast) >= 1000) {
+  //  fpsText.format("FPS: {}", fpsCount);
+  //  fpsCount = 0;
+  //  fpsLast = SDL_GetTicks();
+  //}
   fpsCount++;
 }

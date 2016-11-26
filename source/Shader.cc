@@ -12,7 +12,7 @@ Shader::Shader(const std::string &name)
 Shader::~Shader()
 {
     if (mProgram)
-        glDeleteProgram(mProgram);
+        gl.glDeleteProgram(mProgram);
 }
 
 void Shader::load(const std::string &name)
@@ -27,53 +27,53 @@ void Shader::load(const std::string &name)
     auto fragmentCode = readFileContents(format("assets/shaders/{}.fs.glsl", name));
     auto fragmentCodePtr = fragmentCode.c_str();
 
-    GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
-    glShaderSource(vertexShader, 1, &vertexCodePtr, nullptr);
-    glCompileShader(vertexShader);
-    glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &success);
+    GLuint vertexShader = gl.glCreateShader(GL_VERTEX_SHADER);
+    gl.glShaderSource(vertexShader, 1, &vertexCodePtr, nullptr);
+    gl.glCompileShader(vertexShader);
+    gl.glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &success);
     if (!success) {
         char log[1024];
-        glGetShaderInfoLog(vertexShader, sizeof(log), nullptr, log);
+        gl.glGetShaderInfoLog(vertexShader, sizeof(log), nullptr, log);
         fmt::fatal("Couldn't compile vertex shader\nLog:\n{}", log);
     } else {
         println("  vertex shader   [OK]");
     }
 
-    GLuint fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-    glShaderSource(fragmentShader, 1, &fragmentCodePtr, nullptr);
-    glCompileShader(fragmentShader);
-    glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &success);
+    GLuint fragmentShader = gl.glCreateShader(GL_FRAGMENT_SHADER);
+    gl.glShaderSource(fragmentShader, 1, &fragmentCodePtr, nullptr);
+    gl.glCompileShader(fragmentShader);
+    gl.glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &success);
     if (!success) {
         char log[1024];
-        glGetShaderInfoLog(fragmentShader, sizeof(log), nullptr, log);
+        gl.glGetShaderInfoLog(fragmentShader, sizeof(log), nullptr, log);
         fmt::fatal("Couldn't compile fragment shader\nLog:\n{}", log);
     } else {
         println("  fragment shader [OK]");
     }
 
-    mProgram = glCreateProgram();
-    glAttachShader(mProgram, vertexShader);
-    glAttachShader(mProgram, fragmentShader);
-    glLinkProgram(mProgram);
-    glGetProgramiv(mProgram, GL_LINK_STATUS, &success);
+    mProgram = gl.glCreateProgram();
+    gl.glAttachShader(mProgram, vertexShader);
+    gl.glAttachShader(mProgram, fragmentShader);
+    gl.glLinkProgram(mProgram);
+    gl.glGetProgramiv(mProgram, GL_LINK_STATUS, &success);
     if (!success) {
         char log[1024];
-        glGetProgramInfoLog(mProgram, sizeof(log), nullptr, log);
+        gl.glGetProgramInfoLog(mProgram, sizeof(log), nullptr, log);
         fmt::fatal("Couldn't link shader program\nLog:\n{}", log);
     } else {
         println("  link program    [OK]");
     }
 
-    glDeleteShader(vertexShader);
-    glDeleteShader(fragmentShader);
+    gl.glDeleteShader(vertexShader);
+    gl.glDeleteShader(fragmentShader);
 
-    glBindFragDataLocation(mProgram, 0, "FragColor");
-    glBindFragDataLocation(mProgram, 1, "FragNormal");
+    gl.glBindFragDataLocation(mProgram, 0, "FragColor");
+    gl.glBindFragDataLocation(mProgram, 1, "FragNormal");
 }
 
 Shader::UniformProxy Shader::uniform(const std::string &name)
 {
-    auto loc = glGetUniformLocation(mProgram, name.c_str());
+    auto loc = gl.glGetUniformLocation(mProgram, name.c_str());
 
     if (loc < 0) {
         //println("Warning: Couldn't get uniform location \"{}\" in shader \"{}\"", name, mName);
@@ -88,7 +88,7 @@ void Shader::use() const
     if (mProgram != gUseProgram)
     {
         gUseProgram = mProgram;
-        glUseProgram(mProgram);
+        gl.glUseProgram(mProgram);
     }
 }
 
@@ -98,7 +98,7 @@ void Shader::UniformProxy::assertType(GLenum pType)
     GLenum type;
     GLint size;
 
-    glGetActiveUniform(mProgram.mProgram, mLoc, 256, nullptr, &size, &type, name);
+    gl.glGetActiveUniform(mProgram.mProgram, mLoc, 256, nullptr, &size, &type, name);
 
     if (type != pType)
         fatal("Error assigning to uniform \"{}\" in shader \"{}\":\n  GLSL: {}\n  C++:  {}",
