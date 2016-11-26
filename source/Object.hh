@@ -5,7 +5,7 @@
 #include "Shader.hh"
 #include "infdef.hh"
 
-class Object
+class Object : protected QOpenGLFunctions_4_3_Core
 {
     struct MaterialGroup {
         size_t count;

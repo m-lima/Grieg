@@ -1,11 +1,11 @@
 #ifndef __INF251_QT_OPENGLWIDGET__2286954
 #define __INF251_QT_OPENGLWIDGET__2286954
 
+#include "../infdef.hh"
 #include <QOpenGLWidget>
-//#include <QOpenGLFunctions>
 
-namespace uiQT {
-  class OpenGLWidget : public QOpenGLWidget {//, protected QOpenGLFunctions {
+namespace Ui {
+  class OpenGLWidget : public QOpenGLWidget , protected QOpenGLFunctions_4_3_Core {
     Q_OBJECT
 
   public:

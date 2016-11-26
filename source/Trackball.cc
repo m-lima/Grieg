@@ -3,12 +3,16 @@
 
 #include <glm/gtc/matrix_transform.hpp>
 
-Vec3 Trackball::surfaceVector() {
-	auto screen = Sdl::screenCoords();
-	float width = screen.x / 2.0f;
-	float height = screen.y / 2.0f;
+namespace {
+	int _width = 800;
+	int _height = 600;
+}
 
-	Vec3 point(Sdl::mouseCoords(), 0.0f);
+Vec3 Trackball::surfaceVector(int x, int y) {
+	float width = _width / 2.0f;
+	float height = _height / 2.0f;
+
+	Vec3 point(x, y, 0.0f);
 	point.x -= width;
 	point.y -= height;
 
@@ -35,7 +39,7 @@ Trackball::Trackball() :
 void Trackball::anchorRotation(int x, int y)
 {
 #ifdef SPHERICAL_TRACKBALL
-	mInitialPosition = surfaceVector();
+	mInitialPosition = surfaceVector(x, y);
 	mInitialRotation = mCurrentRotation;
 	mInitialLightPos = mCurrentLightPos;
 #endif
@@ -44,7 +48,7 @@ void Trackball::anchorRotation(int x, int y)
 void Trackball::rotate(int x, int y)
 {
 #ifdef SPHERICAL_TRACKBALL
-	mCurrentPosition = surfaceVector();
+	mCurrentPosition = surfaceVector(x, y);
 
 	float angle = glm::acos(glm::dot(mInitialPosition, mCurrentPosition));
 	Vec3 mAxis = glm::cross(mInitialPosition, mCurrentPosition);
@@ -62,7 +66,7 @@ void Trackball::rotate(int x, int y)
 void Trackball::rotateLight(int x, int y)
 {
 #ifdef SPHERICAL_TRACKBALL
-	mCurrentPosition = surfaceVector();
+	mCurrentPosition = surfaceVector(x, y);
 
 	float angle = glm::acos(glm::dot(mInitialPosition, mCurrentPosition));
 	Vec3 mAxis = glm::cross(mInitialPosition, mCurrentPosition);
@@ -124,16 +128,14 @@ Mat4 Trackball::rotation() {
 
 Mat4 Trackball::projection()
 {
-	auto screen = Sdl::screenCoords();
-
 	if (mOrtho) {
 		float zoom = mFov / 45.0f;
-		float ratio = static_cast<float>(screen.x >> 1) / screen.y;
+		float ratio = static_cast<float>(_width >> 1) / _height;
 		zoom *= 2.0f;
 		return glm::ortho(-zoom, zoom, -zoom * ratio, zoom * ratio, 1.0f, 20.0f);
 	}
 	else {
-		return glm::perspectiveFov(glm::radians(mFov), static_cast<float>(screen.x), static_cast<float>(screen.y), 1.0f, 20.0f);
+		return glm::perspectiveFov(glm::radians(mFov), static_cast<float>(_width), static_cast<float>(_height), 1.0f, 20.0f);
 	}
 }
 

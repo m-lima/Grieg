@@ -9,8 +9,8 @@
 #include <QSurfaceFormat>
 #include <QDesktopWidget>
 
-#include "qt/MainWindow.hh"
-#include "qt/OpenGLWidget.hh"
+#include "ui/MainWindow.hh"
+#include "ui/OpenGLWidget.hh"
 
 #ifdef _WIN32
 // Force high performance GPU
@@ -70,11 +70,11 @@ int main(int argc, char * argv[])
   surfaceFormat.setProfile(QSurfaceFormat::CoreProfile);
   QSurfaceFormat::setDefaultFormat(surfaceFormat);
 
-  uiQT::MainWindow mainWindow;
+  Ui::MainWindow mainWindow;
   mainWindow.resize(800, 600);
   center(mainWindow);
   
-  uiQT::OpenGLWidget openGLwidget(&mainWindow);
+  Ui::OpenGLWidget openGLwidget(&mainWindow);
   openGLwidget.setInitGL(Renderer::init);
   openGLwidget.setResizeGL(Renderer::resize);
   openGLwidget.setDrawGL(Renderer::draw);

@@ -40,7 +40,7 @@ public:
 	void togglePerspective();
 
 	// Convert the mouse click to a spherical vector
-	Vec3 surfaceVector();
+	Vec3 surfaceVector(int x, int y);
 
 	Mat4 rotation();
 	Mat4 projection();

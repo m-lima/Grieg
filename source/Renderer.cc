@@ -19,6 +19,9 @@ int gModel = 0;
 bool gWaterized = false;
 
 namespace {
+
+  QOpenGLFunctions_4_3_Core gl;
+
   constexpr int TEXTURE_LOCATION = 0;
   constexpr int BUMP_LOCATION = 2;
   constexpr int FRAMEBUFFER_LOCATION = 10;
@@ -89,53 +92,53 @@ namespace {
 
   void generateFrameBuffer(int width, int height) {
     // Color attachment
-    glGenTextures(1, &frameBufferTexture);
-    glActiveTexture(GL_TEXTURE0 + FRAMEBUFFER_LOCATION);
-    glBindTexture(GL_TEXTURE_2D, frameBufferTexture);
+    gl.glGenTextures(1, &frameBufferTexture);
+    gl.glActiveTexture(GL_TEXTURE0 + FRAMEBUFFER_LOCATION);
+    gl.glBindTexture(GL_TEXTURE_2D, frameBufferTexture);
 
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+    gl.glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    gl.glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    gl.glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+    gl.glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
 
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, 0);
+    gl.glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, 0);
 
     // Normal attachment
-    glGenTextures(1, &normalBufferTexture);
-    glActiveTexture(GL_TEXTURE0 + FRAMEBUFFER_LOCATION);
-    glBindTexture(GL_TEXTURE_2D, normalBufferTexture);
+    gl.glGenTextures(1, &normalBufferTexture);
+    gl.glActiveTexture(GL_TEXTURE0 + FRAMEBUFFER_LOCATION);
+    gl.glBindTexture(GL_TEXTURE_2D, normalBufferTexture);
 
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+    gl.glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    gl.glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    gl.glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+    gl.glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
 
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, 0);
+    gl.glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, 0);
 
     // Depth attachment
-    glGenTextures(1, &depthBufferTexture);
-    glActiveTexture(GL_TEXTURE0 + DEPTHBUFFER_LOCATION);
-    glBindTexture(GL_TEXTURE_2D, depthBufferTexture);
+    gl.glGenTextures(1, &depthBufferTexture);
+    gl.glActiveTexture(GL_TEXTURE0 + DEPTHBUFFER_LOCATION);
+    gl.glBindTexture(GL_TEXTURE_2D, depthBufferTexture);
 
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    gl.glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    gl.glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    gl.glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    gl.glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
     //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE, GL_NONE);
 
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT24, width, height, 0, GL_DEPTH_COMPONENT, GL_FLOAT, 0);
+    gl.glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT24, width, height, 0, GL_DEPTH_COMPONENT, GL_FLOAT, 0);
 
     // Actual frame buffer
-    glGenFramebuffers(1, &frameBuffer);
-    glBindFramebuffer(GL_FRAMEBUFFER, frameBuffer);
-    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, frameBufferTexture, 0);
-    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, normalBufferTexture, 0);
-    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, depthBufferTexture, 0);
+    gl.glGenFramebuffers(1, &frameBuffer);
+    gl.glBindFramebuffer(GL_FRAMEBUFFER, frameBuffer);
+    gl.glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, frameBufferTexture, 0);
+    gl.glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, normalBufferTexture, 0);
+    gl.glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, depthBufferTexture, 0);
 
     GLuint attachments[2] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1 };
-    glDrawBuffers(2, attachments);
+    gl.glDrawBuffers(2, attachments);
 
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    gl.glBindFramebuffer(GL_FRAMEBUFFER, 0);
   }
 
   void drawAll() {
@@ -283,46 +286,46 @@ void Renderer::init(int width, int height) {
       {  gridSize, 0.0f,  gridSize },
       { -gridSize, 0.0f,  gridSize }
   };
-  glGenVertexArrays(1, &gridVao);
-  glBindVertexArray(gridVao);
+  gl.glGenVertexArrays(1, &gridVao);
+  gl.glBindVertexArray(gridVao);
 
-  glGenBuffers(1, &gridVbo);
-  glBindBuffer(GL_ARRAY_BUFFER, gridVbo);
-  glBufferData(GL_ARRAY_BUFFER,
+  gl.glGenBuffers(1, &gridVbo);
+  gl.glBindBuffer(GL_ARRAY_BUFFER, gridVbo);
+  gl.glBufferData(GL_ARRAY_BUFFER,
                sizeof(gridQuad),
                &gridQuad[0],
                GL_STATIC_DRAW);
 
-  glClearColor(0, 0, 0, 1);
-  glEnable(GL_CULL_FACE);
-  glCullFace(GL_BACK);
-  glEnable(GL_DEPTH_TEST);
-  glEnable(GL_BLEND);
-  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+  gl.glClearColor(0, 0, 0, 1);
+  gl.glEnable(GL_CULL_FACE);
+  gl.glCullFace(GL_BACK);
+  gl.glEnable(GL_DEPTH_TEST);
+  gl.glEnable(GL_BLEND);
+  gl.glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-  glActiveTexture(GL_TEXTURE0 + FRAMEBUFFER_LOCATION);
-  glBindTexture(GL_TEXTURE_2D, frameBufferTexture);
-  glActiveTexture(GL_TEXTURE0 + NORMALBUFFER_LOCATION);
-  glBindTexture(GL_TEXTURE_2D, normalBufferTexture);
-  glActiveTexture(GL_TEXTURE0 + DEPTHBUFFER_LOCATION);
-  glBindTexture(GL_TEXTURE_2D, depthBufferTexture);
+  gl.glActiveTexture(GL_TEXTURE0 + FRAMEBUFFER_LOCATION);
+  gl.glBindTexture(GL_TEXTURE_2D, frameBufferTexture);
+  gl.glActiveTexture(GL_TEXTURE0 + NORMALBUFFER_LOCATION);
+  gl.glBindTexture(GL_TEXTURE_2D, normalBufferTexture);
+  gl.glActiveTexture(GL_TEXTURE0 + DEPTHBUFFER_LOCATION);
+  gl.glBindTexture(GL_TEXTURE_2D, depthBufferTexture);
 }
 
 void Renderer::resize(int width, int height) {
 
-  glActiveTexture(GL_TEXTURE0 + FRAMEBUFFER_LOCATION);
-  glBindTexture(GL_TEXTURE_2D, frameBufferTexture);
-  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, 0);
+  gl.glActiveTexture(GL_TEXTURE0 + FRAMEBUFFER_LOCATION);
+  gl.glBindTexture(GL_TEXTURE_2D, frameBufferTexture);
+  gl.glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, 0);
 
-  glActiveTexture(GL_TEXTURE0 + NORMALBUFFER_LOCATION);
-  glBindTexture(GL_TEXTURE_2D, normalBufferTexture);
-  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, 0);
+  gl.glActiveTexture(GL_TEXTURE0 + NORMALBUFFER_LOCATION);
+  gl.glBindTexture(GL_TEXTURE_2D, normalBufferTexture);
+  gl.glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, 0);
 
-  glActiveTexture(GL_TEXTURE0 + DEPTHBUFFER_LOCATION);
-  glBindTexture(GL_TEXTURE_2D, depthBufferTexture);
-  glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT24, width, height, 0, GL_DEPTH_COMPONENT, GL_FLOAT, 0);
+  gl.glActiveTexture(GL_TEXTURE0 + DEPTHBUFFER_LOCATION);
+  gl.glBindTexture(GL_TEXTURE_2D, depthBufferTexture);
+  gl.glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT24, width, height, 0, GL_DEPTH_COMPONENT, GL_FLOAT, 0);
 
-  glViewport(0, 0, width, height);
+  gl.glViewport(0, 0, width, height);
 
   toonShader->uniform("uScreenSize") = glm::vec2(width, height);
   depthShader->uniform("uScreenSize") = glm::vec2(width, height);
@@ -420,17 +423,17 @@ void Renderer::draw() {
   checkAndLoadUniforms();
 
   /* Draw grid before doing anything else */
-  glDisable(GL_DEPTH_TEST);
-  glDisable(GL_CULL_FACE);
-  glBindVertexArray(gridVao);
-  glBindBuffer(GL_ARRAY_BUFFER, gridVbo);
+  gl.glDisable(GL_DEPTH_TEST);
+  gl.glDisable(GL_CULL_FACE);
+  gl.glBindVertexArray(gridVao);
+  gl.glBindBuffer(GL_ARRAY_BUFFER, gridVbo);
   gridShader->use();
-  glEnableVertexAttribArray(0);
-  glVertexAttribPointer(0, 3, GL_FLOAT, GL_TRUE, sizeof(GLfloat) * 3, 0);
-  glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
-  glDisableVertexAttribArray(0);
-  glEnable(GL_CULL_FACE);
-  glEnable(GL_DEPTH_TEST);
+  gl.glEnableVertexAttribArray(0);
+  gl.glVertexAttribPointer(0, 3, GL_FLOAT, GL_TRUE, sizeof(GLfloat) * 3, 0);
+  gl.glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
+  gl.glDisableVertexAttribArray(0);
+  gl.glEnable(GL_CULL_FACE);
+  gl.glEnable(GL_DEPTH_TEST);
 
   setAllShaders(basicShader);
   basicShader->uniform("uAmbientLight") = glm::vec3(gAmbient);
@@ -441,10 +444,10 @@ void Renderer::draw() {
       bigSuzy.enableTexture = false;
       terrain.enableTexture = false;
 
-      glBindFramebuffer(GL_FRAMEBUFFER, frameBuffer);
+      gl.glBindFramebuffer(GL_FRAMEBUFFER, frameBuffer);
       glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
       drawAll();
-      glBindFramebuffer(GL_FRAMEBUFFER, 0);
+      gl.glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
       setAllShaders(toonShader);
       grieghallen.enableTexture = true;
@@ -453,10 +456,10 @@ void Renderer::draw() {
       break;
 
     case 2:
-      glBindFramebuffer(GL_FRAMEBUFFER, frameBuffer);
-      glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+      gl.glBindFramebuffer(GL_FRAMEBUFFER, frameBuffer);
+      gl.glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
       drawAll();
-      glBindFramebuffer(GL_FRAMEBUFFER, 0);
+      gl.glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
       setAllShaders(depthShader);
       break;
@@ -464,10 +467,10 @@ void Renderer::draw() {
 
   drawAll();
 
-  glDisable(GL_DEPTH_TEST);
+  gl.glDisable(GL_DEPTH_TEST);
   Text::drawAll();
-  glEnable(GL_DEPTH_TEST);
-  glUseProgram(0);
+  gl.glEnable(GL_DEPTH_TEST);
+  gl.glUseProgram(0);
 
   if ((SDL_GetTicks() - fpsLast) >= 1000) {
     fpsText.format("FPS: {}", fpsCount);

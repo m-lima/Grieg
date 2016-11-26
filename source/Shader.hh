@@ -13,7 +13,8 @@ struct GlslTypeinfo;
     struct GlslTypeinfo<Type> {                                         \
         static constexpr GLenum glslEnum = Enum;                        \
         static void setUniform(GLuint program, GLuint loc, const Type &val) { \
-            glProgram ## FuncSuffix(program, loc, __VA_ARGS__);         \
+            QOpenGLFunctions_4_3_Core gl;                               \
+            gl.glProgram ## FuncSuffix(program, loc, __VA_ARGS__);      \
         }                                                               \
     }
 
@@ -31,11 +32,11 @@ __GLSLASSIGN(glm::mat4, GL_FLOAT_MAT4, UniformMatrix4fv, 1, GL_FALSE, reinterpre
 
 #undef __GLSLASSIGN
 
-class Shader {
-    uint32_t mProgram = 0;
+class Shader : protected QOpenGLFunctions_4_3_Core {
+    GLuint mProgram = 0;
     std::string mName = "";
 
-    class UniformProxy {
+    class UniformProxy : protected QOpenGLFunctions_4_3_Core {
         const Shader& mProgram;
         const GLint mLoc;
 

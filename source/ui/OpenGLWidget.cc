@@ -1,6 +1,6 @@
 #include "OpenGLWidget.hh"
 
-namespace uiQT {
+namespace Ui {
   OpenGLWidget::OpenGLWidget(QWidget *parent) :
     QOpenGLWidget(parent) {}
 }

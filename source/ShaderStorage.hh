@@ -4,7 +4,7 @@
 #include "infdef.hh"
 
 template <class Block, size_t = 1>
-class ShaderStorage {
+class ShaderStorage : protected QOpenGLFunctions_4_3_Core {
     Block mBlock {};
     GLuint mSsbo {};
 
@@ -102,7 +102,7 @@ public:
 };
 
 template <class Block, size_t N>
-class ShaderStorage<Block[], N> {
+class ShaderStorage<Block[], N> : protected QOpenGLFunctions_4_3_Core {
     Block mBlock[N] {};
     GLuint mSsbo {};
 

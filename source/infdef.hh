@@ -14,7 +14,13 @@
 #include <fmt/format.h>
 #include <fmt/ostream.h>
 
-#include <glad/glad.h>
+//#include <glad/glad.h>
+#include <QOpenGLFunctions_4_3_Core>
+#if defined(__linux__) || defined(_WIN32)
+#include <GL/gl.h>
+#else
+#include <OpenGL/gl.h>
+#endif
 
 #include <glm/vec2.hpp>
 #include <glm/vec3.hpp>

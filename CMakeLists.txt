@@ -15,10 +15,10 @@ find_package(OpenGL REQUIRED)
 list(APPEND INCLUDE_DIRS ${OPENGL_INCLUDE_DIRS})
 list(APPEND LIBRARIES ${OPENGL_LIBRARIES})
 
-find_package(SDL2 REQUIRED)
-list(APPEND INCLUDE_DIRS ${SDL2_INCLUDE_DIRS})
-list(APPEND LIBRARIES ${SDL2_LIBRARIES})
-message(STATUS "${SDL2_LIBRARIES}")
+#find_package(SDL2 REQUIRED)
+#list(APPEND INCLUDE_DIRS ${SDL2_INCLUDE_DIRS})
+#list(APPEND LIBRARIES ${SDL2_LIBRARIES})
+#message(STATUS "${SDL2_LIBRARIES}")
 
 find_package(SDL2_image REQUIRED)
 list(APPEND INCLUDE_DIRS ${SDL2_IMAGE_INCLUDE_DIRS})
@@ -45,17 +45,17 @@ find_package(Qt5Widgets)
 ## GLAD
 ##
 
-set(GLAD_PROFILE "core")
-set(GLAD_API "gl=4.3")
-set(GLAD_GENERATOR "c-debug")
+#set(GLAD_PROFILE "core")
+#set(GLAD_API "gl=4.3")
+#set(GLAD_GENERATOR "c-debug")
 
 # set(GLAD_EXTENSIONS)
 
-string(REPLACE ";" "," GLAD_EXTENSIONS "${GLAD_EXTENSIONS}")
+#string(REPLACE ";" "," GLAD_EXTENSIONS "${GLAD_EXTENSIONS}")
 
-add_subdirectory(glad)
-list(APPEND INCLUDE_DIRS ${GLAD_INCLUDE_DIRS})
-list(APPEND LIBRARIES ${GLAD_LIBRARIES})
+#add_subdirectory(glad)
+#list(APPEND INCLUDE_DIRS ${GLAD_INCLUDE_DIRS})
+#list(APPEND LIBRARIES ${GLAD_LIBRARIES})
 
 ##------------------------------------------------------------------------------
 ## Platform-specific stuff
@@ -90,11 +90,11 @@ set(SOURCES
   source/BinParser.hh
   )
 
-set(QT_STUFF
-  source/qt/MainWindow.cc
-  source/qt/MainWindow.hh
-  source/qt/OpenGLWidget.cc
-  source/qt/OpenGLWidget.hh
+set(UI
+  source/ui/MainWindow.cc
+  source/ui/MainWindow.hh
+  source/ui/OpenGLWidget.cc
+  source/ui/OpenGLWidget.hh
 )
 
 set(SHADERS
@@ -117,9 +117,9 @@ add_custom_target(assets
   COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/assets ${CMAKE_BINARY_DIR}/assets)
 
 if(MSVC)
-  add_executable(inf251 ${SOURCES} ${SHADERS} ${QT_STUFF})
+  add_executable(inf251 ${SOURCES} ${SHADERS} ${UI})
 else()
-  add_executable(inf251 ${SOURCES} ${QT_STUFF})
+  add_executable(inf251 ${SOURCES} ${UI})
 endif()
 target_link_libraries(inf251 ${LIBRARIES})
 target_link_libraries(inf251 Qt5::Widgets)
@@ -134,7 +134,7 @@ add_definitions(-DSPHERICAL_TRACKBALL)
 
 if(MSVC)
   source_group("Shaders" FILES ${SHADERS})
-  source_group("Qt" FILES ${QT_STUFF})
+  source_group("Ui" FILES ${UI})
 
   if(${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION} GREATER 3.5)
     set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT inf251)

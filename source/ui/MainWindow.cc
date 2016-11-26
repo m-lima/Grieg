@@ -4,7 +4,7 @@
 #include <QMenuBar>
 #include <memory>
 
-namespace uiQT {
+namespace Ui {
   MainWindow::MainWindow() {
     QMenuBar *mnbMenu = new QMenuBar();
     QMenu *mnuFile = mnbMenu->addMenu("&File");
