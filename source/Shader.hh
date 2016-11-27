@@ -13,7 +13,7 @@ struct GlslTypeinfo;
     struct GlslTypeinfo<Type> {                                         \
         static constexpr GLenum glslEnum = Enum;                        \
         static void setUniform(GLuint program, GLuint loc, const Type &val) { \
-            gl.glProgram ## FuncSuffix(program, loc, __VA_ARGS__);      \
+            gl->glProgram ## FuncSuffix(program, loc, __VA_ARGS__);      \
         }                                                               \
     }
 
@@ -97,16 +97,16 @@ public:
     void bindBuffer(const ShaderStorage<T, N> &ub)
     {
         ub.bind();
-        auto loc = gl.glGetProgramResourceIndex(mProgram, GL_SHADER_STORAGE_BLOCK, ub.name);
+        auto loc = gl->glGetProgramResourceIndex(mProgram, GL_SHADER_STORAGE_BLOCK, ub.name);
         if (loc < 0)
             fatal("Warning: Couldn't find shader storage block \"{}\" in shader \"{}\"", mName, ub.name);
 
-        gl.glShaderStorageBlockBinding(mProgram, loc, ub.binding);
+        gl->glShaderStorageBlockBinding(mProgram, loc, ub.binding);
     }
 
     void unbindBuffer(GLuint binding)
     {
-        gl.glShaderStorageBlockBinding(mProgram, 0, binding);
+        gl->glShaderStorageBlockBinding(mProgram, 0, binding);
     }
 
     template <class T, size_t N>

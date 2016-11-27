@@ -36,7 +36,7 @@ using Mat3 = glm::mat3;
 using Mat4 = glm::mat4;
 using Quat = glm::quat;
 
-extern QOpenGLFunctions_4_3_Core gl;
+extern QOpenGLFunctions_4_3_Core *gl;
 
 namespace fmt {
     /* fmtlib doesn't have a println function, so we add our own */

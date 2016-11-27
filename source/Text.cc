@@ -30,13 +30,13 @@ Text::~Text()
     _texts.erase(this);
 
     if (mVbo)
-        gl.glDeleteBuffers(1, &mVbo);
+        gl->glDeleteBuffers(1, &mVbo);
 
     if (mIbo)
-        gl.glDeleteBuffers(1, &mIbo);
+        gl->glDeleteBuffers(1, &mIbo);
 
     if (mVao)
-        gl.glDeleteVertexArrays(1, &mVao);
+        gl->glDeleteVertexArrays(1, &mVao);
 }
 
 void Text::initBuffers()
@@ -47,13 +47,13 @@ void Text::initBuffers()
     }
 
     if (!mVbo)
-        gl.glGenBuffers(1, &mVbo);
+        gl->glGenBuffers(1, &mVbo);
 
     if (!mIbo)
-        gl.glGenBuffers(1, &mIbo);
+        gl->glGenBuffers(1, &mIbo);
 
     if (!mVao)
-        gl.glGenVertexArrays(1, &mVao);
+        gl->glGenVertexArrays(1, &mVao);
 }
 
 void Text::setFont(TexturePtr font)
@@ -105,14 +105,14 @@ void Text::setText(const std::string &str)
     }
 
 
-    gl.glBindBuffer(GL_ARRAY_BUFFER, mVbo);
-    gl.glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mIbo);
+    gl->glBindBuffer(GL_ARRAY_BUFFER, mVbo);
+    gl->glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mIbo);
 
-    gl.glBufferData(GL_ARRAY_BUFFER,
+    gl->glBufferData(GL_ARRAY_BUFFER,
                  vertices.size() * sizeof(vertices[0]),
                  &vertices[0],
                  GL_DYNAMIC_DRAW);
-    gl.glBufferData(GL_ELEMENT_ARRAY_BUFFER,
+    gl->glBufferData(GL_ELEMENT_ARRAY_BUFFER,
                  indices.size() * sizeof(indices[0]),
                  &indices[0],
                  GL_DYNAMIC_DRAW);
@@ -132,30 +132,30 @@ void Text::draw()
     mFont->bind();
     _shader.use();
 
-    gl.glBindVertexArray(mVao);
-    gl.glBindBuffer(GL_ARRAY_BUFFER, mVbo);
-    gl.glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mIbo);
+    gl->glBindVertexArray(mVao);
+    gl->glBindBuffer(GL_ARRAY_BUFFER, mVbo);
+    gl->glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mIbo);
 
-    gl.glEnableVertexAttribArray(0);
-    gl.glVertexAttribPointer(0,
+    gl->glEnableVertexAttribArray(0);
+    gl->glVertexAttribPointer(0,
                           2,
                           GL_FLOAT,
                           GL_TRUE,
                           sizeof(TextVertex),
                           reinterpret_cast<const void*>(offsetof(TextVertex, pos)));
 
-    gl.glEnableVertexAttribArray(1);
-    gl.glVertexAttribPointer(1,
+    gl->glEnableVertexAttribArray(1);
+    gl->glVertexAttribPointer(1,
                           2,
                           GL_FLOAT,
                           GL_TRUE,
                           sizeof(TextVertex),
                           reinterpret_cast<const void*>(offsetof(TextVertex, tex)));
 
-    gl.glDrawElements(GL_TRIANGLES, mTrigCount * 3, GL_UNSIGNED_INT, nullptr);
+    gl->glDrawElements(GL_TRIANGLES, mTrigCount * 3, GL_UNSIGNED_INT, nullptr);
 
-    gl.glDisableVertexAttribArray(1);
-    gl.glDisableVertexAttribArray(0);
+    gl->glDisableVertexAttribArray(1);
+    gl->glDisableVertexAttribArray(0);
 }
 
 void Text::setGlobalFont(TexturePtr font)

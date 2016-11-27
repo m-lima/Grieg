@@ -8,6 +8,7 @@
 #include <QApplication>
 #include <QSurfaceFormat>
 #include <QDesktopWidget>
+#include <QOffscreenSurface>
 
 #include "ui/MainWindow.hh"
 #include "ui/OpenGLWidget.hh"
@@ -23,7 +24,7 @@ extern "C" {
 }
 #endif
   
-QOpenGLFunctions_4_3_Core gl;
+QOpenGLFunctions_4_3_Core *gl = nullptr;
 
 std::string readFileContents(const std::string &file)
 {
@@ -72,8 +73,6 @@ int main(int argc, char * argv[])
   surfaceFormat.setProfile(QSurfaceFormat::CoreProfile);
   QSurfaceFormat::setDefaultFormat(surfaceFormat);
 
-  gl = QOpenGLFunctions_4_3_Core();
-
   Ui::MainWindow mainWindow;
   mainWindow.resize(800, 600);
   center(mainWindow);
@@ -82,8 +81,22 @@ int main(int argc, char * argv[])
   openGLwidget.setInitGL(Renderer::init);
   openGLwidget.setResizeGL(Renderer::resize);
   openGLwidget.setDrawGL(Renderer::draw);
-
+  openGLwidget.setFormat(surfaceFormat);
+  
   mainWindow.attachRenderer(&openGLwidget);
+
+
+  //QOpenGLContext context;
+  QOffscreenSurface surface;
+  surface.setFormat(surfaceFormat);
+  surface.create();
+  //println("Context:     {}", context.create());
+  
+  QOpenGLContext *current = QOpenGLContext::currentContext();
+
+  gl = &openGLwidget; //context.versionFunctions<QOpenGLFunctions_4_3_Core>();
+  //println("Version:     {}.{}", context.format().majorVersion(), context.format().minorVersion());
+  println("Initialized: {}", gl->initializeOpenGLFunctions());
 
   mainWindow.show();
   return app.exec();  

@@ -5,7 +5,7 @@
 #include <QOpenGLWidget>
 
 namespace Ui {
-  class OpenGLWidget : public QOpenGLWidget , protected QOpenGLFunctions_4_3_Core {
+  class OpenGLWidget : public QOpenGLWidget, public QOpenGLFunctions_4_3_Core {
     Q_OBJECT
 
   public:
