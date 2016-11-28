@@ -14,7 +14,13 @@
 #include <fmt/format.h>
 #include <fmt/ostream.h>
 
-#include <glad/glad.h>
+//#include <glad/glad.h>
+#include <QOpenGLFunctions_4_3_Core>
+#if defined(__linux__) || defined(_WIN32)
+#include <GL/gl.h>
+#else
+#include <OpenGL/gl.h>
+#endif
 
 #include <glm/vec2.hpp>
 #include <glm/vec3.hpp>
@@ -29,6 +35,8 @@ using Vec4 = glm::vec4;
 using Mat3 = glm::mat3;
 using Mat4 = glm::mat4;
 using Quat = glm::quat;
+
+extern QOpenGLFunctions_4_3_Core *gl;
 
 namespace fmt {
     /* fmtlib doesn't have a println function, so we add our own */

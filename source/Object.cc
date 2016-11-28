@@ -245,39 +245,28 @@ namespace {
     return mtl;
   }
 
-  struct MaterialBlock {
-    static constexpr auto name = "MaterialBlock";
-    static constexpr auto binding = 2;
-
-    alignas(16) glm::vec3 ambient;
-    alignas(16) glm::vec3 diffuse;
-    alignas(16) glm::vec3 specular;
-  };
-
-  ShaderStorage<MaterialBlock> matBlock;
-
 }
 
 Object::~Object() {
   if (!mVbo)
-    glDeleteBuffers(1, &mVbo);
+    gl->glDeleteBuffers(1, &mVbo);
 
   if (!mIbo)
-    glDeleteBuffers(1, &mIbo);
+    gl->glDeleteBuffers(1, &mIbo);
 
   if (mVao)
-    glDeleteVertexArrays(1, &mVao);
+    gl->glDeleteVertexArrays(1, &mVao);
 }
 
 void Object::init() {
   if (!mVbo)
-    glGenBuffers(1, &mVbo);
+    gl->glGenBuffers(1, &mVbo);
 
   if (!mIbo)
-    glGenBuffers(1, &mIbo);
+    gl->glGenBuffers(1, &mIbo);
 
   if (!mVao)
-    glGenVertexArrays(1, &mVao);
+    gl->glGenVertexArrays(1, &mVao);
 }
 
 void Object::load(const std::string &name) {
@@ -362,16 +351,16 @@ void Object::loadObjFile(const std::string &name) {
 
   init();
 
-  glBindVertexArray(mVao);
+  gl->glBindVertexArray(mVao);
 
-  glBindBuffer(GL_ARRAY_BUFFER, mVbo);
-  glBufferData(GL_ARRAY_BUFFER,
+  gl->glBindBuffer(GL_ARRAY_BUFFER, mVbo);
+  gl->glBufferData(GL_ARRAY_BUFFER,
                vertices.size() * sizeof(vertices[0]),
                &vertices[0],
                GL_STATIC_DRAW);
 
-  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mIbo);
-  glBufferData(GL_ELEMENT_ARRAY_BUFFER,
+  gl->glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mIbo);
+  gl->glBufferData(GL_ELEMENT_ARRAY_BUFFER,
                indices.size() * sizeof(indices[0]),
                &indices[0],
                GL_STATIC_DRAW);
@@ -389,29 +378,29 @@ void Object::update() {
 }
 
 void Object::bind() {
-  glBindVertexArray(mVao);
+  gl->glBindVertexArray(mVao);
 
-  glBindBuffer(GL_ARRAY_BUFFER, mVbo);
-  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mIbo);
+  gl->glBindBuffer(GL_ARRAY_BUFFER, mVbo);
+  gl->glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mIbo);
 
-  glEnableVertexAttribArray(0);
-  glVertexAttribPointer(0,
+  gl->glEnableVertexAttribArray(0);
+  gl->glVertexAttribPointer(0,
                         3,
                         GL_FLOAT,
                         GL_TRUE,
                         sizeof(Vertex),
                         reinterpret_cast<const void*>(offsetof(Vertex, pos)));
 
-  glEnableVertexAttribArray(1);
-  glVertexAttribPointer(1,
+  gl->glEnableVertexAttribArray(1);
+  gl->glVertexAttribPointer(1,
                         2,
                         GL_FLOAT,
                         GL_TRUE,
                         sizeof(Vertex),
                         reinterpret_cast<const void*>(offsetof(Vertex, tex)));
 
-  glEnableVertexAttribArray(2);
-  glVertexAttribPointer(2,
+  gl->glEnableVertexAttribArray(2);
+  gl->glVertexAttribPointer(2,
                         3,
                         GL_FLOAT,
                         GL_TRUE,
@@ -453,7 +442,7 @@ void Object::draw() {
       mShader->uniform("uHaveBump") = 0;
     }
 
-    glDrawElements(GL_TRIANGLES, count * 3, GL_UNSIGNED_INT, start);
+    gl->glDrawElements(GL_TRIANGLES, count * 3, GL_UNSIGNED_INT, start);
     start += count * 3;
   }
   // mShader->unbindBuffer(matBlock);

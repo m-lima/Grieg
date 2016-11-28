@@ -1,0 +1,14 @@
+<RCC>
+  <qresource prefix="shaders">
+    <file>basic.fs.glsl</file>
+    <file>basic.vs.glsl</file>
+    <file>depth.fs.glsl</file>
+    <file>depth.vs.glsl</file>
+    <file>grid.fs.glsl</file>
+    <file>grid.vs.glsl</file>
+    <file>text.fs.glsl</file>
+    <file>text.vs.glsl</file>
+    <file>toon.fs.glsl</file>
+    <file>toon.vs.glsl</file>
+  </qresource>
+</RCC>

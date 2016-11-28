@@ -11,9 +11,9 @@ class ShaderStorage {
     void init()
     {
         if (!mSsbo) {
-            glGenBuffers(1, &mSsbo);
-            glBindBuffer(GL_SHADER_STORAGE_BUFFER, mSsbo);
-            glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(mBlock), &mBlock, GL_DYNAMIC_DRAW);
+            gl->glGenBuffers(1, &mSsbo);
+            gl->glBindBuffer(GL_SHADER_STORAGE_BUFFER, mSsbo);
+            gl->glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(mBlock), &mBlock, GL_DYNAMIC_DRAW);
         }
     }
 
@@ -42,7 +42,7 @@ public:
     ~ShaderStorage()
     {
         if (mSsbo)
-            glDeleteBuffers(1, &mSsbo);
+            gl->glDeleteBuffers(1, &mSsbo);
     }
 
     ShaderStorage& operator=(const ShaderStorage&) = delete;
@@ -90,14 +90,14 @@ public:
 
     void bind() const
     {
-        glBindBufferBase(GL_SHADER_STORAGE_BUFFER, binding, mSsbo);
+        gl->glBindBufferBase(GL_SHADER_STORAGE_BUFFER, binding, mSsbo);
     }
 
     void update()
     {
         init();
         bind();
-        glBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, sizeof(mBlock), &mBlock);
+        gl->glBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, sizeof(mBlock), &mBlock);
     }
 };
 
@@ -109,9 +109,9 @@ class ShaderStorage<Block[], N> {
     void init()
     {
         if (!mSsbo) {
-            glGenBuffers(1, &mSsbo);
-            glBindBuffer(GL_SHADER_STORAGE_BUFFER, mSsbo);
-            glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(mBlock), mBlock, GL_DYNAMIC_DRAW);
+            gl->glGenBuffers(1, &mSsbo);
+            gl->glBindBuffer(GL_SHADER_STORAGE_BUFFER, mSsbo);
+            gl->glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(mBlock), mBlock, GL_DYNAMIC_DRAW);
         }
     }
 
@@ -128,7 +128,7 @@ public:
     ~ShaderStorage()
     {
         if (mSsbo)
-            glDeleteBuffers(1, &mSsbo);
+            gl->glDeleteBuffers(1, &mSsbo);
     }
 
     ShaderStorage& operator=(const ShaderStorage&) = delete;
@@ -152,14 +152,14 @@ public:
 
     void bind() const
     {
-        glBindBufferBase(GL_SHADER_STORAGE_BUFFER, binding, mSsbo);
+        gl->glBindBufferBase(GL_SHADER_STORAGE_BUFFER, binding, mSsbo);
     }
 
     void update()
     {
         init();
         bind();
-        glBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, sizeof(mBlock), mBlock);
+        gl->glBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, sizeof(mBlock), mBlock);
     }
 };
 #endif //__INF251_SHADERSTORAGE__31298117
