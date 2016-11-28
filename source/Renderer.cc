@@ -170,6 +170,7 @@ void Renderer::initializeGL() {
 
   bigSuzy.load("suzanne");
 
+  //terrain.load("suzanne");
   terrain.load("bergen_1024x918");
   //terrain.load("bergen_2048x1836");
   //terrain.load("bergen_3072x2754");
@@ -240,6 +241,8 @@ void Renderer::initializeGL() {
 }
 
 void Renderer::resizeGL(int width, int height) {
+  trackball.resize(width, height);
+
   glActiveTexture(GL_TEXTURE0 + FRAMEBUFFER_LOCATION);
   glBindTexture(GL_TEXTURE_2D, frameBufferTexture);
   glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, 0);
@@ -364,9 +367,7 @@ void Renderer::paintGL() {
     fpsText = fmt::format("FPS: {}", fpsCount / 2);
     fpsCount = 0;
     timer.restart();
-    if (statusBar != nullptr) {
-      statusBar->showMessage(fpsText.c_str());
-    }
+    lblFPS->setText(fpsText.c_str());
   }
   fpsCount++;
 

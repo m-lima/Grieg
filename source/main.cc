@@ -93,7 +93,7 @@ int main(int argc, char * argv[]) {
   renderer.setFormat(surfaceFormat);
   gl = &renderer;
 
-  mainWindow.resize(800, 600);
+  mainWindow.resize(1024, 768);
   center(mainWindow);
   mainWindow.attachRenderer(&renderer);
   mainWindow.show();

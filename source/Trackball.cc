@@ -3,8 +3,8 @@
 #include <glm/gtc/matrix_transform.hpp>
 
 namespace {
-  int _width = 800;
-  int _height = 600;
+  int _width = 1;
+  int _height = 1;
 }
 
 Vec3 Trackball::surfaceVector(int x, int y) {
@@ -175,4 +175,9 @@ Mat4 Trackball::projection() {
 
 Vec3 Trackball::lightPosition() {
   return glm::normalize(mCurrentLightPos);
+}
+
+void Trackball::resize(int width, int height) {
+  _width = width;
+  _height = height;
 }

@@ -30,6 +30,7 @@ if (MSVC)
 endif()
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
+set(CMAKE_AUTOUIC ON)
 find_package(Qt5Widgets)
 
 ##------------------------------------------------------------------------------
@@ -69,6 +70,8 @@ set(SOURCES
 set(UI
   source/MainWindow.cc
   source/MainWindow.hh
+  source/HelpDialog.cc
+  source/HelpDialog.hh
 )
 
 set(SHADERS

@@ -43,6 +43,8 @@ public:
   Mat4 projection();
   Vec3 lightPosition();
 
+  void resize(int width, int height);
+
   public slots:
 
   void anchor(int x, int y);

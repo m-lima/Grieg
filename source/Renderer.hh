@@ -1,7 +1,7 @@
 #ifndef __INF251_RENDERER__48721384
 #define __INF251_RENDERER__48721384
 
-#include <QStatusBar>
+#include <QLabel>
 #include <QOpenGLWidget>
 #include <QOpenGLFunctions_4_3_Core>
 #include <glm/gtc/matrix_transform.hpp>
@@ -32,8 +32,8 @@ public:
   void setLightMovement(bool move);
   void setShader(int shader);
 
-  void setStatusBar(QStatusBar * status) {
-    statusBar = status;
+  void setFPS(QLabel * labelFPS) {
+    lblFPS = labelFPS;
   }
 
 protected:
@@ -90,7 +90,7 @@ private:
   ShaderStorage<MatrixBlock> matrixBuffer;
   ShaderStorage<LightBlock[], 12> lightBuffer;
 
-  QStatusBar * statusBar = nullptr;
+  QLabel * lblFPS = nullptr;
 };
 
 #endif //__INF251_RENDERER__48721384

@@ -1,21 +1,25 @@
 #include "MainWindow.hh"
+#include "HelpDialog.hh"
 
 #include <QStatusBar>
 #include <QMenu>
 #include <QMenuBar>
 #include <memory>
 #include <QSignalMapper>
+#include <QShortcut>
 
 namespace Ui {
   MainWindow::MainWindow() {
     QStatusBar *status = new QStatusBar(this);
+    lblFPS = new QLabel(status);
+    status->addWidget(lblFPS);
     setStatusBar(status);
   }
 
   void MainWindow::attachRenderer(Renderer * renderer) {
     if (mRenderer == nullptr) {
       mRenderer = renderer;
-      renderer->setStatusBar(statusBar());
+      renderer->setFPS(lblFPS);
       trackball = &(mRenderer->trackball);
       buildMenu();
       setCentralWidget(renderer);
@@ -32,9 +36,24 @@ namespace Ui {
     // File menu
     {
       menu = mnbMenu->addMenu("&File");
+
+      QAction *actFull = new QAction("Fullscreen", menu);
       QAction *actExit = new QAction("Exit", menu);
+
+      actFull->setIcon(QIcon(":images/full.png"));
       actExit->setIcon(QIcon(":images/exit.png"));
+
+      actFull->setShortcutContext(Qt::ApplicationShortcut);
+      actExit->setShortcutContext(Qt::ApplicationShortcut);
+      
+      actFull->setShortcut(QKeySequence(Qt::Key_F));
+      actExit->setShortcut(QKeySequence(Qt::Key_Escape));
+      
+      menu->addAction(actFull);
+      menu->addSeparator();
       menu->addAction(actExit);
+
+      connect(actFull, &QAction::triggered, this, &MainWindow::toggleFullscreen);
       connect(actExit, &QAction::triggered, this, &QMainWindow::close);
     }
 
@@ -64,6 +83,8 @@ namespace Ui {
 
       actRotate->setCheckable(true);
       actRotate->setChecked(false);
+      actRotate->setShortcutContext(Qt::ApplicationShortcut);
+      actRotate->setShortcut(QKeySequence(Qt::Key_R));
 
       menu->addAction(actGrieg);
       menu->addAction(actSuzy);
@@ -133,6 +154,9 @@ namespace Ui {
       actPerspective = new QAction("Orthographic", menu);
       QAction *actReset = new QAction("Reset", menu);
 
+      actPerspective->setShortcutContext(Qt::ApplicationShortcut);
+      actPerspective->setShortcut(QKeySequence(Qt::Key_Space));
+
       actTop->setIcon(QIcon(":images/top.png"));
       actBottom->setIcon(QIcon(":images/bottom.png"));
       actRight->setIcon(QIcon(":images/right.png"));
@@ -181,7 +205,21 @@ namespace Ui {
               this, &MainWindow::resetCamera);
     }
 
-    QMenu *mnuLight = mnbMenu->addMenu("&Light");
+    // Light dialog
+    {
+
+    }
+
+    // Help dialog
+    {
+      QAction * actHelp = new QAction("&Help", mnbMenu);
+      actHelp->setShortcutContext(Qt::ApplicationShortcut);
+      actHelp->setShortcut(QKeySequence(Qt::Key_Question));
+      connect(actHelp, &QAction::triggered,
+              this, &MainWindow::showHelp);
+      mnbMenu->addAction(actHelp);
+    }
+
     setMenuBar(mnbMenu);
   }
 
@@ -205,5 +243,19 @@ namespace Ui {
     ortho = false;
 
     trackball->reset();
+  }
+
+  void MainWindow::showHelp() {
+    HelpDialog help(this);
+    help.exec();
+  }
+
+  void MainWindow::toggleFullscreen() {
+    full = !full;
+    if (full) {
+      showFullScreen();
+    } else {
+      showNormal();
+    }
   }
 }

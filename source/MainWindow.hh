@@ -19,12 +19,16 @@ namespace Ui {
     Renderer * mRenderer = nullptr;
     Trackball * trackball = nullptr;
     QAction * actPerspective = nullptr;
+    QLabel * lblFPS = nullptr;
     bool ortho = false;
+    bool full = false;
     void buildMenu();
 
-  private slots:
-  void togglePerspective();
-  void resetCamera();
+    private slots:
+    void togglePerspective();
+    void resetCamera();
+    void showHelp();
+    void toggleFullscreen();
 
   };
 }
