@@ -3,13 +3,10 @@
 
 #define SDL_MAIN_HANDLED
 
-#include "infdef.hh"
 #include "Renderer.hh"
 
 #include <QApplication>
-#include <QSurfaceFormat>
 #include <QDesktopWidget>
-#include <QOffscreenSurface>
 #include <QTextStream>
 #include <QSplashScreen>
 
@@ -60,8 +57,7 @@ void center(QWidget & widget) {
   x = (screenWidth - WIDTH) / 2;
   y = (screenHeight - HEIGHT) / 2;
 
-  widget.setGeometry(x, y, WIDTH, HEIGHT);
-  widget.setFixedSize(WIDTH, HEIGHT);
+  widget.move(x, y);
 }
 
 int main(int argc, char * argv[]) {

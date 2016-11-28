@@ -170,8 +170,8 @@ void Renderer::initializeGL() {
 
   bigSuzy.load("suzanne");
 
-  //terrain.load("suzanne");
-  terrain.load("bergen_1024x918");
+  terrain.load("suzanne");
+  //terrain.load("bergen_1024x918");
   //terrain.load("bergen_2048x1836");
   //terrain.load("bergen_3072x2754");
   terrain.modelTransform = glm::scale(Mat4(), Vec3(4.0f, 4.0f, 4.0f));

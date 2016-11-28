@@ -165,9 +165,9 @@ Mat4 Trackball::rotation() {
 Mat4 Trackball::projection() {
   if (mOrtho) {
     float zoom = mFov / 45.0f;
-    float ratio = static_cast<float>(_width >> 1) / _height;
+    float ratio = static_cast<float>(_width >> 1) / static_cast<float>(_height);
     zoom *= 2.0f;
-    return glm::ortho(-zoom, zoom, -zoom * ratio, zoom * ratio, 1.0f, 20.0f);
+    return glm::ortho(-zoom * ratio, zoom * ratio, -zoom, zoom, 1.0f, 20.0f);
   } else {
     return glm::perspectiveFov(glm::radians(mFov), static_cast<float>(_width), static_cast<float>(_height), 1.0f, 20.0f);
   }
