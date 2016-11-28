@@ -1,5 +1,6 @@
 #include "Renderer.hh"
 
+#include <QOpenGLFramebufferObject>
 #include <QElapsedTimer>
 #include <QMouseEvent>
 
@@ -19,7 +20,7 @@ namespace {
   bool rotateModel = false;
   int currentShader = 0;
   int currentModel = 0;
-  bool waterized = true;
+  bool waterized = false;
   bool currentWaterized = false;
 
   GLuint gridVbo = 0;
@@ -180,17 +181,6 @@ void Renderer::initializeGL() {
   bump->load("Rock.jpg");
   bigSuzy.setBump(bump);
 
-  //Text::setGlobalFont(Texture::cache("font.png"));
-
-  //usageText.setPosition({ 1, 47 - 13 });
-  //usageText.format(
-  //  "Left mouse:   Translate\n"
-  //  "Right mouse:  Rotate\n"
-  //  "Middle mouse: Reset view\n"
-  //  "Spacebar:     Toggle perspective\n"
-  //  "R:            Toggle model rotation\n"
-  //  "S:            Cycle shader\n"
-  //  "M:            Change model\n"
   //  "W:            Waterize\n"
   //  "F1:           Toggle light movement\n"
   //  "F2:           Change number of lights\n"
@@ -250,7 +240,6 @@ void Renderer::initializeGL() {
 }
 
 void Renderer::resizeGL(int width, int height) {
-
   glActiveTexture(GL_TEXTURE0 + FRAMEBUFFER_LOCATION);
   glBindTexture(GL_TEXTURE_2D, frameBufferTexture);
   glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, 0);
@@ -270,43 +259,6 @@ void Renderer::resizeGL(int width, int height) {
 }
 
 void Renderer::paintGL() {
-  //if (update.oX > 0 || update.oY > 0) {
-  //  trackball.anchorRotation(update.oX, update.oY);
-  //}
-
-  //switch (update.state) {
-  //  case States::reset:
-  //    trackball.reset();
-  //    break;
-
-  //  case States::rotate:
-  //    trackball.rotate(update.x, update.y);
-  //    break;
-
-  //  case States::rotateLight:
-  //    trackball.rotateLight(update.x, update.y);
-  //    break;
-
-  //  case States::translate:
-  //    trackball.translate(update.x, update.y);
-  //    break;
-
-  //  case States::zoom:
-  //    trackball.zoom(update.y);
-  //    break;
-
-  //  case States::togglePerspective:
-  //    trackball.togglePerspective();
-  //    break;
-
-  //  case States::fullScreen:
-  //    trackball.projectionDirty = true;
-  //    break;
-
-  //  default:
-  //    break;
-  //}
-
   {
     auto &direction = lightBuffer[0].direction;
     direction = {
@@ -387,7 +339,7 @@ void Renderer::paintGL() {
       glBindFramebuffer(GL_FRAMEBUFFER, frameBuffer);
       glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
       drawAll();
-      glBindFramebuffer(GL_FRAMEBUFFER, 0);
+      QOpenGLFramebufferObject::bindDefault();
 
       setAllShaders(toonShader);
       grieghallen.enableTexture = true;
@@ -399,7 +351,7 @@ void Renderer::paintGL() {
       glBindFramebuffer(GL_FRAMEBUFFER, frameBuffer);
       glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
       drawAll();
-      glBindFramebuffer(GL_FRAMEBUFFER, 0);
+      QOpenGLFramebufferObject::bindDefault();
 
       setAllShaders(depthShader);
       break;
@@ -431,6 +383,17 @@ void Renderer::mouseMoveEvent(QMouseEvent *evt) {
   } else if (evt->buttons() & Qt::RightButton) {
     trackball.translate(evt->x(), evt->y());
   }
+}
+
+void Renderer::keyReleaseEvent(QKeyEvent *evt) {
+  println("Key: {}", evt->key());
+  if (evt->key() == Qt::Key_Escape) {
+    static_cast<QWidget*>(parent())->close();
+  }
+}
+
+void Renderer::wheelEvent(QWheelEvent *evt) {
+  trackball.zoom(evt->delta());
 }
 
 void Renderer::generateFrameBuffer() {

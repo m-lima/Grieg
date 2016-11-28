@@ -42,6 +42,8 @@ protected:
   void resizeGL(int width, int height) Q_DECL_OVERRIDE;
   void mousePressEvent(QMouseEvent *evt) Q_DECL_OVERRIDE;
   void mouseMoveEvent(QMouseEvent *evt) Q_DECL_OVERRIDE;
+  void keyReleaseEvent(QKeyEvent *evt) Q_DECL_OVERRIDE;
+  void wheelEvent(QWheelEvent *evt) Q_DECL_OVERRIDE;
 
 private:
 

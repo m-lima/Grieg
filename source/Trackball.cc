@@ -31,7 +31,7 @@ Trackball::Trackball() :
   mCurrentLightPos{ 1.0f, 1.0f, 1.0f },
   mTranslation{ 0.0f, 0.0f, -5.0f },
   mSensitivityTranslation(0.005f),
-  mSensitivityZooming(1.0f)
+  mSensitivityZooming(0.025f)
 {
 }
 
