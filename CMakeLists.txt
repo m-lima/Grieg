@@ -15,16 +15,6 @@ find_package(OpenGL REQUIRED)
 list(APPEND INCLUDE_DIRS ${OPENGL_INCLUDE_DIRS})
 list(APPEND LIBRARIES ${OPENGL_LIBRARIES})
 
-find_package(SDL2 REQUIRED)
-list(APPEND INCLUDE_DIRS ${SDL2_INCLUDE_DIRS})
-list(APPEND LIBRARIES ${SDL2_LIBRARIES})
-message(STATUS "${SDL2_LIBRARIES}")
-
-find_package(SDL2_image REQUIRED)
-list(APPEND INCLUDE_DIRS ${SDL2_IMAGE_INCLUDE_DIRS})
-list(APPEND LIBRARIES ${SDL2_IMAGE_LIBRARIES})
-message(STATUS "${SDL2_IMAGE_LIBRARIES}")
-
 add_subdirectory(fmtlib)
 list(APPEND INCLUDE_DIRS fmtlib)
 list(APPEND LIBRARIES fmt)
@@ -41,22 +31,6 @@ endif()
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 find_package(Qt5Widgets)
-
-##------------------------------------------------------------------------------
-## GLAD
-##
-
-#set(GLAD_PROFILE "core")
-#set(GLAD_API "gl=4.3")
-#set(GLAD_GENERATOR "c-debug")
-
-# set(GLAD_EXTENSIONS)
-
-#string(REPLACE ";" "," GLAD_EXTENSIONS "${GLAD_EXTENSIONS}")
-
-#add_subdirectory(glad)
-#list(APPEND INCLUDE_DIRS ${GLAD_INCLUDE_DIRS})
-#list(APPEND LIBRARIES ${GLAD_LIBRARIES})
 
 ##------------------------------------------------------------------------------
 ## Platform-specific stuff
@@ -97,20 +71,24 @@ set(UI
   source/MainWindow.hh
   source/ui/OpenGLWidget.cc
   source/ui/OpenGLWidget.hh
-  assets/images/images.qrc
+  resources/images/images.qrc
+  resources/textures/textures0.qrc
+  resources/textures/textures1.qrc
+  resources/shaders/shaders.qrc
 )
 
 set(SHADERS
-  assets/shaders/basic.vs.glsl
-  assets/shaders/basic.fs.glsl
-  assets/shaders/depth.vs.glsl
-  assets/shaders/depth.fs.glsl
-  assets/shaders/toon.vs.glsl
-  assets/shaders/toon.fs.glsl
-  assets/shaders/grid.vs.glsl
-  assets/shaders/grid.fs.glsl
-  assets/shaders/text.vs.glsl
-  assets/shaders/text.fs.glsl)
+  resources/shaders/basic.vs.glsl
+  resources/shaders/basic.fs.glsl
+  resources/shaders/depth.vs.glsl
+  resources/shaders/depth.fs.glsl
+  resources/shaders/toon.vs.glsl
+  resources/shaders/toon.fs.glsl
+  resources/shaders/grid.vs.glsl
+  resources/shaders/grid.fs.glsl
+  resources/shaders/text.vs.glsl
+  resources/shaders/text.fs.glsl
+  )
 
 ##------------------------------------------------------------------------------
 ## Targets
@@ -120,9 +98,9 @@ add_custom_target(assets
   COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/assets ${CMAKE_BINARY_DIR}/assets)
 
 if(MSVC)
-  add_executable(inf251 ${SOURCES} ${SHADERS} ${UI} ${CMAKE_SOURCE_DIR}/assets/qdarkstyle/style.qrc)
+  add_executable(inf251 ${SOURCES} ${SHADERS} ${UI} ${CMAKE_SOURCE_DIR}/resources/qdarkstyle/style.qrc)
 else()
-  add_executable(inf251 ${SOURCES} ${UI} ${CMAKE_SOURCE_DIR}/assets/qdarkstyle/style.qrc)
+  add_executable(inf251 ${SOURCES} ${UI} ${CMAKE_SOURCE_DIR}/resources/qdarkstyle/style.qrc)
 endif()
 target_link_libraries(inf251 ${LIBRARIES})
 target_link_libraries(inf251 Qt5::Widgets)

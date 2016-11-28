@@ -1,0 +1,8 @@
+<RCC>
+  <qresource prefix="textures1">
+    <file>bergen_terrain_texture.png</file>
+    <file>font.png</file>
+    <file>Rock.jpg</file>
+    <file>water.jpg</file>
+  </qresource>
+</RCC>

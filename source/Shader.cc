@@ -1,6 +1,9 @@
 #include "Shader.hh"
 #include "Debug.hh"
 
+#include <QFile>
+#include <QTextStream>
+
 GLuint gUseProgram = 0;
 
 Shader::Shader(const std::string &name)
@@ -21,10 +24,23 @@ void Shader::load(const std::string &name)
     println("Loading shader: {}", name);
     mName = name;
 
-    auto vertexCode = readFileContents(format("assets/shaders/{}.vs.glsl", name));
-    auto vertexCodePtr = vertexCode.c_str();
-    auto fragmentCode = readFileContents(format("assets/shaders/{}.fs.glsl", name));
-    auto fragmentCodePtr = fragmentCode.c_str();
+    QFile vertexCode(
+      QString::fromStdString(format(":shaders/{}.vs.glsl", name)));
+    vertexCode.open(QFile::ReadOnly | QFile::Text);
+    QTextStream vertexStream(&vertexCode);
+    std::string vertexCodeStr =
+      vertexStream.readAll().toLocal8Bit().constData();
+    auto vertexCodePtr = vertexCodeStr.c_str();
+    vertexCode.close();
+
+    QFile fragmentCode(
+      QString::fromStdString(format(":shaders/{}.fs.glsl", name)));
+    fragmentCode.open(QFile::ReadOnly | QFile::Text);
+    QTextStream fragmentStream(&fragmentCode);
+    std::string fragmentCodeStr =
+      fragmentStream.readAll().toLocal8Bit().constData();
+    auto fragmentCodePtr = fragmentCodeStr.c_str();
+    fragmentCode.close();
 
     GLuint vertexShader = gl->glCreateShader(GL_VERTEX_SHADER);
     gl->glShaderSource(vertexShader, 1, &vertexCodePtr, nullptr);

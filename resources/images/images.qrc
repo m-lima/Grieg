@@ -1,0 +1,15 @@
+<RCC>
+  <qresource prefix="images">
+    <file>top.png</file>
+    <file>bottom.png</file>
+    <file>front.png</file>
+    <file>back.png</file>
+    <file>right.png</file>
+    <file>left.png</file>
+    <file>reset.png</file>
+    <file>exit.png</file>
+    <file>perspective.png</file>
+    <file>ortho.png</file>
+    <file>TempSplash.png</file>
+  </qresource>
+</RCC>

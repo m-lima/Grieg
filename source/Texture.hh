@@ -2,7 +2,7 @@
 #define __INF251_TEXTURE__61287533
 
 #include <unordered_map>
-#include <SDL_image.h>
+//#include <SDL_image.h>
 #include "infdef.hh"
 
 struct Sampler2D {

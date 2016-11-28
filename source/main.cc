@@ -68,7 +68,6 @@ int main(int argc, char * argv[]) {
   QApplication app(argc, argv);
 
   {
-    //QFile style("assets/darcula.css");
     QFile style(":qdarkstyle/style.qss");
     style.open(QFile::ReadOnly | QFile::Text);
     QTextStream stream(&style);

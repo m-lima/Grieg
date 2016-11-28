@@ -1,0 +1,30 @@
+<RCC>
+  <qresource prefix="textures0">
+    <file>Asphalt_New.jpg</file>
+    <file>Big_Poster.jpg</file>
+    <file>Big_red_door.jpg</file>
+    <file>Blacktop_New.jpg</file>
+    <file>Ceiling.png</file>
+    <file>Column.jpg</file>
+    <file>font.png</file>
+    <file>Grieg_statue_cutout2.png</file>
+    <file>Lower_floor_window_frames.jpg</file>
+    <file>Metal_Rusted.jpg</file>
+    <file>Polished_Concrete_New.jpg</file>
+    <file>Polished_Concrete_Old.jpg</file>
+    <file>Pool_granite.jpg</file>
+    <file>Red_building_tiles.jpg</file>
+    <file>Rock.jpg</file>
+    <file>Single_red_door.jpg</file>
+    <file>Stone_Masonry_Multi.jpg</file>
+    <file>Tower.jpg</file>
+    <file>Upper_floor.jpg</file>
+    <file>water.jpg</file>
+    <file>Weird_roof_wall.jpg</file>
+    <file>_2.jpg</file>
+    <file>_3.png</file>
+    <file>_Blacktop_New_1.jpg</file>
+    <file>_Concrete_Form_4x8_1.jpg</file>
+    <file>_Roofing_Slate_Dark_1.jpg</file>
+  </qresource>
+</RCC>

@@ -1,4 +1,5 @@
 #include <chrono>
+#include <QImage>
 #include "Texture.hh"
 
 namespace {
@@ -30,51 +31,52 @@ void Texture::load(const std::string & name, int numFrames) {
 
   println("Loading texture: {} with {} frames", name, numFrames);
 
-  auto path = format("assets/textures/{}", name);
-  auto surface = IMG_Load(path.c_str());
-  if (!surface)
-    fatal("  Could not load texture: {}", IMG_GetError());
+  int index = 0;
+  QImage surface;
+  do {
+    auto path = format(":textures{}/{}", index, name);
+    surface = QImage(QString::fromStdString(path));
+    index++;
+  } while (index < 2 && surface.isNull());
 
-  println("  format:         {}", SDL_GetPixelFormatName(surface->format->format));
+  if (surface.isNull()) { fatal("  Could not load texture: {}", name); }
+
+  println("  format:         {}", surface.format());
   if (numFrames > 1) {
-    println("  width:          {} ({} per frame)", surface->w, surface->w / numFrames);
+    println("  width:          {} ({} per frame)", surface.width(), surface.width() / numFrames);
   } else {
-    println("  width:          {}", surface->w);
+    println("  width:          {}", surface.width());
   }
-  println("  height:         {}", surface->h);
-  println("  bytes/px:       {}", surface->format->BitsPerPixel);
+  println("  height:         {}", surface.height());
 
   {
-    auto rgbSurface = SDL_ConvertSurfaceFormat(surface, SDL_PIXELFORMAT_ABGR8888, 0);
-    if (!rgbSurface)
-      fatal("  Could not convert surface to RGBA: {}", SDL_GetError());
-    SDL_FreeSurface(surface);
+    auto rgbSurface = surface.convertToFormat(QImage::Format_ARGB32);
+      if (rgbSurface.isNull())
+      fatal("  Could not convert surface to RGBA: {}", name);
     surface = rgbSurface;
   }
 
   init(numFrames);
 
-  auto frameHeight = surface->h / mNumFrames;
+  auto frameHeight = surface.height() / mNumFrames;
   for (int i = 0; i < mNumFrames; i++) {
     gl->glBindTexture(GL_TEXTURE_2D, mTextures[i]);
-    gl->glTexStorage2D(GL_TEXTURE_2D, 4, GL_RGBA8, surface->w, frameHeight);
+    gl->glTexStorage2D(GL_TEXTURE_2D, 4, GL_RGBA8, surface.width(), frameHeight);
     gl->glTexSubImage2D(GL_TEXTURE_2D,
                         0, /* mipmap level */
                         0, /* x-offset */
                         0, /* y-offset */
-                        surface->w,
+                        surface.width(),
                         frameHeight,
                         GL_RGBA,
                         GL_UNSIGNED_BYTE,
-                        reinterpret_cast<char*>(surface->pixels) + surface->pitch * frameHeight * i);
+                        surface.bits() + surface.width() * 4 * frameHeight * i);
     gl->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_R, GL_REPEAT);
     gl->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
     gl->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
     gl->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     gl->glGenerateMipmap(GL_TEXTURE_2D);
   }
-
-  SDL_FreeSurface(surface);
 }
 
 void Texture::bind(Sampler2D sampler) {

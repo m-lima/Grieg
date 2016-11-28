@@ -1,6 +1,8 @@
 #include "Renderer.hh"
 #include "Trackball.hh"
 
+#include <QElapsedTimer>
+
 namespace {
 
   constexpr int TEXTURE_LOCATION = 0;
@@ -17,16 +19,13 @@ namespace {
   bool rotateModel = false;
   int currentShader = 0;
   int currentModel = 0;
-  bool waterized = false;
+  bool waterized = true;
   bool currentWaterized = false;
 
   Trackball trackball;
 
   GLuint gridVbo = 0;
   GLuint gridVao = 0;
-
-  uint32_t fpsLast = 0;
-  uint32_t fpsCount = 0;
 
   GLuint frameBuffer;
   GLuint frameBufferTexture;
@@ -37,7 +36,10 @@ namespace {
   float _lightTilt{};
   float _tiltFactor{ 0.01f };
 
+  QElapsedTimer timer;
   std::string fpsText = "FPS: 0";
+  uint32_t fpsCount = 0;
+
 
 }
 
@@ -260,6 +262,8 @@ void Renderer::initializeGL() {
   glBindTexture(GL_TEXTURE_2D, normalBufferTexture);
   glActiveTexture(GL_TEXTURE0 + DEPTHBUFFER_LOCATION);
   glBindTexture(GL_TEXTURE_2D, depthBufferTexture);
+  
+  timer.start();
 }
 
 void Renderer::resizeGL(int width, int height) {
@@ -421,10 +425,10 @@ void Renderer::paintGL() {
   drawAll();
   glUseProgram(0);
 
-  if ((SDL_GetTicks() - fpsLast) >= 1000) {
-    fpsText = fmt::format("FPS: {}", fpsCount);
+  if (timer.elapsed() >= 2000) {
+    fpsText = fmt::format("FPS: {}", fpsCount / 2);
     fpsCount = 0;
-    fpsLast = SDL_GetTicks();
+    timer.restart();
     if (statusBar != nullptr) {
       statusBar->showMessage(fpsText.c_str());
     }
