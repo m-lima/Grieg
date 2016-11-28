@@ -10,6 +10,8 @@
     <file>exit.png</file>
     <file>perspective.png</file>
     <file>ortho.png</file>
-    <file>TempSplash.png</file>
+    <file>splash.png</file>
+    <file>icon.png</file>
+    <file>icon2.png</file>
   </qresource>
 </RCC>

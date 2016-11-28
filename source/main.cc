@@ -44,13 +44,13 @@ std::string readFileContents(const std::string &file) {
   return buf;
 }
 
-void center(QWidget * widget) {
+void center(QWidget & widget) {
   int x, y;
   int screenWidth;
   int screenHeight;
 
-  int WIDTH = widget->width();
-  int HEIGHT = widget->height();
+  int WIDTH = widget.width();
+  int HEIGHT = widget.height();
 
   QDesktopWidget *desktop = QApplication::desktop();
 
@@ -60,8 +60,8 @@ void center(QWidget * widget) {
   x = (screenWidth - WIDTH) / 2;
   y = (screenHeight - HEIGHT) / 2;
 
-  widget->setGeometry(x, y, WIDTH, HEIGHT);
-  widget->setFixedSize(WIDTH, HEIGHT);
+  widget.setGeometry(x, y, WIDTH, HEIGHT);
+  widget.setFixedSize(WIDTH, HEIGHT);
 }
 
 int main(int argc, char * argv[]) {
@@ -74,7 +74,7 @@ int main(int argc, char * argv[]) {
     app.setStyleSheet(stream.readAll());
   }
 
-  app.setApplicationName("Bergen Simulator");
+  app.setApplicationName("Grieghallen Explorer");
 
   QSurfaceFormat surfaceFormat;
   surfaceFormat.setDepthBufferSize(24);
@@ -82,22 +82,23 @@ int main(int argc, char * argv[]) {
   surfaceFormat.setProfile(QSurfaceFormat::CoreProfile);
   QSurfaceFormat::setDefaultFormat(surfaceFormat);
 
-  Ui::MainWindow *mainWindow = new Ui::MainWindow();
+  Ui::MainWindow mainWindow;
+  mainWindow.setWindowIcon(QIcon(":images/icon2.png"));
   
-  QSplashScreen splash(mainWindow);
-  splash.setPixmap(QPixmap(":images/TempSplash.png"));
+  QSplashScreen splash(&mainWindow);
+  splash.setPixmap(QPixmap(":images/splash.png"));
   splash.show();
 
-  Renderer renderer(mainWindow);
+  Renderer renderer(&mainWindow);
   renderer.setFormat(surfaceFormat);
   gl = &renderer;
 
-  mainWindow->resize(800, 600);
+  mainWindow.resize(800, 600);
   center(mainWindow);
-  mainWindow->attachRenderer(&renderer);
-  mainWindow->show();
+  mainWindow.attachRenderer(&renderer);
+  mainWindow.show();
   
-  splash.finish(mainWindow);
+  splash.finish(&mainWindow);
 
   return app.exec();
 }
