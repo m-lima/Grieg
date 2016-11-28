@@ -1,7 +1,6 @@
 #include <fstream>
 #include <sstream>
 
-//#include "Sdl.hh"
 #include "infdef.hh"
 #include "Renderer.hh"
 
@@ -83,26 +82,10 @@ int main(int argc, char * argv[])
   openGLwidget.setDrawGL(Renderer::draw);
   openGLwidget.setFormat(surfaceFormat);
   
+  gl = &openGLwidget;
+
   mainWindow.attachRenderer(&openGLwidget);
-
-
-  //QOpenGLContext context;
-  QOffscreenSurface surface;
-  surface.setFormat(surfaceFormat);
-  surface.create();
-  //println("Context:     {}", context.create());
-  
-  QOpenGLContext *current = QOpenGLContext::currentContext();
-
-  gl = &openGLwidget; //context.versionFunctions<QOpenGLFunctions_4_3_Core>();
-  //println("Version:     {}.{}", context.format().majorVersion(), context.format().minorVersion());
-  println("Initialized: {}", gl->initializeOpenGLFunctions());
-
   mainWindow.show();
-  return app.exec();  
 
-  //Sdl::setGlInit(Renderer::init);
-  //Sdl::setGlResize(Renderer::resize);
-  //Sdl::setGlDisplay(Renderer::draw);
-  //Sdl::mainLoop();
+  return app.exec();  
 }

@@ -23,12 +23,20 @@ namespace Ui {
       _resizeGL = resizeGL;
     }
 
+  //public slots:
+  //  void finilizeGL();
+
   protected:
     void initializeGL() Q_DECL_OVERRIDE {
+      //connect(
+      //  context(), &QOpenGLContext::aboutToBeDestroyed,
+      //  this, &OpenGLWidget::finilizeGL);
+      println("Initialized: {}", initializeOpenGLFunctions());
       _initGL(width(), height());
     }
     void paintGL() Q_DECL_OVERRIDE {
       _drawGL();
+      update();
     }
     void resizeGL(int width, int height) Q_DECL_OVERRIDE {
       _resizeGL(width, height);
