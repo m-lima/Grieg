@@ -69,12 +69,6 @@ set(SOURCES
 set(UI
   source/MainWindow.cc
   source/MainWindow.hh
-  source/ui/OpenGLWidget.cc
-  source/ui/OpenGLWidget.hh
-  resources/images/images.qrc
-  resources/textures/textures0.qrc
-  resources/textures/textures1.qrc
-  resources/shaders/shaders.qrc
 )
 
 set(SHADERS
@@ -90,6 +84,14 @@ set(SHADERS
   resources/shaders/text.fs.glsl
   )
 
+set(RESOURCES
+  resources/images/images.qrc
+  resources/textures/textures0.qrc
+  resources/textures/textures1.qrc
+  resources/shaders/shaders.qrc
+  resources/qdarkstyle/style.qrc
+  )
+
 ##------------------------------------------------------------------------------
 ## Targets
 ##
@@ -98,9 +100,9 @@ add_custom_target(assets
   COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/assets ${CMAKE_BINARY_DIR}/assets)
 
 if(MSVC)
-  add_executable(inf251 ${SOURCES} ${SHADERS} ${UI} ${CMAKE_SOURCE_DIR}/resources/qdarkstyle/style.qrc)
+  add_executable(inf251 ${SOURCES} ${SHADERS} ${UI} ${RESOURCES})
 else()
-  add_executable(inf251 ${SOURCES} ${UI} ${CMAKE_SOURCE_DIR}/resources/qdarkstyle/style.qrc)
+  add_executable(inf251 ${SOURCES} ${UI} ${RESOURCES})
 endif()
 target_link_libraries(inf251 ${LIBRARIES})
 target_link_libraries(inf251 Qt5::Widgets)
@@ -116,6 +118,7 @@ add_definitions(-DSPHERICAL_TRACKBALL)
 if(MSVC)
   source_group("Shaders" FILES ${SHADERS})
   source_group("Ui" FILES ${UI})
+  source_group("Resources" FILES ${RESOURCES})
 
   if(${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION} GREATER 3.5)
     set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT inf251)

@@ -16,8 +16,10 @@ namespace Ui {
     if (mRenderer == nullptr) {
       mRenderer = renderer;
       renderer->setStatusBar(statusBar());
+      trackball = &(mRenderer->trackball);
       buildMenu();
       setCentralWidget(renderer);
+      resetCamera();
     }
   }
 
@@ -172,7 +174,7 @@ namespace Ui {
       connect(actBack, SIGNAL(triggered()),
               mapper, SLOT(map()));
       connect(mapper, SIGNAL(mapped(int)),
-              mRenderer, SLOT(setPosition(int)));
+              trackball, SLOT(setPosition(int)));
       connect(actPerspective, &QAction::triggered,
               this, &MainWindow::togglePerspective);
       connect(actReset, &QAction::triggered,
@@ -194,7 +196,7 @@ namespace Ui {
       ortho = true;
     }
 
-    mRenderer->togglePerspective();
+    trackball->togglePerspective();
   }
 
   void MainWindow::resetCamera() {
@@ -202,6 +204,6 @@ namespace Ui {
     actPerspective->setIcon(QIcon(":images/ortho.png"));
     ortho = false;
 
-    mRenderer->resetCamera();
+    trackball->reset();
   }
 }

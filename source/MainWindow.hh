@@ -17,6 +17,7 @@ namespace Ui {
 
   private:
     Renderer * mRenderer = nullptr;
+    Trackball * trackball = nullptr;
     QAction * actPerspective = nullptr;
     bool ortho = false;
     void buildMenu();

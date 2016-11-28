@@ -35,9 +35,11 @@ Trackball::Trackball() :
 {
 }
 
-void Trackball::anchorRotation(int x, int y) {
+void Trackball::anchor(int x, int y) {
 #ifdef SPHERICAL_TRACKBALL
   mInitialPosition = surfaceVector(x, y);
+  mAnchor.x = x;
+  mAnchor.y = y;
   mInitialRotation = mCurrentRotation;
   mInitialLightPos = mCurrentLightPos;
 #endif
@@ -80,8 +82,9 @@ void Trackball::rotateLight(int x, int y) {
 }
 
 void Trackball::translate(int x, int y) {
-  mTranslation.x += mSensitivityTranslation * x;
-  mTranslation.y -= mSensitivityTranslation * y;
+  mTranslation.x += mSensitivityTranslation * (x - mAnchor.x);
+  mTranslation.y -= mSensitivityTranslation * (y - mAnchor.y);
+  anchor(x, y);
   viewDirty = true;
 }
 

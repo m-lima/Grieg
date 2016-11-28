@@ -1,7 +1,7 @@
 #include "Renderer.hh"
-#include "Trackball.hh"
 
 #include <QElapsedTimer>
+#include <QMouseEvent>
 
 namespace {
 
@@ -22,8 +22,6 @@ namespace {
   bool waterized = true;
   bool currentWaterized = false;
 
-  Trackball trackball;
-
   GLuint gridVbo = 0;
   GLuint gridVao = 0;
 
@@ -39,8 +37,6 @@ namespace {
   QElapsedTimer timer;
   std::string fpsText = "FPS: 0";
   uint32_t fpsCount = 0;
-
-
 }
 
 Renderer::Renderer(QWidget *parent) :
@@ -136,18 +132,6 @@ void Renderer::setShader(int shader) {
   currentShader = shader % 3;
 }
 
-void Renderer::setPosition(int position) {
-  trackball.setPosition(position);
-}
-
-void Renderer::togglePerspective() {
-  trackball.togglePerspective();
-}
-
-void Renderer::resetCamera() {
-  trackball.reset();
-}
-
 void Renderer::initializeGL() {
   initializeOpenGLFunctions();
 
@@ -185,8 +169,7 @@ void Renderer::initializeGL() {
 
   bigSuzy.load("suzanne");
 
-  terrain.load("suzanne");
-  //terrain.load("bergen_1024x918");
+  terrain.load("bergen_1024x918");
   //terrain.load("bergen_2048x1836");
   //terrain.load("bergen_3072x2754");
   terrain.modelTransform = glm::scale(Mat4(), Vec3(4.0f, 4.0f, 4.0f));
@@ -262,7 +245,7 @@ void Renderer::initializeGL() {
   glBindTexture(GL_TEXTURE_2D, normalBufferTexture);
   glActiveTexture(GL_TEXTURE0 + DEPTHBUFFER_LOCATION);
   glBindTexture(GL_TEXTURE_2D, depthBufferTexture);
-  
+
   timer.start();
 }
 
@@ -436,6 +419,18 @@ void Renderer::paintGL() {
   fpsCount++;
 
   update();
+}
+
+void Renderer::mousePressEvent(QMouseEvent *evt) {
+  trackball.anchor(evt->x(), evt->y());
+}
+
+void Renderer::mouseMoveEvent(QMouseEvent *evt) {
+  if (evt->buttons() & Qt::LeftButton) {
+    trackball.rotate(evt->x(), evt->y());
+  } else if (evt->buttons() & Qt::RightButton) {
+    trackball.translate(evt->x(), evt->y());
+  }
 }
 
 void Renderer::generateFrameBuffer() {

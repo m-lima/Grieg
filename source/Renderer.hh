@@ -1,7 +1,6 @@
 #ifndef __INF251_RENDERER__48721384
 #define __INF251_RENDERER__48721384
 
-#include <memory>
 #include <QStatusBar>
 #include <QOpenGLWidget>
 #include <QOpenGLFunctions_4_3_Core>
@@ -11,12 +10,14 @@
 #include "Shader.hh"
 #include "Texture.hh"
 #include "ShaderStorage.hh"
+#include "Trackball.hh"
 
 class Renderer : public QOpenGLWidget, public QOpenGLFunctions_4_3_Core {
   Q_OBJECT
 
 public:
-
+  Trackball trackball;
+  
   Renderer(QWidget *parent = 0);
   ~Renderer() = default;
 
@@ -30,9 +31,6 @@ public:
   void setSun(bool sun);
   void setLightMovement(bool move);
   void setShader(int shader);
-  void setPosition(int position);
-  void togglePerspective();
-  void resetCamera();
 
   void setStatusBar(QStatusBar * status) {
     statusBar = status;
@@ -42,6 +40,8 @@ protected:
   void initializeGL() Q_DECL_OVERRIDE;
   void paintGL() Q_DECL_OVERRIDE;
   void resizeGL(int width, int height) Q_DECL_OVERRIDE;
+  void mousePressEvent(QMouseEvent *evt) Q_DECL_OVERRIDE;
+  void mouseMoveEvent(QMouseEvent *evt) Q_DECL_OVERRIDE;
 
 private:
 
@@ -88,8 +88,7 @@ private:
   ShaderStorage<MatrixBlock> matrixBuffer;
   ShaderStorage<LightBlock[], 12> lightBuffer;
 
-  QStatusBar *statusBar = nullptr;
-
+  QStatusBar * statusBar = nullptr;
 };
 
 #endif //__INF251_RENDERER__48721384
