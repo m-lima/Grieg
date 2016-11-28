@@ -81,6 +81,7 @@ set(SOURCES
   source/Sdl.hh
   source/Shader.cc
   source/Shader.hh
+  source/ShaderStorage.hh
   source/Text.cc
   source/Text.hh
   source/Trackball.cc

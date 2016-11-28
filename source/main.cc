@@ -75,7 +75,7 @@ int main(int argc, char * argv[])
   Ui::MainWindow mainWindow;
   mainWindow.resize(800, 600);
   center(mainWindow);
-  
+
   Ui::OpenGLWidget openGLwidget(&mainWindow);
   openGLwidget.setInitGL(Renderer::init);
   openGLwidget.setResizeGL(Renderer::resize);
@@ -87,5 +87,5 @@ int main(int argc, char * argv[])
   mainWindow.attachRenderer(&openGLwidget);
   mainWindow.show();
 
-  return app.exec();  
+  return app.exec();
 }
