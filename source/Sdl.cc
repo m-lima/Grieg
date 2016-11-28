@@ -1,8 +1,8 @@
-#include <memory>
-#include <cstdlib>
-#include "SDL.h"
-#include "SDL_image.h"
-#include "Sdl.hh"
+//#include <memory>
+//#include <cstdlib>
+//#include "SDL.h"
+//#include "SDL_image.h"
+//#include "Sdl.hh"
 
 //extern GLuint gUseProgram;
 //extern bool gSun;

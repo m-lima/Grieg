@@ -1,58 +1,52 @@
 #ifndef __INF251_TEXTURE__61287533
 #define __INF251_TEXTURE__61287533
 
+#include <unordered_map>
 #include <SDL_image.h>
 #include "infdef.hh"
 
 struct Sampler2D {
-    GLuint index;
+  GLuint index;
 
-    constexpr Sampler2D(GLuint pIndex):
-        index(pIndex)
-    {
-    }
+  constexpr Sampler2D(GLuint pIndex) :
+    index(pIndex) {}
 
-    Sampler2D& operator=(GLuint pIndex)
-    {
-        index = pIndex;
-        return *this;
-    }
+  Sampler2D& operator=(GLuint pIndex) {
+    index = pIndex;
+    return *this;
+  }
 
-    explicit operator GLuint() const
-    {
-        return index;
-    }
+  explicit operator GLuint() const {
+    return index;
+  }
 };
 
 class Texture;
 using TexturePtr = std::shared_ptr<Texture>;
 
-class Texture
-{
-    std::unique_ptr<GLuint[]> mTextures {};
+class Texture {
+  std::unique_ptr<GLuint[]> mTextures{};
 
-    int mFrame {};
-    int mNumFrames {};
+  int mFrame{};
+  int mNumFrames{};
 
-    void init(int numFrames);
+  void init(int numFrames);
 
 public:
-    Texture() = default;
+  Texture() = default;
 
-    ~Texture();
+  ~Texture();
 
-    Texture(const Texture&) = delete;
+  Texture(const Texture&) = delete;
 
-    Texture(Texture&&) = default;
+  Texture(Texture&&) = default;
 
-    Texture& operator=(const Texture&) = delete;
+  Texture& operator=(const Texture&) = delete;
 
-    Texture& operator=(Texture&&) = default;
+  Texture& operator=(Texture&&) = default;
 
-    void load(const std::string &name, int numFrames = 1);
+  void load(const std::string &name, int numFrames = 1);
 
-    void bind(Sampler2D sampler = 0);
-
-    static TexturePtr cache(const std::string &name);
+  void bind(Sampler2D sampler = 0);
 };
 #endif //__INF251_TEXTURE__61287533

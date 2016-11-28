@@ -1,8 +1,8 @@
 #ifndef __INF251_SDL__24851580
 #define __INF251_SDL__24851580
 
-#include <string>
-#include "infdef.hh"
+//#include <string>
+//#include "infdef.hh"
 
 //enum struct States {
 //    none,

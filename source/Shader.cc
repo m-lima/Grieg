@@ -1,5 +1,4 @@
 #include "Shader.hh"
-#include "Sdl.hh"
 #include "Debug.hh"
 
 GLuint gUseProgram = 0;

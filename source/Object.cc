@@ -245,17 +245,6 @@ namespace {
     return mtl;
   }
 
-  struct MaterialBlock {
-    static constexpr auto name = "MaterialBlock";
-    static constexpr auto binding = 2;
-
-    alignas(16) glm::vec3 ambient;
-    alignas(16) glm::vec3 diffuse;
-    alignas(16) glm::vec3 specular;
-  };
-
-  ShaderStorage<MaterialBlock> matBlock;
-
 }
 
 Object::~Object() {

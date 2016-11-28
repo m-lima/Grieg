@@ -38,6 +38,7 @@ public:
 	void zoom(int amount);
 	void reset();
 	void togglePerspective();
+  void setPosition(int position);
 
 	// Convert the mouse click to a spherical vector
 	Vec3 surfaceVector(int x, int y);

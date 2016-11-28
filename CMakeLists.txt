@@ -39,6 +39,7 @@ if (MSVC)
   set (CMAKE_PREFIX_PATH "C:\\Qt\\Qt5.7.0\\5.7\\msvc2015_64\\")
 endif()
 set(CMAKE_AUTOMOC ON)
+set(CMAKE_AUTORCC ON)
 find_package(Qt5Widgets)
 
 ##------------------------------------------------------------------------------
@@ -92,10 +93,11 @@ set(SOURCES
   )
 
 set(UI
-  source/ui/MainWindow.cc
-  source/ui/MainWindow.hh
+  source/MainWindow.cc
+  source/MainWindow.hh
   source/ui/OpenGLWidget.cc
   source/ui/OpenGLWidget.hh
+  assets/images/images.qrc
 )
 
 set(SHADERS
@@ -118,9 +120,9 @@ add_custom_target(assets
   COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/assets ${CMAKE_BINARY_DIR}/assets)
 
 if(MSVC)
-  add_executable(inf251 ${SOURCES} ${SHADERS} ${UI})
+  add_executable(inf251 ${SOURCES} ${SHADERS} ${UI} ${CMAKE_SOURCE_DIR}/assets/qdarkstyle/style.qrc)
 else()
-  add_executable(inf251 ${SOURCES} ${UI})
+  add_executable(inf251 ${SOURCES} ${UI} ${CMAKE_SOURCE_DIR}/assets/qdarkstyle/style.qrc)
 endif()
 target_link_libraries(inf251 ${LIBRARIES})
 target_link_libraries(inf251 Qt5::Widgets)

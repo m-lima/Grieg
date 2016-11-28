@@ -1,6 +1,8 @@
 #include <fstream>
 #include <sstream>
 
+#define SDL_MAIN_HANDLED
+
 #include "infdef.hh"
 #include "Renderer.hh"
 
@@ -8,9 +10,10 @@
 #include <QSurfaceFormat>
 #include <QDesktopWidget>
 #include <QOffscreenSurface>
+#include <QTextStream>
+#include <QSplashScreen>
 
-#include "ui/MainWindow.hh"
-#include "ui/OpenGLWidget.hh"
+#include "MainWindow.hh"
 
 #ifdef _WIN32
 // Force high performance GPU
@@ -22,11 +25,10 @@ extern "C" {
   __declspec(dllexport) int AmdPowerXpressRequestHighPerformance = 1;
 }
 #endif
-  
+
 QOpenGLFunctions_4_3_Core *gl = nullptr;
 
-std::string readFileContents(const std::string &file)
-{
+std::string readFileContents(const std::string &file) {
   std::ifstream fh(file, std::ios::binary);
   if (!fh.is_open())
     throw std::runtime_error(format("Couldn't open file {}", file));
@@ -42,13 +44,13 @@ std::string readFileContents(const std::string &file)
   return buf;
 }
 
-void center(QWidget &widget) {
+void center(QWidget * widget) {
   int x, y;
   int screenWidth;
   int screenHeight;
 
-  int WIDTH = widget.width();
-  int HEIGHT = widget.height();
+  int WIDTH = widget->width();
+  int HEIGHT = widget->height();
 
   QDesktopWidget *desktop = QApplication::desktop();
 
@@ -58,13 +60,22 @@ void center(QWidget &widget) {
   x = (screenWidth - WIDTH) / 2;
   y = (screenHeight - HEIGHT) / 2;
 
-  widget.setGeometry(x, y, WIDTH, HEIGHT);
-  widget.setFixedSize(WIDTH, HEIGHT);
+  widget->setGeometry(x, y, WIDTH, HEIGHT);
+  widget->setFixedSize(WIDTH, HEIGHT);
 }
 
-int main(int argc, char * argv[])
-{
+int main(int argc, char * argv[]) {
   QApplication app(argc, argv);
+
+  {
+    //QFile style("assets/darcula.css");
+    QFile style(":qdarkstyle/style.qss");
+    style.open(QFile::ReadOnly | QFile::Text);
+    QTextStream stream(&style);
+    app.setStyleSheet(stream.readAll());
+  }
+
+  app.setApplicationName("Bergen Simulator");
 
   QSurfaceFormat surfaceFormat;
   surfaceFormat.setDepthBufferSize(24);
@@ -72,20 +83,22 @@ int main(int argc, char * argv[])
   surfaceFormat.setProfile(QSurfaceFormat::CoreProfile);
   QSurfaceFormat::setDefaultFormat(surfaceFormat);
 
-  Ui::MainWindow mainWindow;
-  mainWindow.resize(800, 600);
-  center(mainWindow);
-
-  Ui::OpenGLWidget openGLwidget(&mainWindow);
-  openGLwidget.setInitGL(Renderer::init);
-  openGLwidget.setResizeGL(Renderer::resize);
-  openGLwidget.setDrawGL(Renderer::draw);
-  openGLwidget.setFormat(surfaceFormat);
+  Ui::MainWindow *mainWindow = new Ui::MainWindow();
   
-  gl = &openGLwidget;
+  QSplashScreen splash(mainWindow);
+  splash.setPixmap(QPixmap(":images/TempSplash.png"));
+  splash.show();
 
-  mainWindow.attachRenderer(&openGLwidget);
-  mainWindow.show();
+  Renderer renderer(mainWindow);
+  renderer.setFormat(surfaceFormat);
+  gl = &renderer;
+
+  mainWindow->resize(800, 600);
+  center(mainWindow);
+  mainWindow->attachRenderer(&renderer);
+  mainWindow->show();
+  
+  splash.finish(mainWindow);
 
   return app.exec();
 }

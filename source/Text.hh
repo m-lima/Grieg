@@ -1,46 +1,43 @@
 #ifndef __INF251_TEXT__60205946
 #define __INF251_TEXT__60205946
 
+#include "Shader.hh"
 #include "Texture.hh"
 
 class Text {
-    TexturePtr mFont {};
-    GLuint mVbo {};
-    GLuint mIbo {};
-    GLuint mVao {};
-    GLsizei mTrigCount {};
-    glm::vec2 mPosition { -1.0f, 1.0f };
+  TexturePtr mFont{};
+  GLuint mVbo{};
+  GLuint mIbo{};
+  GLuint mVao{};
+  GLsizei mTrigCount{};
+  glm::vec2 mPosition{ -1.0f, 1.0f };
 
-    void initBuffers();
+  void initBuffers();
+
+  Shader _shader;
 
 public:
-    Text(bool registerGlobally = true);
+  Text();
 
-    Text(glm::vec2 position, bool registerGlobally = true):
-        Text(registerGlobally)
-    {
-        setPosition(position);
-    }
+  Text(glm::vec2 position) :
+    Text() {
+    setPosition(position);
+  }
 
-    ~Text();
+  ~Text();
 
-    void setFont(TexturePtr font);
+  void setFont(TexturePtr font);
 
-    void setText(const std::string &);
+  void setText(const std::string &);
 
-    void setPosition(glm::vec2);
+  void setPosition(glm::vec2);
 
-    template <class... Args>
-    void format(fmt::CStringRef fmt, Args&&... args)
-    {
-        setText(fmt::format(fmt, std::forward<Args>(args)...));
-    }
+  template <class... Args>
+  void format(fmt::CStringRef fmt, Args&&... args) {
+    setText(fmt::format(fmt, std::forward<Args>(args)...));
+  }
 
-    void draw();
-
-    static void setGlobalFont(TexturePtr font);
-
-    static void drawAll();
+  void draw();
 };
 
 #endif //__INF251_TEXT__60205946
