@@ -3,9 +3,10 @@
 
 #include <QMainWindow>
 #include <QCloseEvent>
+#include <QSlider>
 #include "Renderer.hh"
 
-namespace Ui {
+namespace View {
   class MainWindow : public QMainWindow {
     Q_OBJECT
 
@@ -19,7 +20,11 @@ namespace Ui {
     Renderer * mRenderer = nullptr;
     Trackball * trackball = nullptr;
     QAction * actPerspective = nullptr;
+
     QLabel * lblFPS = nullptr;
+    QLabel * lblPosition = nullptr;
+    QSlider * sldAmbient = nullptr;
+
     bool ortho = false;
     bool full = false;
     void buildMenu();

@@ -1,27 +1,55 @@
 #include "MainWindow.hh"
 #include "HelpDialog.hh"
 
+#include <memory>
 #include <QStatusBar>
 #include <QMenu>
 #include <QMenuBar>
-#include <memory>
 #include <QSignalMapper>
 #include <QShortcut>
 
-namespace Ui {
+namespace View {
   MainWindow::MainWindow() {
     QStatusBar *status = new QStatusBar(this);
+
     lblFPS = new QLabel(status);
-    status->addWidget(lblFPS);
+    lblPosition = new QLabel(status);
+
+    QWidget * pnlAmbient = new QWidget(status);
+    QHBoxLayout * lytAmbient = new QHBoxLayout(pnlAmbient);
+    lytAmbient->setMargin(0);
+    lytAmbient->setSpacing(0);
+    QLabel *lblAmbient = new QLabel("Ambient: ", status);
+    lblAmbient->setAlignment(Qt::AlignVCenter);
+    sldAmbient = new QSlider(status);
+
+    lblFPS->setFrameStyle(QFrame::Panel | QFrame::Sunken);
+    lblPosition->setFrameStyle(QFrame::Panel | QFrame::Sunken);
+
+    sldAmbient->setValue(40);
+    sldAmbient->setMaximum(100);
+    sldAmbient->setOrientation(Qt::Orientation::Horizontal);
+
+    lytAmbient->addWidget(lblAmbient);
+    lytAmbient->addWidget(sldAmbient);
+
+    status->addPermanentWidget(lblFPS, 1);
+    status->addPermanentWidget(lblPosition, 1);
+    status->addPermanentWidget(pnlAmbient, 2);
+
     setStatusBar(status);
   }
 
   void MainWindow::attachRenderer(Renderer * renderer) {
     if (mRenderer == nullptr) {
       mRenderer = renderer;
-      renderer->setFPS(lblFPS);
+      mRenderer->setFPS(lblFPS);
+      mRenderer->setPosition(lblPosition);
+
       trackball = &(mRenderer->trackball);
+
       buildMenu();
+      
       setCentralWidget(renderer);
       resetCamera();
     }
@@ -205,9 +233,41 @@ namespace Ui {
               this, &MainWindow::resetCamera);
     }
 
-    // Light dialog
+    // Light menu
     {
+      menu = mnbMenu->addMenu("&Lights");
 
+      QAction *actSun = new QAction("Sun", menu);
+      QAction *actSpot1 = new QAction("Light 1", menu);
+      QAction *actSpot2 = new QAction("Light 2", menu);
+      QAction *actRotate = new QAction("Rotate", menu);
+
+      actRotate->setShortcutContext(Qt::ApplicationShortcut);
+      actRotate->setShortcut(QKeySequence(Qt::Key_L));
+      actRotate->setCheckable(true);
+      actRotate->setChecked(true);
+
+      mapper = new QSignalMapper(this);
+      mapper->setMapping(actSun, 0);
+      mapper->setMapping(actSpot1, 1);
+      mapper->setMapping(actSpot2, 2);
+
+      menu->addAction(actSun);
+      menu->addAction(actSpot1);
+      menu->addAction(actSpot2);
+      menu->addSeparator();
+      menu->addAction(actRotate);
+
+      connect(actSun, SIGNAL(triggered()),
+              mapper, SLOT(map()));
+      connect(actSpot1, SIGNAL(triggered()),
+              mapper, SLOT(map()));
+      connect(actSpot2, SIGNAL(triggered()),
+              mapper, SLOT(map()));
+      connect(mapper, SIGNAL(mapped(int)),
+              mRenderer, SLOT(showPanel(int)));
+      connect(actRotate, SIGNAL(triggered(bool)),
+              mRenderer, SLOT(rotateLights(bool)));
     }
 
     // Help dialog
@@ -221,6 +281,8 @@ namespace Ui {
     }
 
     setMenuBar(mnbMenu);
+
+    connect(sldAmbient, &QSlider::valueChanged, mRenderer, &Renderer::setAmbient);
   }
 
   void MainWindow::togglePerspective() {

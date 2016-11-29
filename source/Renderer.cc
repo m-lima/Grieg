@@ -4,6 +4,8 @@
 #include <QElapsedTimer>
 #include <QMouseEvent>
 
+#include "LightDialog.hh"
+
 namespace {
 
   constexpr int TEXTURE_LOCATION = 0;
@@ -12,10 +14,7 @@ namespace {
   constexpr int NORMALBUFFER_LOCATION = 11;
   constexpr int DEPTHBUFFER_LOCATION = 12;
 
-  bool sunShowing = true;
-  int numLights = 2;
   bool moveLights = true;
-  bool spotlightMode = true;
   float ambientLevel = 0.4f;
   bool rotateModel = false;
   int currentShader = 0;
@@ -41,7 +40,9 @@ namespace {
 }
 
 Renderer::Renderer(QWidget *parent) :
-  QOpenGLWidget(parent) {
+  QOpenGLWidget(parent)
+{
+
   basicShader = std::make_shared<Shader>();
   toonShader = std::make_shared<Shader>();
   depthShader = std::make_shared<Shader>();
@@ -57,6 +58,10 @@ void Renderer::checkAndLoadUniforms() {
     matrixBuffer->view = trackball.rotation();
     matrixBuffer.update();
     trackball.viewDirty = false;
+
+    Vec3 position = trackball.eyePosition();
+    auto strPos = fmt::format("X:{} Y:{} Z:{}", position.x, position.y, position.z);
+    lblPosition->setText(strPos.c_str());
   }
 
   if (trackball.projectionDirty) {
@@ -64,6 +69,65 @@ void Renderer::checkAndLoadUniforms() {
     matrixBuffer.update();
     trackball.projectionDirty = false;
   }
+
+  if (trackball.lightDirty) {
+    lightBuffer[0].direction = trackball.lightPosition();
+    trackball.lightDirty = false;
+  }
+}
+
+void Renderer::updateModels() {
+  if (rotateModel) {
+    grieghallen.modelTransform = glm::rotate(
+      grieghallen.modelTransform, 0.01f, glm::vec3(0, 1, 0));
+    bigSuzy.modelTransform = glm::rotate(
+      bigSuzy.modelTransform, 0.01f, glm::vec3(0, 1, 0));
+    terrain.modelTransform = glm::rotate(
+      terrain.modelTransform, 0.01f, glm::vec3(0, 1, 0));
+  }
+
+  if (moveLights) {
+    {
+      auto &position = lightBuffer[1].position;
+      position = { cos(_lightAngle), 0.0f, sin(_lightAngle) };
+      position *= 70.0f + 25.0f * sin(_lightAngle);
+      lightBuffer[1].direction = glm::normalize(-position);
+      lightBuffer[1].direction.y -= _lightTilt;
+      suzanne1.setPosition(position / 20.0f);
+    }
+
+    {
+      auto &position = lightBuffer[2].position;
+      position = { cos(-_lightAngle), 0.0f, sin(-_lightAngle) };
+      position *= 50.0f;
+      suzanne2.setPosition(position / 20.0f);
+    }
+
+    _lightAngle += 0.005f;
+  }
+
+  {
+    auto &light = lightBuffer[1];
+    if (light.type == 3) {
+      light.direction = glm::normalize(-light.position);
+      light.direction.y += _lightTilt;
+    }
+  }
+
+  {
+    auto &light = lightBuffer[2];
+    if (light.type == 3) {
+      light.direction = glm::normalize(-light.position);
+      light.direction.y += _lightTilt;
+    }
+  }
+
+  _lightTilt += _tiltFactor;
+  if (_lightTilt > 1.0f || _lightTilt < -1.0f) {
+    _tiltFactor *= -1.0f;
+  }
+
+  lightBuffer.update();
 }
 
 void Renderer::setAllShaders(std::shared_ptr<Shader> shader) {
@@ -101,10 +165,12 @@ void Renderer::drawAll() {
       break;
   }
 
-  if (numLights >= 1)
+  if (lightBuffer[1].type != 0) {
     suzanne1.draw();
-  if (numLights >= 2)
+  }
+  if (lightBuffer[2].type != 0) {
     suzanne2.draw();
+  }
 }
 
 void Renderer::setModelRotation(bool rotate) {
@@ -115,22 +181,24 @@ void Renderer::setModel(int model) {
   currentModel = model % 3;
 }
 
-void Renderer::cycleLights() {}
-
-void Renderer::setSpotlight(bool spotlight) {
-  spotlightMode = spotlight;
-}
-
-void Renderer::setSun(bool sun) {
-  sunShowing = sun;
-}
-
-void Renderer::setLightMovement(bool move) {
+void Renderer::rotateLights(bool move) {
   moveLights = move;
 }
 
 void Renderer::setShader(int shader) {
   currentShader = shader % 3;
+}
+
+void Renderer::showPanel(int light) {
+  if (dlgLight == nullptr) {
+    dlgLight = new View::LightDialog(this);
+  }
+
+  static_cast<View::LightDialog*>(dlgLight)->show(lightBuffer[light], light);
+}
+
+void Renderer::setAmbient(int level) {
+  ambientLevel = level / 100.0f;
 }
 
 void Renderer::initializeGL() {
@@ -170,8 +238,8 @@ void Renderer::initializeGL() {
 
   bigSuzy.load("suzanne");
 
-  //terrain.load("suzanne");
-  terrain.load("bergen_1024x918");
+  terrain.load("suzanne");
+  //terrain.load("bergen_1024x918");
   //terrain.load("bergen_2048x1836");
   //terrain.load("bergen_3072x2754");
   terrain.modelTransform = glm::scale(Mat4(), Vec3(4.0f, 4.0f, 4.0f));
@@ -262,62 +330,12 @@ void Renderer::resizeGL(int width, int height) {
 }
 
 void Renderer::paintGL() {
-  {
-    auto &direction = lightBuffer[0].direction;
-    direction = {
-      cos(_lightAngle) * sin(_lightAngle),
-      cos(_lightAngle),
-      sin(_lightAngle) * sin(_lightAngle) };
-    direction *= 10.0f;
-    lightBuffer[0].type = (sunShowing) ? 1 : 0;
-    lightBuffer.update();
-  }
-
-  {
-    auto &position = lightBuffer[1].position;
-    position = { cos(_lightAngle), 0.0f, sin(_lightAngle) };
-    position *= 70.0f + 25.0f * sin(_lightAngle);
-    lightBuffer[1].type = (numLights >= 1) ? (spotlightMode ? 3 : 2) : 0;
-    lightBuffer[1].direction = glm::normalize(-position);
-    lightBuffer[1].direction.y -= _lightTilt;
-    lightBuffer.update();
-    suzanne1.setPosition(position / 20.0f);
-  }
-
-  {
-    auto &position = lightBuffer[2].position;
-    position = { cos(-_lightAngle), 0.0f, sin(-_lightAngle) };
-    position *= 50.0f;
-    lightBuffer[2].type = (numLights >= 2) ? (spotlightMode ? 3 : 2) : 0;
-    lightBuffer[2].direction = glm::normalize(-position);
-    lightBuffer[2].direction.y += _lightTilt;
-    lightBuffer.update();
-    suzanne2.setPosition(position / 20.0f);
-  }
-
-  if (moveLights) {
-    _lightAngle += 0.005f;
-  }
-
-  _lightTilt += _tiltFactor;
-  if (_lightTilt > 1.0f || _lightTilt < -1.0f) {
-    _tiltFactor *= -1.0f;
-  }
-
-  if (rotateModel) {
-    grieghallen.modelTransform = glm::rotate(
-      grieghallen.modelTransform, 0.01f, glm::vec3(0, 1, 0));
-    bigSuzy.modelTransform = glm::rotate(
-      bigSuzy.modelTransform, 0.01f, glm::vec3(0, 1, 0));
-    terrain.modelTransform = glm::rotate(
-      terrain.modelTransform, 0.01f, glm::vec3(0, 1, 0));
-  }
-
-  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
   checkAndLoadUniforms();
+  updateModels();
 
   /* Draw grid before doing anything else */
+  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
   glDisable(GL_DEPTH_TEST);
   glDisable(GL_CULL_FACE);
   glBindVertexArray(gridVao);
@@ -380,7 +398,11 @@ void Renderer::mousePressEvent(QMouseEvent *evt) {
 
 void Renderer::mouseMoveEvent(QMouseEvent *evt) {
   if (evt->buttons() & Qt::LeftButton) {
-    trackball.rotate(evt->x(), evt->y());
+    if (evt->modifiers() & Qt::ControlModifier) {
+      trackball.rotateLight(evt->x(), evt->y());
+    } else {
+      trackball.rotate(evt->x(), evt->y());
+    }
   } else if (evt->buttons() & Qt::RightButton) {
     trackball.translate(evt->x(), evt->y());
   }

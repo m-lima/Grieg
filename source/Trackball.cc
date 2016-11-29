@@ -181,3 +181,7 @@ void Trackball::resize(int width, int height) {
   _height = height;
   projectionDirty = true;
 }
+
+Vec3 Trackball::eyePosition() {
+  return mCurrentRotation * mTranslation;
+}

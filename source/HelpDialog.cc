@@ -1,6 +1,6 @@
 #include "HelpDialog.hh"
 
-namespace Ui {
+namespace View {
   HelpDialog::HelpDialog(QWidget *parent) :
     QDialog(parent) {
     setupUi();
@@ -26,7 +26,6 @@ namespace Ui {
     retranslateUi();
 
     connect(buttonBox, SIGNAL(accepted()), this, SLOT(accept()));
-    connect(buttonBox, SIGNAL(rejected()), this, SLOT(reject()));
   }
 
   void HelpDialog::retranslateUi() {

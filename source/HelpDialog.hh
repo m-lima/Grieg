@@ -8,7 +8,7 @@
 #include <QLabel>
 #include <QDialogButtonBox>
 
-namespace Ui {
+namespace View {
   class HelpDialog : public QDialog {
     Q_OBJECT
 

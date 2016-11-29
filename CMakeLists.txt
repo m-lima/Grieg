@@ -31,6 +31,8 @@ endif()
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 set(CMAKE_AUTOUIC ON)
+set(CMAKE_INCLUDE_CURRENT_DIR ON)
+set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 find_package(Qt5Widgets)
 
 ##------------------------------------------------------------------------------
@@ -53,8 +55,6 @@ set(SOURCES
   source/Object.hh
   source/Texture.cc
   source/Texture.hh
-  source/Sdl.cc
-  source/Sdl.hh
   source/Shader.cc
   source/Shader.hh
   source/ShaderStorage.hh
@@ -65,6 +65,8 @@ set(SOURCES
   source/Renderer.cc
   source/Renderer.hh
   source/BinParser.hh
+  source/SkyBox.cc
+  source/SkyBox.hh
   )
 
 set(UI
@@ -72,6 +74,9 @@ set(UI
   source/MainWindow.hh
   source/HelpDialog.cc
   source/HelpDialog.hh
+  source/LightDialog.cc
+  source/LightDialog.hh
+  source/LightDialog.ui
 )
 
 set(SHADERS
@@ -129,6 +134,8 @@ if(MSVC)
 endif()
 
 if(WIN32)
+  set_target_properties(inf251 PROPERTIES LINK_FLAGS "/SUBSYSTEM:WINDOWS")
+
   #if(CMAKE_SIZEOF_VOID_P EQUAL 8)
     ## 32 bits
     #add_custom_command(TARGET inf251 POST_BUILD

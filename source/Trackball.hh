@@ -44,6 +44,7 @@ public:
   Vec3 lightPosition();
 
   void resize(int width, int height);
+  Vec3 eyePosition();
 
   public slots:
 

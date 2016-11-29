@@ -1,8 +1,6 @@
 #include <fstream>
 #include <sstream>
 
-#define SDL_MAIN_HANDLED
-
 #include "Renderer.hh"
 
 #include <QApplication>
@@ -60,8 +58,14 @@ void center(QWidget & widget) {
   widget.move(x, y);
 }
 
+#ifdef _WIN32
+int WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, char*, int nShowCmd) {
+  int argc = 0;
+  QApplication app(argc, 0);
+#else
 int main(int argc, char * argv[]) {
   QApplication app(argc, argv);
+#endif
 
   {
     QFile style(":qdarkstyle/style.qss");
@@ -78,7 +82,7 @@ int main(int argc, char * argv[]) {
   surfaceFormat.setProfile(QSurfaceFormat::CoreProfile);
   QSurfaceFormat::setDefaultFormat(surfaceFormat);
 
-  Ui::MainWindow mainWindow;
+  View::MainWindow mainWindow;
   mainWindow.setWindowIcon(QIcon(":images/icon2.png"));
   
   QSplashScreen splash(&mainWindow);

@@ -17,23 +17,37 @@ class Renderer : public QOpenGLWidget, public QOpenGLFunctions_4_3_Core {
 
 public:
   Trackball trackball;
-  
+
   Renderer(QWidget *parent = 0);
   ~Renderer() = default;
 
-  void checkAndLoadUniforms();
+  struct LightBlock {
+    static constexpr auto name = "LightBlock";
+    static constexpr auto binding = 1;
+
+    int type;
+    alignas(16) glm::vec3 direction;
+    alignas(16) glm::vec3 color;
+    alignas(16) glm::vec3 position;
+    float specularIndex = 256.0f;
+    float aperture;
+    float intensity = 1.0f;
+  };
 
   public slots:
   void setModelRotation(bool rotate);
   void setModel(int model);
-  void cycleLights();
-  void setSpotlight(bool spotlight);
-  void setSun(bool sun);
-  void setLightMovement(bool move);
+  void rotateLights(bool move);
   void setShader(int shader);
+  void showPanel(int light);
+  void setAmbient(int level);
 
   void setFPS(QLabel * labelFPS) {
     lblFPS = labelFPS;
+  }
+
+  void setPosition(QLabel * labelPosition) {
+    lblPosition = labelPosition;
   }
 
 protected:
@@ -55,19 +69,8 @@ private:
     glm::mat4 view;
   };
 
-  struct LightBlock {
-    static constexpr auto name = "LightBlock";
-    static constexpr auto binding = 1;
-
-    int type;
-    alignas(16) glm::vec3 direction;
-    alignas(16) glm::vec3 color;
-    alignas(16) glm::vec3 position;
-    float specularIndex = 256.0f;
-    float aperture;
-    float intensity = 1.0f;
-  };
-
+  void checkAndLoadUniforms();
+  void updateModels();
   void generateFrameBuffer();
   void setAllShaders(std::shared_ptr<Shader> shader);
   void drawAll();
@@ -91,6 +94,8 @@ private:
   ShaderStorage<LightBlock[], 12> lightBuffer;
 
   QLabel * lblFPS = nullptr;
+  QLabel * lblPosition = nullptr;
+  QDialog * dlgLight = nullptr;
 };
 
 #endif //__INF251_RENDERER__48721384
