@@ -250,13 +250,6 @@ void Renderer::initializeGL() {
   bump->load("Rock.jpg");
   bigSuzy.setBump(bump);
 
-  //  "W:            Waterize\n"
-  //  "F1:           Toggle light movement\n"
-  //  "F2:           Change number of lights\n"
-  //  "F3:           Toggle sun\n"
-  //  "F4:           Toggle spotlight/point light\n"
-  //  "-/+:          Darken/brighten ambient light\n");
-
   /* Create lights */
   lightBuffer[0].type = 1;
   lightBuffer[0].color = { 1.0f, 1.0f, 1.0f };

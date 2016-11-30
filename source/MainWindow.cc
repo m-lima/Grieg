@@ -313,11 +313,10 @@ namespace View {
   }
 
   void MainWindow::toggleFullscreen() {
-    full = !full;
-    if (full) {
-      showFullScreen();
-    } else {
+    if (isFullScreen()) {
       showNormal();
+    } else {
+      showFullScreen();
     }
   }
 }

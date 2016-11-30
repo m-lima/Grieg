@@ -134,7 +134,8 @@ if(MSVC)
 endif()
 
 if(WIN32)
-  set_target_properties(inf251 PROPERTIES LINK_FLAGS "/SUBSYSTEM:WINDOWS")
+  set_target_properties(inf251 PROPERTIES LINK_FLAGS_RELEASE "/SUBSYSTEM:WINDOWS")
+  set_target_properties(inf251 PROPERTIES LINK_FLAGS_DEBUG "/SUBSYSTEM:CONSOLE")
 
   #if(CMAKE_SIZEOF_VOID_P EQUAL 8)
     ## 32 bits

@@ -26,7 +26,6 @@ namespace View {
     QSlider * sldAmbient = nullptr;
 
     bool ortho = false;
-    bool full = false;
     void buildMenu();
 
     private slots:

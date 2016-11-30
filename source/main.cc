@@ -58,7 +58,7 @@ void center(QWidget & widget) {
   widget.move(x, y);
 }
 
-#ifdef _WIN32
+#if defined(_WIN32) && defined(NDEBUG)
 int WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, char*, int nShowCmd) {
   int argc = 0;
   QApplication app(argc, 0);
@@ -96,7 +96,12 @@ int main(int argc, char * argv[]) {
   mainWindow.resize(1024, 768);
   center(mainWindow);
   mainWindow.attachRenderer(&renderer);
+
+#ifdef NDEBUG
+  mainWindow.showFullScreen();
+#else
   mainWindow.show();
+#endif
   
   splash.finish(&mainWindow);
 
