@@ -56,7 +56,7 @@ namespace View {
   }
 
   void MainWindow::buildMenu() {
-    QMenuBar *mnbMenu = new QMenuBar();
+    QMenuBar *mnbMenu = new QMenuBar(this);
     QMenu *menu;
     QActionGroup *group;
     QSignalMapper *mapper;

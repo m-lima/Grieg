@@ -14,6 +14,9 @@ namespace View {
 
   public:
     LightDialog(QWidget * parent);
+    ~LightDialog() {
+      delete _ui;
+    }
     void show(Renderer::LightBlock &block, int light);
 
   private:
