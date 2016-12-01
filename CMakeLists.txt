@@ -4,6 +4,11 @@ project(INF251 CXX)
 set(CMAKE_PREFIX_PATH "${CMAKE_SOURCE_DIR}/extern")
 set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
 
+# Handle Mac's Clang
+if(APPLE)
+  set(CMAKE_CXX_FLAGS "-std=c++14 -stdlib=libc++")
+endif()
+
 # cmake-ide.el is stupid, so pretend we're doing:
 # add_definitions("-std=c++11")
 
@@ -27,6 +32,8 @@ if (MSVC)
   # GOTTA FIX THIS!! CMake keeps pointing to 32bit version of QT
   # and this was the only way I found to force a 64bit linkage
   set (CMAKE_PREFIX_PATH "C:\\Qt\\Qt5.7.0\\5.7\\msvc2015_64\\")
+elseif(APPLE)
+  set (CMAKE_PREFIX_PATH "~/Qt/5.7/clang_64")
 endif()
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
