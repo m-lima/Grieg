@@ -17,6 +17,7 @@
 
 # CLion
 /.idea
+/cmake-*/
 
 # QtCreator
 *.autosave

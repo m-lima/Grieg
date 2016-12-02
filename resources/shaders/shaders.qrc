@@ -6,6 +6,8 @@
     <file>depth.vs.glsl</file>
     <file>grid.fs.glsl</file>
     <file>grid.vs.glsl</file>
+    <file>lines.fs.glsl</file>
+    <file>lines.vs.glsl</file>
     <file>text.fs.glsl</file>
     <file>text.vs.glsl</file>
     <file>toon.fs.glsl</file>

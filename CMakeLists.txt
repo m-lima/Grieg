@@ -57,6 +57,8 @@ endif()
 set(SOURCES
   source/infdef.hh
   source/main.cc
+  source/CameraPath.cc
+  source/CameraPath.hh
   source/Debug.cc
   source/Object.cc
   source/Object.hh
