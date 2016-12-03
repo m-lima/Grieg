@@ -38,7 +38,6 @@ void Trackball::anchor(int x, int y) {
 void Trackball::rotate(int x, int y) {
 #ifdef SPHERICAL_TRACKBALL
   mCurrentPosition = surfaceVector(x, y);
-  println("Model: {}, {}", x, y);
 
   float angle = glm::acos(glm::dot(mInitialPosition, mCurrentPosition));
   Vec3 mAxis = glm::cross(mInitialPosition, mCurrentPosition);
@@ -54,7 +53,6 @@ void Trackball::rotate(int x, int y) {
 void Trackball::rotateLight(int x, int y) {
 #ifdef SPHERICAL_TRACKBALL
   mCurrentPosition = surfaceVector(x, y);
-  println("Light: {}, {}", x, y);
 
   float angle = glm::acos(glm::dot(mInitialPosition, mCurrentPosition));
   Vec3 mAxis = glm::cross(mInitialPosition, mCurrentPosition);

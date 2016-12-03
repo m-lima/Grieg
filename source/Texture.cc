@@ -37,7 +37,7 @@ void Texture::load(const std::string & name, int numFrames) {
     auto path = format(":textures{}/{}", index, name);
     surface = QImage(QString::fromStdString(path));
     index++;
-  } while (index < 2 && surface.isNull());
+  } while (index < 3 && surface.isNull());
 
   if (surface.isNull()) { fatal("  Could not load texture: {}", name); }
 
@@ -50,7 +50,7 @@ void Texture::load(const std::string & name, int numFrames) {
   println("  height:         {}", surface.height());
 
   {
-    auto rgbSurface = surface.convertToFormat(QImage::Format_ARGB32);
+    auto rgbSurface = surface.convertToFormat(QImage::Format_RGB888);
       if (rgbSurface.isNull())
       fatal("  Could not convert surface to RGBA: {}", name);
     surface = rgbSurface;
@@ -61,16 +61,16 @@ void Texture::load(const std::string & name, int numFrames) {
   auto frameHeight = surface.height() / mNumFrames;
   for (int i = 0; i < mNumFrames; i++) {
     gl->glBindTexture(GL_TEXTURE_2D, mTextures[i]);
-    gl->glTexStorage2D(GL_TEXTURE_2D, 4, GL_RGBA8, surface.width(), frameHeight);
+    gl->glTexStorage2D(GL_TEXTURE_2D, 4, GL_RGB8, surface.width(), frameHeight);
     gl->glTexSubImage2D(GL_TEXTURE_2D,
                         0, /* mipmap level */
                         0, /* x-offset */
                         0, /* y-offset */
                         surface.width(),
                         frameHeight,
-                        GL_RGBA,
+                        GL_RGB,
                         GL_UNSIGNED_BYTE,
-                        surface.bits() + surface.width() * 4 * frameHeight * i);
+                        surface.bits() + surface.width() * 3 * frameHeight * i);
     gl->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_R, GL_REPEAT);
     gl->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
     gl->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);

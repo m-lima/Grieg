@@ -35,14 +35,14 @@ Mat4 Camera::projection() {
   if (mOrtho) {
     float zoom = mFOV / 22.5f;
     float ratio = static_cast<float>(_height) / static_cast<float>(_width);
-    return glm::ortho(-zoom, zoom, -zoom * ratio, zoom * ratio, 1.0f, 20.0f);
+    return glm::ortho(-zoom, zoom, -zoom * ratio, zoom * ratio, 1.0f, 200.0f);
   } else {
     return glm::perspectiveFov(
       glm::radians(mFOV),
       static_cast<float>(_width),
       static_cast<float>(_height),
       1.0f,
-      20.0f
+      200.0f
     );
   }
 }

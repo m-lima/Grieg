@@ -100,6 +100,7 @@ set(RESOURCES
   resources/images/images.qrc
   resources/textures/textures0.qrc
   resources/textures/textures1.qrc
+  resources/textures/textures2.qrc
   resources/shaders/shaders.qrc
   resources/meshes/meshes.qrc
   resources/qdarkstyle/style.qrc

@@ -34,21 +34,21 @@ namespace {
         "negz",
     };
 
-    QImage image(QString(":textures1/skybox_%1.jpg").arg(files[sidei]));
+    QImage image(QString(":textures2/skybox_%1.jpg").arg(files[sidei]));
     if (image.isNull())
       fatal("  Could not load cubemap part: skybox_{}.jpg", files[sidei]);
 
-    image = image.convertToFormat(QImage::Format_ARGB32);
+    image = image.convertToFormat(QImage::Format_RGB888);
     if (image.isNull())
       fatal("  Could not convert image to RGBA: {}", files[sidei]);
 
     gl->glTexImage2D(targets[sidei],
                      0, /* texture level */
-                     GL_RGBA,
+                     GL_RGB,
                      image.width(),
                      image.height(),
                      0, /* border */
-                     GL_RGBA,
+                     GL_RGB,
                      GL_UNSIGNED_BYTE,
                      image.bits());
   }
