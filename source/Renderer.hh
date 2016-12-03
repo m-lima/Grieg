@@ -11,6 +11,7 @@
 #include "Texture.hh"
 #include "ShaderStorage.hh"
 #include "Trackball.hh"
+#include "Cubemap.hh"
 
 class Renderer : public QOpenGLWidget, public QOpenGLFunctions_4_3_Core {
   Q_OBJECT
@@ -91,6 +92,8 @@ private:
   Object suzanne2;
   Object bigSuzy;
   Object terrain;
+
+  Cubemap cubemap;
 
   ShaderStorage<MatrixBlock> matrixBuffer;
   ShaderStorage<LightBlock[], 12> lightBuffer;

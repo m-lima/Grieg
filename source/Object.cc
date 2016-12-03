@@ -742,7 +742,7 @@ void Object::loadBinFile(const std::string &name) {
   // Fork the indices creation. This can be done in parallel with loading the
   // GL buffers
   std::vector<glm::ivec3> faces;
-  std::thread faceThread(&generateFaces, terrain, size, &faces);
+  std::thread faceThread(&generateFaces, std::ref(terrain), size, &faces);
 
   // Load the vertex, normal, and texture coordinate buffers
   std::vector<Vertex> buffer;

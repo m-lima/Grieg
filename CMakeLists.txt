@@ -47,7 +47,7 @@ find_package(Qt5Widgets)
 ##
 
 if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
-  list(APPEND LIBRARIES dl)
+  list(APPEND LIBRARIES dl pthread)
 endif()
 
 ##------------------------------------------------------------------------------
@@ -74,8 +74,8 @@ set(SOURCES
   source/Renderer.cc
   source/Renderer.hh
   source/BinParser.hh
-  source/SkyBox.cc
-  source/SkyBox.hh
+  source/Cubemap.cc
+  source/Cubemap.hh
   )
 
 set(UI

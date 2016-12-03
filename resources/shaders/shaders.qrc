@@ -5,5 +5,7 @@
     <file>grid.fs.glsl</file>
     <file>lines.fs.glsl</file>
     <file>toon.fs.glsl</file>
+    <file>skybox.fs.glsl</file>
+    <file>skybox.vs.glsl</file>
   </qresource>
 </RCC>

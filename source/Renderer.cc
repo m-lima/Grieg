@@ -43,7 +43,6 @@ namespace {
 Renderer::Renderer(QWidget *parent) :
   QOpenGLWidget(parent)
 {
-
   basicShader = std::make_shared<Shader>();
   toonShader = std::make_shared<Shader>();
   depthShader = std::make_shared<Shader>();
@@ -221,6 +220,13 @@ void Renderer::setAmbient(int level) {
 void Renderer::initializeGL() {
   initializeOpenGLFunctions();
 
+#define glReport(x) println(#x ": {}", reinterpret_cast<const char*>(glGetString(x)))
+  glReport(GL_VENDOR);
+  glReport(GL_RENDERER);
+  glReport(GL_VERSION);
+  glReport(GL_SHADING_LANGUAGE_VERSION);
+#undef glReport
+
   generateFrameBuffer();
 
   water->load("water.jpg", 16);
@@ -233,6 +239,9 @@ void Renderer::initializeGL() {
   basicShader->bindBuffer(lightBuffer);
   basicShader->uniform("uTexture") = Sampler2D(TEXTURE_LOCATION);
   basicShader->uniform("uBump") = Sampler2D(BUMP_LOCATION);
+
+  cubemap.load();
+  cubemap.bindBuffer(matrixBuffer);
 
   toonShader->load("toon", ShaderType::postprocess);
   toonShader->uniform("uFramebuffer") = Sampler2D(FRAMEBUFFER_LOCATION);
@@ -372,6 +381,8 @@ void Renderer::paintGL() {
   basicShader->uniform("uAmbientLight") = glm::vec3(ambientLevel);
 
   drawAll();
+
+  cubemap.draw();
 
   if (mPostprocessShader) {
     QOpenGLFramebufferObject::bindDefault();

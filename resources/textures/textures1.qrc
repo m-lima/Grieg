@@ -4,5 +4,11 @@
     <file>font.png</file>
     <file>Rock.jpg</file>
     <file>water.jpg</file>
+    <file>skybox_negx.jpg</file>
+    <file>skybox_posx.jpg</file>
+    <file>skybox_negy.jpg</file>
+    <file>skybox_posy.jpg</file>
+    <file>skybox_negz.jpg</file>
+    <file>skybox_posz.jpg</file>
   </qresource>
 </RCC>
