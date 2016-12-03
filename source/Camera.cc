@@ -179,7 +179,7 @@ void Camera::togglePerspective() {
   projectionDirty = true;
 }
 
-void Camera::setPosition(int position) {
+void Camera::setDefaultPosition(int position) {
   mTranslation = Vec3(0.0f, 0.0f, -5.0f);
   mRotation = Quat();
   viewDirty = true;
@@ -232,4 +232,9 @@ void Camera::translate(int x, int y) {
   mTranslation.x += mTranslationSensitivity * (x - _anchor.x);
   mTranslation.y -= mTranslationSensitivity * (y - _anchor.y);
   _anchor = { x, y };
+}
+
+void Camera::setPosition(const Vec3 & position) {
+  mTranslation = position;
+  viewDirty = true;
 }

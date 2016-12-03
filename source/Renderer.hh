@@ -6,6 +6,7 @@
 #include <QOpenGLFunctions_4_3_Core>
 #include <glm/gtc/matrix_transform.hpp>
 
+#include "CameraPath.hh"
 #include "Object.hh"
 #include "Shader.hh"
 #include "Texture.hh"
@@ -102,6 +103,8 @@ private:
   QLabel * lblFPS = nullptr;
   QLabel * lblPosition = nullptr;
   QDialog * dlgLight = nullptr;
+  
+  CameraPath path;
 };
 
 #endif //__INF251_RENDERER__48721384

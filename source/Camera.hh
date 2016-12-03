@@ -44,9 +44,10 @@ public:
   void reset();
   void zoom(int amount);
   void togglePerspective();
-  void setPosition(int position);
+  void setDefaultPosition(int position);
   void resize(int width, int height);
   void translate(int x, int y);
+  void setPosition(const Vec3 & position);
 
 private:
 

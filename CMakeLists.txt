@@ -94,6 +94,8 @@ set(SHADERS
   resources/shaders/grid.fs.glsl
   resources/shaders/toon.fs.glsl
   resources/shaders/lines.fs.glsl
+  resources/shaders/skybox.fs.glsl
+  resources/shaders/skybox.vs.glsl
   )
 
 set(RESOURCES

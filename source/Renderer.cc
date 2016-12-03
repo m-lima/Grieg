@@ -327,6 +327,13 @@ void Renderer::initializeGL() {
   glActiveTexture(GL_TEXTURE0 + LINEARDEPTHBUFFER_LOCATION);
   glBindTexture(GL_TEXTURE_2D, linearDepthBufferTexture);
 
+  path.add({ 0.0f, 0.0f, 5.0f });
+  path.add({ 10.0f, 0.0f, 5.0f });
+  path.add({ 15.0f, 5.0f, 5.0f });
+  path.add({ 15.0f, -5.0f, 5.0f });
+  path.add({ 0.0f, 0.0f, 5.0f });
+  path.buildSplines();
+
   timer.start();
 }
 
@@ -356,6 +363,11 @@ void Renderer::resizeGL(int width, int height) {
 }
 
 void Renderer::paintGL() {
+  static float pathPos = 0.0f;
+  auto i = path.interp(pathPos);
+  pathPos += 0.01f;
+  camera.setPosition(i.first);
+
   checkAndLoadUniforms();
   updateModels();
 

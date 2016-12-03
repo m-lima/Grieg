@@ -226,7 +226,7 @@ namespace View {
       connect(actBack, SIGNAL(triggered()),
               mapper, SLOT(map()));
       connect(mapper, SIGNAL(mapped(int)),
-              camera, SLOT(setPosition(int)));
+              camera, SLOT(setDefaultPosition(int)));
       connect(actPerspective, &QAction::triggered,
               this, &MainWindow::togglePerspective);
       connect(actReset, &QAction::triggered,
