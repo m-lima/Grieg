@@ -10,6 +10,10 @@ namespace View {
     _ui->setupUi(this);
   }
 
+  LightDialog::~LightDialog() {
+    delete _ui;
+  }
+
   void LightDialog::show(Renderer::LightBlock &block, int light) {
     if (light == _light) {
       return;

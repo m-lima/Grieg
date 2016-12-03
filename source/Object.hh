@@ -40,6 +40,7 @@ class Object {
   std::shared_ptr<Shader> mShader{};
 
   void loadObjFile(const std::string &name);
+  template <bool Normalize = true> void loadBinFile(const std::string &name);
   void init();
 
 public:
@@ -56,7 +57,7 @@ public:
     mShader = shader;
   }
 
-  void setMaterial(std::shared_ptr<Texture> texture, glm::vec3 ambient = { 0.0f, 0.0f, 0.0f }, glm::vec3 diffuse = { 0.5f, 0.5f, 0.5f }, glm::vec3 specular = { 0.3f, 0.3f, 0.3f }) {
+  void setMaterial(std::shared_ptr<Texture> texture, glm::vec3 specular = { 0.3f, 0.3f, 0.3f }, glm::vec3 ambient = { 0.0f, 0.0f, 0.0f }, glm::vec3 diffuse = { 0.5f, 0.5f, 0.5f }) {
     mMaterialGroups.clear();
     mMaterialGroups.push_back({ mTrigCount, texture, nullptr, ambient, diffuse, specular });
   }

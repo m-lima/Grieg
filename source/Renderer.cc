@@ -238,14 +238,14 @@ void Renderer::initializeGL() {
 
   bigSuzy.load("suzanne");
 
-  terrain.load("suzanne");
-  //terrain.load("bergen_1024x918");
+  //terrain.load("suzanne");
+  terrain.load("bergen_1024x918");
   //terrain.load("bergen_2048x1836");
   //terrain.load("bergen_3072x2754");
   terrain.modelTransform = glm::scale(Mat4(), Vec3(4.0f, 4.0f, 4.0f));
 
   bergen->load("bergen_terrain_texture.png");
-  terrain.setMaterial(bergen);
+  terrain.setMaterial(bergen, { 0.0f, 0.0f, 0.0f });
 
   bump->load("Rock.jpg");
   bigSuzy.setBump(bump);
