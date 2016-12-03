@@ -421,18 +421,6 @@ void Renderer::wheelEvent(QWheelEvent *evt) {
   camera.wheelMoved(evt);
 }
 
-void Renderer::keyPressEvent(QKeyEvent *evt) {
-  camera.keyPressed(evt);
-}
-
-void Renderer::keyReleaseEvent(QKeyEvent *evt) {
-  if (evt->key() == Qt::Key_Escape) {
-    static_cast<QWidget*>(parent())->close();
-  } else {
-    camera.keyReleased(evt);
-  }
-}
-
 void Renderer::generateFrameBuffer() {
   // Color attachment
   glGenTextures(1, &frameBufferTexture);

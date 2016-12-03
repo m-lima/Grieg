@@ -7,9 +7,10 @@ namespace {
   int _height = 1;
 }
 
-Trackball::Trackball(Quat * rotation, Vec3 * lightPosition) :
+Trackball::Trackball(Quat * rotation, Vec3 * lightPosition, bool * viewDirty) :
   mRotation(rotation),
-  mLightPosition(lightPosition) {}
+  mLightPosition(lightPosition),
+  mViewDirty(viewDirty) {}
 
 Vec3 Trackball::surfaceVector(int x, int y) {
   float width = _width / 2.0f;
@@ -44,6 +45,7 @@ void Trackball::rotate(int x, int y) {
   mAxis = glm::normalize(mAxis);
 
   *mRotation = glm::rotate(mInitialRotation, angle, glm::conjugate(mInitialRotation) * mAxis);
+  *mViewDirty = true;
 #else
   mRotation = glm::rotate(mRotation, glm::radians(static_cast<float>(x)), glm::conjugate(mRotation) * Vec3(0, 1, 0));
   mRotation = glm::rotate(mRotation, glm::radians(static_cast<float>(y)), glm::conjugate(mRotation) * Vec3(1, 0, 0));
@@ -60,6 +62,7 @@ void Trackball::rotateLight(int x, int y) {
 
   Quat lightRotation = glm::rotate(Quat(), angle, mAxis);
   *mLightPosition = lightRotation * mInitialLightPos;
+  *mViewDirty = true;
 #else
   Quat lightRotation = glm::rotate(Quat(), glm::radians(static_cast<float>(x)), Vec3(0, 1, 0));
   lightRotation = glm::rotate(lightRotation, glm::radians(static_cast<float>(y)), glm::conjugate(lightRotation) * Vec3(1, 0, 0));

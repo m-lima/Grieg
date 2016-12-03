@@ -19,7 +19,6 @@ namespace {
 }
 
 Camera::Camera() :
-  trackball(&mRotation, &mLightPosition),
   mFOV(45.0f),
   projectionDirty(true),
   viewDirty(true),
@@ -27,7 +26,8 @@ Camera::Camera() :
   mLightPosition{ 1.0f, 1.0f, 1.0f },
   mTranslation{ 0.0f, 0.0f, -5.0f },
   mZoomSensitivity(0.025f),
-  mTranslationSensitivity(0.005f) {}
+  mTranslationSensitivity(0.005f),
+  trackball(&mRotation, &mLightPosition, &viewDirty) {}
 
 Mat4 Camera::rotation() {
   return glm::translate(
@@ -79,15 +79,12 @@ void Camera::mouseMoved(QMouseEvent * evt) {
       if (evt->modifiers() & Qt::ControlModifier) {
         if (evt->buttons() & Qt::LeftButton) {
           trackball.rotateLight(evt->x(), evt->y());
-          lightDirty = true;
         }
       } else {
         if (evt->buttons() & Qt::LeftButton) {
           trackball.rotate(evt->x(), evt->y());
-          viewDirty = true;
         } else if (evt->buttons() & Qt::RightButton) {
           translate(evt->x(), evt->y());
-          viewDirty = true;
         }
       }
       break;
@@ -120,6 +117,12 @@ void Camera::keyPressed(QKeyEvent * evt) {
       if (evt->key() == Qt::Key_D) {
         _D_down = true;
       }
+      if (evt->key() == Qt::Key_Shift) {
+        _Shift_down = true;
+      }
+      if (evt->key() == Qt::Key_Control) {
+        _CTRL_down = true;
+      }
       break;
     case Camera::PATH:
       break;
@@ -144,6 +147,12 @@ void Camera::keyReleased(QKeyEvent * evt) {
       if (evt->key() == Qt::Key_D) {
         _D_down = false;
       }
+      if (evt->key() == Qt::Key_Shift) {
+        _Shift_down = false;
+      }
+      if (evt->key() == Qt::Key_Control) {
+        _CTRL_down = false;
+      }
       break;
     case Camera::PATH:
       break;
@@ -154,11 +163,11 @@ void Camera::setMode(Mode mode) {
   mMode = mode;
 
   if (mMode == Mode::PATH && !_pathInitialized) {
-    path.add({ 0.0f, 0.0f, 5.0f });
-    path.add({ 10.0f, 0.0f, 5.0f });
-    path.add({ 15.0f, 5.0f, 5.0f });
-    path.add({ 15.0f, -5.0f, 5.0f });
-    path.add({ 0.0f, 0.0f, 5.0f });
+    path.add({ 0.0f, 0.0f, 5.0f }, { 0.0f, 0.0f, 0.0f });
+    path.add({ 10.0f, 0.0f, 5.0f }, { 0.0f, 0.0f, 0.0f });
+    path.add({ 15.0f, 5.0f, 5.0f }, { 0.0f, 0.0f, 0.0f });
+    path.add({ 15.0f, -5.0f, 5.0f }, { 0.0f, 0.0f, 0.0f });
+    path.add({ 0.0f, 0.0f, 5.0f }, { 0.0f, 0.0f, 0.0f });
     path.buildSplines();
     _pathInitialized = true;
   }
@@ -256,6 +265,7 @@ void Camera::translate(int x, int y) {
   mTranslation.x += mTranslationSensitivity * (x - _anchor.x);
   mTranslation.y -= mTranslationSensitivity * (y - _anchor.y);
   _anchor = { x, y };
+  viewDirty = true;
 }
 
 void Camera::moveTo(const Vec3 & position) {
@@ -264,7 +274,8 @@ void Camera::moveTo(const Vec3 & position) {
 }
 
 void Camera::lookAt(const Vec3 & target) {
-  mRotation = glm::lookAt(mTranslation, target, mRotation * Vec3(0.0f, 1.0f, 0.0f));
+  mRotation = glm::lookAt(
+    mTranslation, target, mRotation * Vec3(0.0f, 1.0f, 0.0f));
   viewDirty = true;
 }
 
@@ -274,6 +285,30 @@ void Camera::update() {
     default:
       break;
     case Camera::WASD:
+      if (_W_down) {
+        mTranslation += Vec3(0.0f, 0.0f, 0.1f);
+        viewDirty = true;
+      }
+      if (_A_down) {
+        mTranslation += Vec3(0.1f, 0.0f, 0.0f);
+        viewDirty = true;
+      }
+      if (_S_down) {
+        mTranslation += Vec3(0.0f, 0.0f, -0.1f);
+        viewDirty = true;
+      }
+      if (_D_down) {
+        mTranslation += Vec3(-0.1f, 0.0f, 0.0f);
+        viewDirty = true;
+      }
+      if (_Shift_down) {
+        mTranslation += Vec3(0.0f, 0.1f, 0.0f);
+        viewDirty = true;
+      }
+      if (_CTRL_down) {
+        mTranslation += Vec3(0.0f, -0.1f, 0.0f);
+        viewDirty = true;
+      }
       break;
     case Camera::PATH:
       static float pathIndex = 0.0f;

@@ -58,8 +58,6 @@ protected:
   void mousePressEvent(QMouseEvent *evt) Q_DECL_OVERRIDE;
   void mouseMoveEvent(QMouseEvent *evt) Q_DECL_OVERRIDE;
   void wheelEvent(QWheelEvent *evt) Q_DECL_OVERRIDE;
-  void keyPressEvent(QKeyEvent *evt) Q_DECL_OVERRIDE;
-  void keyReleaseEvent(QKeyEvent *evt) Q_DECL_OVERRIDE;
 
 private:
 

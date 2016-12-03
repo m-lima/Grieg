@@ -31,9 +31,9 @@ public:
   explicit Camera();
   ~Camera() = default;
 
-  bool projectionDirty : 1;
-  bool viewDirty : 1;
-  bool lightDirty : 1;
+  bool projectionDirty;
+  bool viewDirty;
+  bool lightDirty;
 
   // Transform matrices
   Mat4 rotation();
@@ -56,14 +56,14 @@ public:
   void keyPressed(QKeyEvent *evt);
   void keyReleased(QKeyEvent *evt);
   void setMode(int mode) {
-    setMode(static_cast<Mode>(mode));
+    setMode(static_cast<Mode>(mode & 3));
   }
 
   void reset();
   void zoom(int amount);
   void togglePerspective();
   void setDefaultPosition(int position) {
-    setDefaultPosition(static_cast<Position>(position));
+    setDefaultPosition(static_cast<Position>(position % 6));
   }
   void resize(int width, int height);
   void translate(int x, int y);

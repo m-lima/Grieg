@@ -16,6 +16,10 @@ namespace View {
 
     void attachRenderer(Renderer * renderer);
 
+  protected:
+    void keyPressEvent(QKeyEvent *evt) Q_DECL_OVERRIDE;
+    void keyReleaseEvent(QKeyEvent *evt) Q_DECL_OVERRIDE;
+
   private:
     Renderer * mRenderer = nullptr;
     Camera * camera = nullptr;

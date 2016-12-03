@@ -17,11 +17,12 @@ private:
   // Camera reference
   Quat * mRotation;
   Vec3 * mLightPosition;
+  bool * mViewDirty;
 
 public:
   float mSensitivityTranslation;
 
-  Trackball(Quat * rotation, Vec3 * lightPosition);
+  Trackball(Quat * rotation, Vec3 * lightPosition, bool * viewDirty);
 
   // Convert the mouse click to a spherical vector
   Vec3 surfaceVector(int x, int y);

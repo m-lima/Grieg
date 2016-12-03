@@ -49,7 +49,7 @@ namespace View {
       camera = &(mRenderer->camera);
 
       buildMenu();
-      
+
       setCentralWidget(renderer);
       resetCamera();
     }
@@ -73,10 +73,10 @@ namespace View {
 
       actFull->setShortcutContext(Qt::ApplicationShortcut);
       actExit->setShortcutContext(Qt::ApplicationShortcut);
-      
+
       actFull->setShortcut(QKeySequence(Qt::Key_F));
       actExit->setShortcut(QKeySequence(Qt::Key_Escape));
-      
+
       menu->addAction(actFull);
       menu->addSeparator();
       menu->addAction(actExit);
@@ -342,4 +342,17 @@ namespace View {
       showFullScreen();
     }
   }
+
+  void MainWindow::keyPressEvent(QKeyEvent *evt) {
+    camera->keyPressed(evt);
+  }
+
+  void MainWindow::keyReleaseEvent(QKeyEvent *evt) {
+    if (evt->key() == Qt::Key_Escape) {
+      static_cast<QWidget*>(parent())->close();
+    } else {
+      camera->keyReleased(evt);
+    }
+  }
+
 }
