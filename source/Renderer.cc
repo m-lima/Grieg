@@ -208,22 +208,22 @@ void Renderer::initializeGL() {
 
   water->load("water.jpg", 16);
 
-  gridShader->load("grid");
+  gridShader->load("grid", ShaderType::object);
   gridShader->bindBuffer(matrixBuffer);
 
-  basicShader->load("basic");
+  basicShader->load("basic", ShaderType::object);
   basicShader->bindBuffer(matrixBuffer);
   basicShader->bindBuffer(lightBuffer);
   basicShader->uniform("uTexture") = Sampler2D(TEXTURE_LOCATION);
   basicShader->uniform("uBump") = Sampler2D(BUMP_LOCATION);
 
-  toonShader->load("toon");
+  toonShader->load("toon", ShaderType::postprocess);
   toonShader->uniform("uFramebuffer") = Sampler2D(FRAMEBUFFER_LOCATION);
   toonShader->uniform("uNormalbuffer") = Sampler2D(NORMALBUFFER_LOCATION);
   toonShader->uniform("uDepthbuffer") = Sampler2D(DEPTHBUFFER_LOCATION);
   toonShader->uniform("uScreenSize") = glm::vec2(width(), height());
 
-  depthShader->load("depth");
+  depthShader->load("depth", ShaderType::postprocess);
   depthShader->uniform("uFramebuffer") = Sampler2D(FRAMEBUFFER_LOCATION);
   depthShader->uniform("uScreenSize") = glm::vec2(width(), height());
 

@@ -5,6 +5,20 @@
 #include "ShaderStorage.hh"
 #include "Texture.hh"
 
+enum struct ShaderType {
+  // Load shaders in the same manner as we did before
+  // Vertex and fragment shader.
+  custom,
+
+  // Render meshes with respect to the camera.
+  // Fragment shader.
+  object,
+
+  // Post processing. Drawn as a quad.
+  // Fragment shader.
+  postprocess,
+};
+
 template <class T>
 struct GlslTypeinfo;
 
@@ -65,7 +79,7 @@ class Shader {
 public:
     Shader() = default;
 
-    Shader(const std::string &name);
+    Shader(const std::string &name, ShaderType type = ShaderType::custom);
 
     Shader(const Shader &) = delete;
 
@@ -82,7 +96,7 @@ public:
         return mName;
     }
 
-    void load(const std::string &name);
+    void load(const std::string &name, ShaderType type = ShaderType::custom);
 
     UniformProxy uniform(const std::string &name);
 
