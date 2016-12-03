@@ -5,6 +5,7 @@
 namespace {
   int _width = 1;
   int _height = 1;
+  bool _pathInitialized = false;
 
   glm::ivec2 _anchor;
 
@@ -12,6 +13,8 @@ namespace {
   bool _A_down = false;
   bool _S_down = false;
   bool _D_down = false;
+  bool _Shift_down = false;
+  bool _CTRL_down = false;
 
 }
 
@@ -53,10 +56,6 @@ Vec3 Camera::lightPosition() {
 
 Vec3 Camera::eyePosition() {
   return mRotation * mTranslation;
-}
-
-bool Camera::moving() {
-  return _W_down | _A_down | _S_down | _D_down;
 }
 
 void Camera::mousePressed(QMouseEvent * evt) {
@@ -151,7 +150,31 @@ void Camera::keyReleased(QKeyEvent * evt) {
   }
 }
 
+void Camera::setMode(Mode mode) {
+  mMode = mode;
+
+  if (mMode == Mode::PATH && !_pathInitialized) {
+    path.add({ 0.0f, 0.0f, 5.0f });
+    path.add({ 10.0f, 0.0f, 5.0f });
+    path.add({ 15.0f, 5.0f, 5.0f });
+    path.add({ 15.0f, -5.0f, 5.0f });
+    path.add({ 0.0f, 0.0f, 5.0f });
+    path.buildSplines();
+    _pathInitialized = true;
+  }
+
+  _W_down = false;
+  _A_down = false;
+  _S_down = false;
+  _D_down = false;
+  _Shift_down = false;
+  _CTRL_down = false;
+}
+
+
 void Camera::reset() {
+  setMode(Mode::TRACKBALL);
+
   mOrtho = false;
   mFOV = 45.0f;
   projectionDirty = true;
@@ -179,40 +202,41 @@ void Camera::togglePerspective() {
   projectionDirty = true;
 }
 
-void Camera::setDefaultPosition(int position) {
+void Camera::setDefaultPosition(Position position) {
   mTranslation = Vec3(0.0f, 0.0f, -5.0f);
   mRotation = Quat();
   viewDirty = true;
+  setMode(Mode::TRACKBALL);
 
   switch (position) {
-    case 0: // Top
+    case Position::TOP:
       mRotation = glm::rotate(
         mRotation,
         glm::pi<float>() / 2.0f,
         Vec3(1.0f, 0.0f, 0.0f));
       break;
-    case 1: // Bottom
+    case Position::BOTTOM:
       mRotation = glm::rotate(
         mRotation,
         -glm::pi<float>() / 2.0f,
         Vec3(1.0f, 0.0f, 0.0f));
       break;
-    case 2: // Right
+    case Position::RIGHT:
       mRotation = glm::rotate(
         mRotation,
         glm::pi<float>() / 2.0f,
         Vec3(0.0f, 1.0f, 0.0f));
       break;
-    case 3: // Left
+    case Position::LEFT:
       mRotation = glm::rotate(
         mRotation,
         -glm::pi<float>() / 2.0f,
         Vec3(0.0f, 1.0f, 0.0f));
       break;
-    case 4: // Front
+    case Position::FRONT:
     default:
       break;
-    case 5: // Back
+    case Position::BACK:
       mRotation = glm::rotate(
         mRotation,
         glm::pi<float>(),
@@ -234,7 +258,29 @@ void Camera::translate(int x, int y) {
   _anchor = { x, y };
 }
 
-void Camera::setPosition(const Vec3 & position) {
+void Camera::moveTo(const Vec3 & position) {
   mTranslation = position;
   viewDirty = true;
+}
+
+void Camera::lookAt(const Vec3 & target) {
+  mRotation = glm::lookAt(mTranslation, target, mRotation * Vec3(0.0f, 1.0f, 0.0f));
+  viewDirty = true;
+}
+
+void Camera::update() {
+  switch (mMode) {
+    case Camera::TRACKBALL:
+    default:
+      break;
+    case Camera::WASD:
+      break;
+    case Camera::PATH:
+      static float pathIndex = 0.0f;
+      auto index = path.interp(pathIndex);
+      pathIndex += 0.01f;
+      moveTo(index.first);
+      lookAt(index.second);
+      break;
+  }
 }

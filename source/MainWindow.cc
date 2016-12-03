@@ -65,8 +65,8 @@ namespace View {
     {
       menu = mnbMenu->addMenu("&File");
 
-      QAction *actFull = new QAction("Fullscreen", menu);
-      QAction *actExit = new QAction("Exit", menu);
+      QAction *actFull = new QAction("&Fullscreen", menu);
+      QAction *actExit = new QAction("&Exit", menu);
 
       actFull->setIcon(QIcon(":images/full.png"));
       actExit->setIcon(QIcon(":images/exit.png"));
@@ -89,10 +89,10 @@ namespace View {
     {
       menu = mnbMenu->addMenu("&Model");
 
-      QAction *actGrieg = new QAction("Grieghallen", menu);
-      QAction *actSuzy = new QAction("Big Suzy", menu);
-      QAction *actTerrain = new QAction("Terrain", menu);
-      QAction *actRotate = new QAction("Rotate", menu);
+      QAction *actGrieg = new QAction("&Grieghallen", menu);
+      QAction *actSuzy = new QAction("Big &Suzy", menu);
+      QAction *actTerrain = new QAction("&Terrain", menu);
+      QAction *actRotate = new QAction("&Rotate", menu);
 
       actGrieg->setCheckable(true);
       actSuzy->setCheckable(true);
@@ -136,9 +136,9 @@ namespace View {
     {
       menu = mnbMenu->addMenu("&Shader");
 
-      QAction *actBasic = new QAction("Basic", menu);
-      QAction *actToon = new QAction("Toon", menu);
-      QAction *actTilt = new QAction("Tilt-shift", menu);
+      QAction *actBasic = new QAction("&Basic", menu);
+      QAction *actToon = new QAction("&Toon", menu);
+      QAction *actTilt = new QAction("Tilt-&shift", menu);
 
       actBasic->setCheckable(true);
       actToon->setCheckable(true);
@@ -173,14 +173,17 @@ namespace View {
     {
       menu = mnbMenu->addMenu("&Camera");
 
-      QAction *actTop = new QAction("Top", menu);
-      QAction *actBottom = new QAction("Bottom", menu);
-      QAction *actRight = new QAction("Right", menu);
-      QAction *actLeft = new QAction("Left", menu);
-      QAction *actFront = new QAction("Front", menu);
-      QAction *actBack = new QAction("Back", menu);
+      QAction *actTrack = new QAction("&Trackball", menu);
+      QAction *actWASD = new QAction("&Wasd", menu);
+      QAction *actPath = new QAction("&Splice", menu);
+      QAction *actTop = new QAction("&Top", menu);
+      QAction *actBottom = new QAction("&Bottom", menu);
+      QAction *actRight = new QAction("Rig&ht", menu);
+      QAction *actLeft = new QAction("L&eft", menu);
+      QAction *actFront = new QAction("Fro&nt", menu);
+      QAction *actBack = new QAction("Bac&k", menu);
       actPerspective = new QAction("Orthographic", menu);
-      QAction *actReset = new QAction("Reset", menu);
+      QAction *actReset = new QAction("Re&set", menu);
 
       actPerspective->setShortcutContext(Qt::ApplicationShortcut);
       actPerspective->setShortcut(QKeySequence(Qt::Key_Space));
@@ -202,6 +205,12 @@ namespace View {
       mapper->setMapping(actFront, 4);
       mapper->setMapping(actBack, 5);
 
+      QMenu * subMenu = new QMenu("&Mode", menu);
+      subMenu->addAction(actTrack);
+      subMenu->addAction(actWASD);
+      subMenu->addAction(actPath);
+      menu->addMenu(subMenu);
+      menu->addSeparator();
       menu->addAction(actTop);
       menu->addAction(actBottom);
       menu->addAction(actRight);
@@ -231,15 +240,29 @@ namespace View {
               this, &MainWindow::togglePerspective);
       connect(actReset, &QAction::triggered,
               this, &MainWindow::resetCamera);
+
+      mapper = new QSignalMapper(this);
+      mapper->setMapping(actTrack, 0);
+      mapper->setMapping(actWASD, 1);
+      mapper->setMapping(actPath, 2);
+
+      connect(actTrack, SIGNAL(triggered()),
+              mapper, SLOT(map()));
+      connect(actWASD, SIGNAL(triggered()),
+              mapper, SLOT(map()));
+      connect(actPath, SIGNAL(triggered()),
+              mapper, SLOT(map()));
+      connect(mapper, SIGNAL(mapped(int)),
+              camera, SLOT(setMode(int)));
     }
 
     // Light menu
     {
       menu = mnbMenu->addMenu("&Lights");
 
-      QAction *actSun = new QAction("Sun", menu);
-      QAction *actSpot1 = new QAction("Light 1", menu);
-      QAction *actSpot2 = new QAction("Light 2", menu);
+      QAction *actSun = new QAction("&Sun", menu);
+      QAction *actSpot1 = new QAction("Light &1", menu);
+      QAction *actSpot2 = new QAction("Light &2", menu);
       QAction *actRotate = new QAction("Rotate", menu);
 
       actRotate->setShortcutContext(Qt::ApplicationShortcut);
