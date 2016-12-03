@@ -10,6 +10,7 @@
 #include "Shader.hh"
 #include "Texture.hh"
 #include "ShaderStorage.hh"
+#include "Cubemap.hh"
 #include "Camera.hh"
 
 class Renderer : public QOpenGLWidget, public QOpenGLFunctions_4_3_Core {
@@ -92,6 +93,8 @@ private:
   Object suzanne2;
   Object bigSuzy;
   Object terrain;
+
+  Cubemap cubemap;
 
   ShaderStorage<MatrixBlock> matrixBuffer;
   ShaderStorage<LightBlock[], 12> lightBuffer;

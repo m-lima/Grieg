@@ -28,6 +28,7 @@
 #include <glm/mat3x3.hpp>
 #include <glm/mat4x4.hpp>
 #include <glm/gtc/quaternion.hpp>
+#include <QtDebug>
 
 using Vec2 = glm::vec2;
 using Vec3 = glm::vec3;

@@ -6,12 +6,25 @@ namespace {
   int _width = 1;
   int _height = 1;
 
+  glm::ivec2 _anchor;
+
   bool _W_down = false;
   bool _A_down = false;
   bool _S_down = false;
   bool _D_down = false;
 
 }
+
+Camera::Camera() :
+  trackball(&mRotation, &mLightPosition),
+  mFOV(45.0f),
+  projectionDirty(true),
+  viewDirty(true),
+  lightDirty(true),
+  mLightPosition{ 1.0f, 1.0f, 1.0f },
+  mTranslation{ 0.0f, 0.0f, -5.0f },
+  mZoomSensitivity(0.025f),
+  mTranslationSensitivity(0.005f) {}
 
 Mat4 Camera::rotation() {
   return glm::translate(
@@ -51,6 +64,7 @@ void Camera::mousePressed(QMouseEvent * evt) {
     case Camera::TRACKBALL:
     default:
       trackball.anchor(evt->x(), evt->y());
+      _anchor = { evt->x(), evt->y() };
       break;
     case Camera::WASD:
       break;
@@ -63,14 +77,19 @@ void Camera::mouseMoved(QMouseEvent * evt) {
   switch (mMode) {
     case Camera::TRACKBALL:
     default:
-      if (evt->buttons() & Qt::LeftButton) {
-        if (evt->modifiers() & Qt::ControlModifier) {
+      if (evt->modifiers() & Qt::ControlModifier) {
+        if (evt->buttons() & Qt::LeftButton) {
           trackball.rotateLight(evt->x(), evt->y());
-        } else {
-          trackball.rotate(evt->x(), evt->y());
+          lightDirty = true;
         }
-      } else if (evt->buttons() & Qt::RightButton) {
-        trackball.translate(evt->x(), evt->y());
+      } else {
+        if (evt->buttons() & Qt::LeftButton) {
+          trackball.rotate(evt->x(), evt->y());
+          viewDirty = true;
+        } else if (evt->buttons() & Qt::RightButton) {
+          translate(evt->x(), evt->y());
+          viewDirty = true;
+        }
       }
       break;
     case Camera::WASD:
@@ -206,4 +225,11 @@ void Camera::resize(int width, int height) {
   _width = width;
   _height = height;
   projectionDirty = true;
+  trackball.resize(width, height);
+}
+
+void Camera::translate(int x, int y) {
+  mTranslation.x += mTranslationSensitivity * (x - _anchor.x);
+  mTranslation.y -= mTranslationSensitivity * (y - _anchor.y);
+  _anchor = { x, y };
 }

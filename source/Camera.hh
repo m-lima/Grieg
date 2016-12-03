@@ -18,6 +18,9 @@ public:
     PATH
   };
 
+  explicit Camera();
+  ~Camera() = default;
+
   bool projectionDirty : 1;
   bool viewDirty : 1;
   bool lightDirty : 1;
@@ -43,6 +46,7 @@ public:
   void togglePerspective();
   void setPosition(int position);
   void resize(int width, int height);
+  void translate(int x, int y);
 
 private:
 
@@ -62,11 +66,9 @@ private:
 
   // Control variables
   float mZoomSensitivity;
-
+  float mTranslationSensitivity;
 
   Trackball trackball;
-
-
 };
 
 #endif //__INF251_CAMERA__53672421

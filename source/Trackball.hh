@@ -3,59 +3,33 @@
 
 #include "infdef.hh"
 
-class Trackball : public QObject {
-  Q_OBJECT
-
+class Trackball {
 private:
 
   // View tracking variables
   Vec3 mInitialPosition;
   Vec3 mCurrentPosition;
   Quat mInitialRotation;
-  Quat mCurrentRotation;
-  Vec3 mTranslation;
-
-  // Projection tracking variables
-  float mFov;
-  bool mOrtho;
 
   // Light tracking variables
   Vec3 mInitialLightPos;
-  Vec3 mCurrentLightPos;
 
-  Vec2 mAnchor;
+  // Camera reference
+  Quat * mRotation;
+  Vec3 * mLightPosition;
 
 public:
-  // Also a bitmask, but using C++11
-  bool projectionDirty : 1;
-  bool viewDirty : 1;
-  bool lightDirty : 1;
-
   float mSensitivityTranslation;
-  float mSensitivityZooming;
 
-  Trackball();
+  Trackball(Quat * rotation, Vec3 * lightPosition);
 
   // Convert the mouse click to a spherical vector
   Vec3 surfaceVector(int x, int y);
 
-  Mat4 rotation();
-  Mat4 projection();
-  Vec3 lightPosition();
-
-  void resize(int width, int height);
-  Vec3 eyePosition();
-
-  public slots:
-
   void anchor(int x, int y);
   void rotate(int x, int y);
   void rotateLight(int x, int y);
-  void translate(int x, int y);
-  void zoom(int amount);
-  void reset();
-  void togglePerspective();
-  void setPosition(int position);
+  void resize(int width, int height);
 
 };
 
