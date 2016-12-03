@@ -89,16 +89,11 @@ set(UI
 )
 
 set(SHADERS
-  resources/shaders/basic.vs.glsl
   resources/shaders/basic.fs.glsl
-  resources/shaders/depth.vs.glsl
   resources/shaders/depth.fs.glsl
-  resources/shaders/toon.vs.glsl
-  resources/shaders/toon.fs.glsl
-  resources/shaders/grid.vs.glsl
   resources/shaders/grid.fs.glsl
-  resources/shaders/text.vs.glsl
-  resources/shaders/text.fs.glsl
+  resources/shaders/toon.fs.glsl
+  resources/shaders/lines.fs.glsl
   )
 
 set(RESOURCES
@@ -106,6 +101,7 @@ set(RESOURCES
   resources/textures/textures0.qrc
   resources/textures/textures1.qrc
   resources/shaders/shaders.qrc
+  resources/meshes/meshes.qrc
   resources/qdarkstyle/style.qrc
   )
 
@@ -113,18 +109,10 @@ set(RESOURCES
 ## Targets
 ##
 
-add_custom_target(assets
-  COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/assets ${CMAKE_BINARY_DIR}/assets)
-
-if(MSVC)
-  add_executable(inf251 ${SOURCES} ${SHADERS} ${UI} ${RESOURCES})
-else()
-  add_executable(inf251 ${SOURCES} ${UI} ${RESOURCES})
-endif()
+add_executable(inf251 ${SOURCES} ${UI} ${RESOURCES})
 target_link_libraries(inf251 ${LIBRARIES})
 target_link_libraries(inf251 Qt5::Widgets)
 target_include_directories(inf251 PRIVATE ${INCLUDE_DIRS})
-add_dependencies(inf251 assets)
 set_target_properties(inf251 PROPERTIES CXX_LANGUAGE_STANDARD 11)
 add_definitions(-DSPHERICAL_TRACKBALL)
 

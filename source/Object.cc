@@ -1,8 +1,11 @@
 #include <map>
-#include <fstream>
 #include "Object.hh"
 #include <glm/gtc/matrix_transform.hpp>
 #include <thread>
+#include <algorithm>
+
+#include <QFile>
+#include <QTextStream>
 
 #ifdef _WIN32
 #include <io.h>
@@ -92,15 +95,19 @@ namespace {
   ObjFile readObjFile(const std::string &name) {
     ObjFile obj;
 
-    std::ifstream file(format("assets/meshes/{}.obj", name));
-    if (!file.is_open())
+    auto path = format(":meshes/{}", name);
+
+    QFile file(QString::fromStdString(path));
+    if (!file.open(QFile::ReadOnly | QFile::Text)) {
       fatal("Couldn't open file {}.obj", name);
+    }
+    QTextStream stream(&file);
 
     println("Loading mesh: {}", name);
 
-    while (!file.eof()) {
+    while (!stream.atEnd()) {
       std::string line, tmp;
-      std::getline(file, line);
+      line = stream.readLine().toStdString();
 
       if (line.empty() || line[0] == '#')
         continue;
@@ -180,6 +187,8 @@ namespace {
       }
     }
 
+    file.close();
+
     return obj;
   }
 
@@ -197,17 +206,21 @@ namespace {
   MtlFile readMtlFile(const std::string &name) {
     MtlFile mtl;
 
-    std::ifstream file(format("assets/meshes/{}", name));
-    if (!file.is_open())
+    auto path = format(":meshes/{}", name);
+
+    QFile file(QString::fromStdString(path));
+    if (!file.open(QFile::ReadOnly | QFile::Text)) {
       fatal("Couldn't open material file {}", name);
+    }
+    QTextStream stream(&file);
 
     println("Loading materials: {}", name);
 
     MtlFile::Material *mat = nullptr;
 
-    while (!file.eof()) {
+    while (!stream.atEnd()) {
       std::string line, tmp;
-      std::getline(file, line);
+      line = stream.readLine().toStdString();
 
       if (line.empty() || line[0] == '#')
         continue;
@@ -293,12 +306,9 @@ namespace {
 
   /// Reads a .bin file and loads all its contents into memory
   Terrain readTerrainFile(const std::string & name) {
-    std::ifstream file(
-      format("assets/meshes/{}.bin", name),
-      std::ifstream::binary | std::ifstream::in
-    );
-
-    if (!file.is_open()) {
+    auto path = format(":meshes/{}", name);
+    QFile file(QString::fromStdString(path));
+    if (!file.open(QFile::ReadOnly)) {
       fatal("Couldn't open file {}.bin", name);
     }
 
@@ -594,21 +604,17 @@ void Object::init() {
 }
 
 void Object::load(const std::string &name) {
-  // Check if a .obj version exists
-  if (access(format("assets/meshes/{}.obj", name).c_str(), 0) == 0) {
+  if (name.length() < 5) {
+    fatal("Invalid mesh: {}", name);
+  }
+
+  if (std::equal(name.end() - 4, name.end(), ".obj")) {
     loadObjFile(name);
-    return;
-  }
-
-  // Try to generate a cached .obj from a .bin, if it exists
-  // And load it
-  if (access(format("assets/meshes/{}.bin", name).c_str(), 0) == 0) {
+  } else if (std::equal(name.end() - 4, name.end(), ".bin")) {
     loadBinFile(name);
-    return;
+  } else {
+    fatal("Unrecognized file name: {}", name);
   }
-
-  // Not a valid file
-  fatal("Unrecognized file name: {}", name);
 }
 
 void Object::loadObjFile(const std::string &name) {

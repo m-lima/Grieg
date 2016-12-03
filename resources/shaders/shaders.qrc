@@ -4,8 +4,6 @@
     <file>depth.fs.glsl</file>
     <file>grid.fs.glsl</file>
     <file>lines.fs.glsl</file>
-    <file>text.fs.glsl</file>
-    <file>text.vs.glsl</file>
     <file>toon.fs.glsl</file>
   </qresource>
 </RCC>

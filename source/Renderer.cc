@@ -227,21 +227,21 @@ void Renderer::initializeGL() {
   depthShader->uniform("uFramebuffer") = Sampler2D(FRAMEBUFFER_LOCATION);
   depthShader->uniform("uScreenSize") = glm::vec2(width(), height());
 
-  grieghallen.load("grieghallen");
+  grieghallen.load("grieghallen.obj");
   grieghallen.modelTransform = glm::scale(Mat4(), Vec3(0.02f, 0.02f, 0.02f));
 
-  suzanne1.load("suzanne");
+  suzanne1.load("suzanne.obj");
   suzanne1.modelTransform = glm::scale(Mat4(), Vec3(0.02f, 0.02f, 0.02f));
 
-  suzanne2.load("suzanne");
+  suzanne2.load("suzanne.obj");
   suzanne2.modelTransform = glm::scale(Mat4(), Vec3(0.02f, 0.02f, 0.02f));
 
-  bigSuzy.load("suzanne");
+  bigSuzy.load("suzanne.obj");
 
-  //terrain.load("suzanne");
-  terrain.load("bergen_1024x918");
-  //terrain.load("bergen_2048x1836");
-  //terrain.load("bergen_3072x2754");
+  //terrain.load("suzanne.obj");
+  terrain.load("bergen_1024x918.bin");
+  //terrain.load("bergen_2048x1836.bin");
+  //terrain.load("bergen_3072x2754.bin");
   terrain.modelTransform = glm::scale(Mat4(), Vec3(4.0f, 4.0f, 4.0f));
 
   bergen->load("bergen_terrain_texture.png");
