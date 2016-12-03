@@ -1,0 +1,8 @@
+<RCC>
+  <qresource prefix="meshes">
+    <file>grieghallen.obj</file>
+    <file>grieghallen.mtl</file>
+    <file>suzanne.obj</file>
+    <file>bergen_1024x918.bin</file>
+  </qresource>
+</RCC>
