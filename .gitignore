@@ -74,7 +74,7 @@ AutoSave_*.skp
 *.skb
 
 # Let us push mesh .obj
-!/assets/meshes/*.obj
+!/resources/meshes/*.obj
 
 # Ignore the textures
 /assets/images

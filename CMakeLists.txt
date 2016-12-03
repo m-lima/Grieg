@@ -109,7 +109,11 @@ set(RESOURCES
 ## Targets
 ##
 
-add_executable(inf251 ${SOURCES} ${UI} ${RESOURCES})
+if(MSVC)
+  add_executable(inf251 ${SOURCES} ${SHADERS} ${UI} ${RESOURCES})
+else()
+  add_executable(inf251 ${SOURCES} ${UI} ${RESOURCES})
+endif()
 target_link_libraries(inf251 ${LIBRARIES})
 target_link_libraries(inf251 Qt5::Widgets)
 target_include_directories(inf251 PRIVATE ${INCLUDE_DIRS})
