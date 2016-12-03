@@ -80,6 +80,8 @@ private:
   std::shared_ptr<Shader> depthShader;
   std::shared_ptr<Shader> gridShader;
 
+  std::shared_ptr<Shader> mPostprocessShader;
+
   std::shared_ptr<Texture> water;
   std::shared_ptr<Texture> bump;
   std::shared_ptr<Texture> bergen;

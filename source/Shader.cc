@@ -15,6 +15,7 @@ namespace {
     "out vec2 fTexCoord;"
     "out vec3 fNormal;"
     "out vec3 fEyePos;"
+    "out float fDepth;"
 
     "layout(std430, binding = 0) buffer MatrixBlock {"
     "  mat4 uProj;"
@@ -24,8 +25,10 @@ namespace {
     "uniform mat4 uModel;"
 
     "void main() {"
+    "  vec4 vmp = uView * uModel * vec4(vPosition, 1.0);"
     "  fPosition = vPosition;"
-    "  gl_Position = uProj * uView * uModel * vec4(vPosition, 1.0);"
+    "  fDepth = vmp.z / vmp.w;"
+    "  gl_Position = uProj * vmp;"
     "  fTexCoord = vTexCoord;"
     "  fNormal = normalize((uModel * vec4(normalize(vNormal), 1.0)).xyz);"
     "  fEyePos = (inverse(uView) * inverse(uModel) * vec4(0.0, 0.0, 5.0, 1.0)).xyz;"
@@ -34,15 +37,12 @@ namespace {
   auto _postprocessVertexShader =
     "#version 430\n"
 
-    "out vec3 fPosition;"
-
     // Just define the quad as a GLSL constant so as to avoid uploading it to
     // the GPU with a VBO
-    "const vec2 vtx[] = { { -1.0, -1.0 }, { 1.0, -1.0 }, { -1.0, 1.0 }, { -1.0, 1.0 }, { 1.0, 1.0 }, { -1.0, 1.0 } };"
+    "const vec2 vtx[4] = { vec2(1.0, 1.0), vec2(-1.0, 1.0), vec2(1.0, -1.0), vec2(-1.0, -1.0) };"
 
     "void main() {"
-    "  fPosition = vec3(vtx[gl_VertexID], 0.0);"
-    "  gl_Position = vec4(fPosition, 1.0);"
+    "  gl_Position = vec4(vtx[gl_VertexID], 0.0, 1.0);"
     "}";
 
   // We Java now
@@ -180,14 +180,12 @@ void Shader::load(const std::string &name, ShaderType type)
     builder.add(_postprocessVertexShader, ShaderBuilder::vertex);
     builder.addFile(name, ShaderBuilder::fragment);
     break;
-
-  default:
-    break;
   }
   mProgram = builder.build();
 
   gl->glBindFragDataLocation(mProgram, 0, "FragColor");
   gl->glBindFragDataLocation(mProgram, 1, "FragNormal");
+  gl->glBindFragDataLocation(mProgram, 2, "FragDepth");
 }
 
 Shader::UniformProxy Shader::uniform(const std::string &name)

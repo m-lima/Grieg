@@ -13,11 +13,11 @@ namespace {
   constexpr int FRAMEBUFFER_LOCATION = 10;
   constexpr int NORMALBUFFER_LOCATION = 11;
   constexpr int DEPTHBUFFER_LOCATION = 12;
+  constexpr int LINEARDEPTHBUFFER_LOCATION = 13;
 
   bool moveLights = true;
   float ambientLevel = 0.4f;
   bool rotateModel = false;
-  int currentShader = 0;
   int currentModel = 0;
   bool waterized = false;
   bool currentWaterized = false;
@@ -29,6 +29,7 @@ namespace {
   GLuint frameBufferTexture;
   GLuint normalBufferTexture;
   GLuint depthBufferTexture;
+  GLuint linearDepthBufferTexture;
 
   float _lightAngle{};
   float _lightTilt{};
@@ -186,7 +187,23 @@ void Renderer::rotateLights(bool move) {
 }
 
 void Renderer::setShader(int shader) {
-  currentShader = shader % 3;
+  shader %= 3;
+  switch (shader) {
+  case 0:
+    mPostprocessShader = nullptr;
+    break;
+
+  case 1:
+    mPostprocessShader = toonShader;
+    break;
+
+  case 2:
+    mPostprocessShader = depthShader;
+    break;
+
+  default:
+    break;
+  }
 }
 
 void Renderer::showPanel(int light) {
@@ -225,6 +242,7 @@ void Renderer::initializeGL() {
 
   depthShader->load("depth", ShaderType::postprocess);
   depthShader->uniform("uFramebuffer") = Sampler2D(FRAMEBUFFER_LOCATION);
+  depthShader->uniform("uDepth") = Sampler2D(LINEARDEPTHBUFFER_LOCATION);
   depthShader->uniform("uScreenSize") = glm::vec2(width(), height());
 
   grieghallen.load("grieghallen.obj");
@@ -297,6 +315,8 @@ void Renderer::initializeGL() {
   glBindTexture(GL_TEXTURE_2D, normalBufferTexture);
   glActiveTexture(GL_TEXTURE0 + DEPTHBUFFER_LOCATION);
   glBindTexture(GL_TEXTURE_2D, depthBufferTexture);
+  glActiveTexture(GL_TEXTURE0 + LINEARDEPTHBUFFER_LOCATION);
+  glBindTexture(GL_TEXTURE_2D, linearDepthBufferTexture);
 
   timer.start();
 }
@@ -316,6 +336,10 @@ void Renderer::resizeGL(int width, int height) {
   glBindTexture(GL_TEXTURE_2D, depthBufferTexture);
   glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT24, width, height, 0, GL_DEPTH_COMPONENT, GL_FLOAT, 0);
 
+  glActiveTexture(GL_TEXTURE0 + LINEARDEPTHBUFFER_LOCATION);
+  glBindTexture(GL_TEXTURE_2D, linearDepthBufferTexture);
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, width, height, 0, GL_R8, GL_FLOAT, 0);
+
   glViewport(0, 0, width, height);
 
   toonShader->uniform("uScreenSize") = glm::vec2(width, height);
@@ -323,9 +347,12 @@ void Renderer::resizeGL(int width, int height) {
 }
 
 void Renderer::paintGL() {
-
   checkAndLoadUniforms();
   updateModels();
+
+  if (mPostprocessShader) {
+    glBindFramebuffer(GL_FRAMEBUFFER, frameBuffer);
+  }
 
   /* Draw grid before doing anything else */
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -344,34 +371,18 @@ void Renderer::paintGL() {
   setAllShaders(basicShader);
   basicShader->uniform("uAmbientLight") = glm::vec3(ambientLevel);
 
-  switch (currentShader) {
-    case 1:
-      grieghallen.enableTexture = false;
-      bigSuzy.enableTexture = false;
-      terrain.enableTexture = false;
+  drawAll();
 
-      glBindFramebuffer(GL_FRAMEBUFFER, frameBuffer);
-      glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-      drawAll();
-      QOpenGLFramebufferObject::bindDefault();
+  if (mPostprocessShader) {
+    QOpenGLFramebufferObject::bindDefault();
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-      setAllShaders(toonShader);
-      grieghallen.enableTexture = true;
-      bigSuzy.enableTexture = true;
-      terrain.enableTexture = true;
-      break;
+    mPostprocessShader->use();
 
-    case 2:
-      glBindFramebuffer(GL_FRAMEBUFFER, frameBuffer);
-      glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-      drawAll();
-      QOpenGLFramebufferObject::bindDefault();
-
-      setAllShaders(depthShader);
-      break;
+    // The triangles are defined in the postprocessor's vertex shader
+    glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
   }
 
-  drawAll();
   glUseProgram(0);
 
   if (timer.elapsed() >= 2000) {
@@ -446,19 +457,31 @@ void Renderer::generateFrameBuffer() {
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-  //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE, GL_NONE);
 
   glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT24, width(), height(), 0, GL_DEPTH_COMPONENT, GL_FLOAT, 0);
+
+  // Linear depth attachment
+  glGenTextures(1, &linearDepthBufferTexture);
+  glActiveTexture(GL_TEXTURE0 + LINEARDEPTHBUFFER_LOCATION);
+  glBindTexture(GL_TEXTURE_2D, linearDepthBufferTexture);
+
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_R32F, width(), height(), 0, GL_RED, GL_FLOAT, 0);
 
   // Actual frame buffer
   glGenFramebuffers(1, &frameBuffer);
   glBindFramebuffer(GL_FRAMEBUFFER, frameBuffer);
   glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, frameBufferTexture, 0);
   glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, normalBufferTexture, 0);
+  glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT2, GL_TEXTURE_2D, linearDepthBufferTexture, 0);
   glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, depthBufferTexture, 0);
 
-  GLuint attachments[2] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1 };
-  glDrawBuffers(2, attachments);
+  GLuint attachments[3] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2 };
+  glDrawBuffers(3, attachments);
 
   glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }

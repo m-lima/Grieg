@@ -1,11 +1,10 @@
 #version 430
 
-in vec3 fPosition;
-
 out vec4 FragColor;
 
 uniform sampler2D uFramebuffer;
 uniform sampler2D uDepthbuffer;
+uniform sampler2D uDepth;
 uniform vec2 uScreenSize;
 
 struct LightSource {
@@ -41,7 +40,7 @@ void main() {
   // Map the pixel to distance
   // This generates a rapidly increasing value from a central
   // focal point. Then it is capped to [0..1] and shifted to [-1..0]
-  float depth = min(1, distance(vec3(0), fPosition) / 50) - 1;
+  float depth = texture(uDepth, gl_FragCoord.xy).r;
 
   float factor;
   for (int i = -3; i < 4; i++) {
