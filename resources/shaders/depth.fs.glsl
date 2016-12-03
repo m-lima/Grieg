@@ -40,7 +40,7 @@ void main() {
   // Map the pixel to distance
   // This generates a rapidly increasing value from a central
   // focal point. Then it is capped to [0..1] and shifted to [-1..0]
-  float depth = texture(uDepth, gl_FragCoord.xy).r;
+  float depth = texture(uDepth, gl_FragCoord.xy).r - 5;
 
   float factor;
   for (int i = -3; i < 4; i++) {
@@ -49,10 +49,8 @@ void main() {
       // Fake gaussian - an approxiation I tested on Octave
       // should work close enough, though much faster
       // ** Very sensitive!! Only makes since if doing tilt-shifting
-      factor = exp(depth*pow(i, 2)) * exp(depth*pow(j, 2));
-
-      // Make it more sensitive for tilt-shifting
-      factor = pow(factor, 8);
+      factor = (i == 0 ? 1 : 1 / abs(i));
+      factor *= (j == 0 ? 1 : 1 / abs(j));
 
       // Store the current factor into the overall weight
       weights += factor;

@@ -59,6 +59,8 @@ set(SOURCES
   source/main.cc
   source/CameraPath.cc
   source/CameraPath.hh
+  source/Camera.cc
+  source/Camera.hh
   source/Debug.cc
   source/Object.cc
   source/Object.hh

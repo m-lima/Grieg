@@ -10,13 +10,13 @@
 #include "Shader.hh"
 #include "Texture.hh"
 #include "ShaderStorage.hh"
-#include "Trackball.hh"
+#include "Camera.hh"
 
 class Renderer : public QOpenGLWidget, public QOpenGLFunctions_4_3_Core {
   Q_OBJECT
 
 public:
-  Trackball trackball;
+  Camera camera;
 
   Renderer(QWidget *parent = 0);
   ~Renderer() = default;
@@ -56,8 +56,9 @@ protected:
   void resizeGL(int width, int height) Q_DECL_OVERRIDE;
   void mousePressEvent(QMouseEvent *evt) Q_DECL_OVERRIDE;
   void mouseMoveEvent(QMouseEvent *evt) Q_DECL_OVERRIDE;
-  void keyReleaseEvent(QKeyEvent *evt) Q_DECL_OVERRIDE;
   void wheelEvent(QWheelEvent *evt) Q_DECL_OVERRIDE;
+  void keyPressEvent(QKeyEvent *evt) Q_DECL_OVERRIDE;
+  void keyReleaseEvent(QKeyEvent *evt) Q_DECL_OVERRIDE;
 
 private:
 

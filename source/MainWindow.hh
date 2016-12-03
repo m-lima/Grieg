@@ -18,7 +18,7 @@ namespace View {
 
   private:
     Renderer * mRenderer = nullptr;
-    Trackball * trackball = nullptr;
+    Camera * camera = nullptr;
     QAction * actPerspective = nullptr;
 
     QLabel * lblFPS = nullptr;

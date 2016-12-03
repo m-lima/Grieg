@@ -46,7 +46,7 @@ namespace View {
       mRenderer->setFPS(lblFPS);
       mRenderer->setPosition(lblPosition);
 
-      trackball = &(mRenderer->trackball);
+      camera = &(mRenderer->camera);
 
       buildMenu();
       
@@ -226,7 +226,7 @@ namespace View {
       connect(actBack, SIGNAL(triggered()),
               mapper, SLOT(map()));
       connect(mapper, SIGNAL(mapped(int)),
-              trackball, SLOT(setPosition(int)));
+              camera, SLOT(setPosition(int)));
       connect(actPerspective, &QAction::triggered,
               this, &MainWindow::togglePerspective);
       connect(actReset, &QAction::triggered,
@@ -296,7 +296,7 @@ namespace View {
       ortho = true;
     }
 
-    trackball->togglePerspective();
+    camera->togglePerspective();
   }
 
   void MainWindow::resetCamera() {
@@ -304,7 +304,7 @@ namespace View {
     actPerspective->setIcon(QIcon(":images/ortho.png"));
     ortho = false;
 
-    trackball->reset();
+    camera->reset();
   }
 
   void MainWindow::showHelp() {

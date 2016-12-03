@@ -55,25 +55,25 @@ Renderer::Renderer(QWidget *parent) :
 }
 
 void Renderer::checkAndLoadUniforms() {
-  if (trackball.viewDirty) {
-    matrixBuffer->view = trackball.rotation();
+  if (camera.viewDirty || camera.moving()) {
+    matrixBuffer->view = camera.rotation();
     matrixBuffer.update();
-    trackball.viewDirty = false;
+    camera.viewDirty = false;
 
-    Vec3 position = trackball.eyePosition();
+    Vec3 position = camera.eyePosition();
     auto strPos = fmt::format("X:{} Y:{} Z:{}", position.x, position.y, position.z);
     lblPosition->setText(strPos.c_str());
   }
 
-  if (trackball.projectionDirty) {
-    matrixBuffer->proj = trackball.projection();
+  if (camera.projectionDirty) {
+    matrixBuffer->proj = camera.projection();
     matrixBuffer.update();
-    trackball.projectionDirty = false;
+    camera.projectionDirty = false;
   }
 
-  if (trackball.lightDirty) {
-    lightBuffer[0].direction = trackball.lightPosition();
-    trackball.lightDirty = false;
+  if (camera.lightDirty) {
+    lightBuffer[0].direction = camera.lightPosition();
+    camera.lightDirty = false;
   }
 }
 
@@ -322,7 +322,7 @@ void Renderer::initializeGL() {
 }
 
 void Renderer::resizeGL(int width, int height) {
-  trackball.resize(width, height);
+  camera.resize(width, height);
 
   glActiveTexture(GL_TEXTURE0 + FRAMEBUFFER_LOCATION);
   glBindTexture(GL_TEXTURE_2D, frameBufferTexture);
@@ -385,7 +385,7 @@ void Renderer::paintGL() {
 
   glUseProgram(0);
 
-  if (timer.elapsed() >= 2000) {
+  if (timer.elapsed() >= 1000) {
     fpsText = fmt::format("FPS: {}", fpsCount / 2);
     fpsCount = 0;
     timer.restart();
@@ -397,30 +397,27 @@ void Renderer::paintGL() {
 }
 
 void Renderer::mousePressEvent(QMouseEvent *evt) {
-  trackball.anchor(evt->x(), evt->y());
+  camera.mousePressed(evt);
 }
 
 void Renderer::mouseMoveEvent(QMouseEvent *evt) {
-  if (evt->buttons() & Qt::LeftButton) {
-    if (evt->modifiers() & Qt::ControlModifier) {
-      trackball.rotateLight(evt->x(), evt->y());
-    } else {
-      trackball.rotate(evt->x(), evt->y());
-    }
-  } else if (evt->buttons() & Qt::RightButton) {
-    trackball.translate(evt->x(), evt->y());
-  }
-}
-
-void Renderer::keyReleaseEvent(QKeyEvent *evt) {
-  println("Key: {}", evt->key());
-  if (evt->key() == Qt::Key_Escape) {
-    static_cast<QWidget*>(parent())->close();
-  }
+  camera.mouseMoved(evt);
 }
 
 void Renderer::wheelEvent(QWheelEvent *evt) {
-  trackball.zoom(evt->delta());
+  camera.wheelMoved(evt);
+}
+
+void Renderer::keyPressEvent(QKeyEvent *evt) {
+  camera.keyPressed(evt);
+}
+
+void Renderer::keyReleaseEvent(QKeyEvent *evt) {
+  if (evt->key() == Qt::Key_Escape) {
+    static_cast<QWidget*>(parent())->close();
+  } else {
+    camera.keyReleased(evt);
+  }
 }
 
 void Renderer::generateFrameBuffer() {
