@@ -45,9 +45,14 @@ Renderer::Renderer(QWidget *parent) :
   camera(this)
 {
   basicShader = std::make_shared<Shader>();
+  ambientShader = std::make_shared<Shader>();
+  normalsShader = std::make_shared<Shader>();
+  heightShader = std::make_shared<Shader>();
+  gridShader = std::make_shared<Shader>();
+  lineShader = std::make_shared<Shader>();
+
   toonShader = std::make_shared<Shader>();
   depthShader = std::make_shared<Shader>();
-  gridShader = std::make_shared<Shader>();
 
   water = std::make_shared<Texture>();
   bump = std::make_shared<Texture>();
@@ -132,7 +137,10 @@ void Renderer::setAllShaders(std::shared_ptr<Shader> shader) {
   suzanne1.setShader(shader);
   suzanne2.setShader(shader);
   bigSuzy.setShader(shader);
-  terrain.setShader(shader);
+
+  if (shader == basicShader) {
+    terrain.setShader(ambientShader);
+  }
 }
 
 void Renderer::drawAll() {
@@ -180,23 +188,41 @@ void Renderer::rotateLights(bool move) {
 }
 
 void Renderer::setShader(int shader) {
-  shader %= 3;
-  switch (shader) {
-  case 0:
-    mPostprocessShader = nullptr;
-    break;
+  shader %= 6;
 
-  case 1:
+  switch (shader) {
+  case 4:
     mPostprocessShader = toonShader;
     break;
 
-  case 2:
+  case 5:
     mPostprocessShader = depthShader;
     break;
 
   default:
+    mPostprocessShader = nullptr;
     break;
   }
+
+  switch (shader) {
+  case 1:
+    mObjectShader = ambientShader;
+    break;
+
+  case 2:
+    mObjectShader = normalsShader;
+    break;
+
+  case 3:
+    mObjectShader = heightShader;
+    break;
+
+  default:
+    mObjectShader = basicShader;
+    break;
+  }
+
+  setAllShaders(mObjectShader);
 }
 
 void Renderer::showPanel(int light) {
@@ -228,11 +254,32 @@ void Renderer::initializeGL() {
   gridShader->load("grid", ShaderType::object);
   gridShader->bindBuffer(matrixBuffer);
 
+  lineShader->load("lines", ShaderType::object);
+  lineShader->bindBuffer(matrixBuffer);
+
   basicShader->load("basic", ShaderType::object);
   basicShader->bindBuffer(matrixBuffer);
   basicShader->bindBuffer(lightBuffer);
   basicShader->uniform("uTexture") = Sampler2D(TEXTURE_LOCATION);
   basicShader->uniform("uBump") = Sampler2D(BUMP_LOCATION);
+
+  ambientShader->load("ambient", ShaderType::object);
+  ambientShader->bindBuffer(matrixBuffer);
+  ambientShader->bindBuffer(lightBuffer);
+  ambientShader->uniform("uTexture") = Sampler2D(TEXTURE_LOCATION);
+  ambientShader->uniform("uBump") = Sampler2D(BUMP_LOCATION);
+
+  normalsShader->load("normals", ShaderType::object);
+  normalsShader->bindBuffer(matrixBuffer);
+  normalsShader->bindBuffer(lightBuffer);
+  normalsShader->uniform("uTexture") = Sampler2D(TEXTURE_LOCATION);
+  normalsShader->uniform("uBump") = Sampler2D(BUMP_LOCATION);
+
+  heightShader->load("height", ShaderType::object);
+  heightShader->bindBuffer(matrixBuffer);
+  heightShader->bindBuffer(lightBuffer);
+  heightShader->uniform("uTexture") = Sampler2D(TEXTURE_LOCATION);
+  heightShader->uniform("uBump") = Sampler2D(BUMP_LOCATION);
 
   cubemap.load();
   cubemap.bindBuffer(matrixBuffer);
@@ -325,6 +372,8 @@ void Renderer::initializeGL() {
   glActiveTexture(GL_TEXTURE0 + LINEARDEPTHBUFFER_LOCATION);
   glBindTexture(GL_TEXTURE_2D, linearDepthBufferTexture);
 
+  setShader(0); // set to 'basic' shader
+
   timer.start();
 }
 
@@ -377,8 +426,12 @@ void Renderer::paintGL() {
   glEnable(GL_CULL_FACE);
   glEnable(GL_DEPTH_TEST);
 
-  setAllShaders(basicShader);
+  ambientShader->uniform("uAmbientLight") = glm::vec3(ambientLevel);
   basicShader->uniform("uAmbientLight") = glm::vec3(ambientLevel);
+  heightShader->uniform("uAmbientLight") = glm::vec3(ambientLevel);
+
+  lineShader->use();
+  //camera.path.draw();
 
   drawAll();
 

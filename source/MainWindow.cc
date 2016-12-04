@@ -132,26 +132,51 @@ namespace View {
     {
       menu = mnbMenu->addMenu("&Shader");
 
-      QAction *actBasic = new QAction("&Basic", menu);
-      QAction *actToon = new QAction("&Toon", menu);
-      QAction *actTilt = new QAction("Tilt-&shift", menu);
+      QAction *actBasic = new QAction("Basic", menu);
+      QAction *actAmbient = new QAction("Ambient", menu);
+      QAction *actNormals = new QAction("Normals", menu);
+      QAction *actHeight = new QAction("Height", menu);
+      QAction *actToon = new QAction("Toon", menu);
+      QAction *actTilt = new QAction("Tilt-shift", menu);
 
       actBasic->setCheckable(true);
+      actAmbient->setCheckable(true);
+      actNormals->setCheckable(true);
+      actHeight->setCheckable(true);
       actToon->setCheckable(true);
       actTilt->setCheckable(true);
 
       group = new QActionGroup(menu);
       group->addAction(actBasic);
+      group->addAction(actAmbient);
+      group->addAction(actNormals);
+      group->addAction(actHeight);
       group->addAction(actToon);
       group->addAction(actTilt);
       actBasic->setChecked(true);
 
       mapper = new QSignalMapper(this);
       mapper->setMapping(actBasic, 0);
-      mapper->setMapping(actToon, 1);
-      mapper->setMapping(actTilt, 2);
+      mapper->setMapping(actAmbient, 1);
+      mapper->setMapping(actNormals, 2);
+      mapper->setMapping(actHeight, 3);
+      mapper->setMapping(actToon, 4);
+      mapper->setMapping(actTilt, 5);
+
+      menu->addAction(actBasic);
+      menu->addAction(actAmbient);
+      menu->addAction(actNormals);
+      menu->addAction(actHeight);
+      menu->addAction(actToon);
+      menu->addAction(actTilt);
 
       connect(actBasic, SIGNAL(triggered()),
+              mapper, SLOT(map()));
+      connect(actAmbient, SIGNAL(triggered()),
+              mapper, SLOT(map()));
+      connect(actNormals, SIGNAL(triggered()),
+              mapper, SLOT(map()));
+      connect(actHeight, SIGNAL(triggered()),
               mapper, SLOT(map()));
       connect(actToon, SIGNAL(triggered()),
               mapper, SLOT(map()));

@@ -4,6 +4,7 @@
 #include <QMainWindow>
 #include <QCloseEvent>
 #include <QSlider>
+#include "Camera.hh"
 #include "Renderer.hh"
 
 namespace View {

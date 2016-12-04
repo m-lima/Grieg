@@ -1,7 +1,11 @@
+<!-- -*- mode: xml -*- -->
 <RCC>
   <qresource prefix="shaders">
+    <file>ambient.fs.glsl</file>
     <file>basic.fs.glsl</file>
+    <file>normals.fs.glsl</file>
     <file>depth.fs.glsl</file>
+    <file>height.fs.glsl</file>
     <file>grid.fs.glsl</file>
     <file>lines.fs.glsl</file>
     <file>toon.fs.glsl</file>

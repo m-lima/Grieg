@@ -26,7 +26,7 @@ namespace {
 
     "void main() {"
     "  vec4 vmp = uView * uModel * vec4(vPosition, 1.0);"
-    "  fPosition = vPosition;"
+    "  fPosition = (uModel * vec4(vPosition, 1.0)).xyz;"
     "  fDepth = vmp.z / vmp.w;"
     "  gl_Position = uProj * vmp;"
     "  fTexCoord = vTexCoord;"

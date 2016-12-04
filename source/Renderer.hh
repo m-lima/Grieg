@@ -10,8 +10,8 @@
 #include "Shader.hh"
 #include "Texture.hh"
 #include "ShaderStorage.hh"
-#include "Cubemap.hh"
 #include "Camera.hh"
+#include "Cubemap.hh"
 
 class Renderer : public QOpenGLWidget, public QOpenGLFunctions_4_3_Core {
   Q_OBJECT
@@ -77,11 +77,17 @@ private:
   void drawAll();
 
   std::shared_ptr<Shader> basicShader;
+  std::shared_ptr<Shader> ambientShader;
+  std::shared_ptr<Shader> normalsShader;
+  std::shared_ptr<Shader> heightShader;
+  std::shared_ptr<Shader> gridShader;
+  std::shared_ptr<Shader> lineShader;
+
   std::shared_ptr<Shader> toonShader;
   std::shared_ptr<Shader> depthShader;
-  std::shared_ptr<Shader> gridShader;
 
   std::shared_ptr<Shader> mPostprocessShader;
+  std::shared_ptr<Shader> mObjectShader;
 
   std::shared_ptr<Texture> water;
   std::shared_ptr<Texture> bump;
