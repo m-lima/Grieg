@@ -312,6 +312,7 @@ void Renderer::initializeGL() {
   //terrain.load("bergen_3072x2754.bin");
 
   constexpr float ratio = 120.0f;
+  terrain.modelTransform = glm::translate(terrain.modelTransform, { 0.0f, -0.145f, 0.0f});
   terrain.modelTransform = glm::scale(terrain.modelTransform, Vec3(ratio, ratio, ratio));
   terrain.modelTransform = glm::translate(terrain.modelTransform, { -0.202f, 0.0f, -0.1675f});
   terrain.modelTransform = glm::rotate(terrain.modelTransform, 3.5f, { 0.0f, 1.0f, 0.0f });

@@ -13,7 +13,7 @@ Camera:
   [ ] Disallow underground
 
 GUI:
-  [ ] Populate help dialog
+  [x] Populate help dialog
   [x] Can't rotate model if Grieg model
   [ ] Reset and camera defaults should disable ortho
 

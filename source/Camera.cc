@@ -65,16 +65,9 @@ Vec3 Camera::eyePosition() {
 
 void Camera::mousePressed(QMouseEvent * evt) {
   _anchor = { evt->x(), evt->y() };
-  switch (mMode) {
-    case Camera::TRACKBALL:
-    default:
-      trackball.anchor(evt->x(), evt->y());
-      break;
-    case Camera::WASD:
-      mParent->setCursor(Qt::BlankCursor);
-      break;
-    case Camera::PATH:
-      break;
+  trackball.anchor(evt->x(), evt->y());
+  if (mMode == Camera::WASD) {
+    mParent->setCursor(Qt::BlankCursor);
   }
 }
 
@@ -86,46 +79,47 @@ void Camera::mouseReleased(QMouseEvent * evt) {
 }
 
 void Camera::mouseMoved(QMouseEvent * evt) {
-  switch (mMode) {
-    case Camera::TRACKBALL:
-    default:
-      if (evt->modifiers() & Qt::ControlModifier) {
-        if (evt->buttons() & Qt::LeftButton) {
-          trackball.rotateLight(evt->x(), evt->y());
-        }
-      } else {
+  if (evt->modifiers() & Qt::ControlModifier && mMode != Camera::WASD) {
+    if (evt->buttons() & Qt::LeftButton) {
+      trackball.rotateLight(evt->x(), evt->y());
+      lightDirty = true;
+    }
+  } else {
+    switch (mMode) {
+      case Camera::TRACKBALL:
+      default:
         if (evt->buttons() & Qt::LeftButton) {
           trackball.rotate(evt->x(), evt->y());
         } else if (evt->buttons() & Qt::RightButton) {
           translate(evt->x(), evt->y());
         }
-      }
-      break;
-    case Camera::WASD:
-      if (evt->buttons() & Qt::LeftButton) {
-        Vec2 anchor = { evt->x() - _anchor.x, evt->y() - _anchor.y };
-        if (anchor.x == 0.0f && anchor.y == 0.0f) {
-          return;
+        break;
+      case Camera::WASD:
+        if (evt->buttons() & Qt::LeftButton) {
+          Vec2 anchor = { evt->x() - _anchor.x, evt->y() - _anchor.y };
+          if (anchor.x == 0.0f && anchor.y == 0.0f) {
+            return;
+          }
+
+          auto angle = glm::sqrt(anchor.x * anchor.x + anchor.y * anchor.y)
+            * mTranslationSensitivity * 0.5f;
+          auto axis = glm::normalize(anchor);
+
+          QCursor::setPos(mParent->mapToGlobal(QPoint(_width / 2, _height / 2)));
+          _anchor = { _width / 2, _height / 2 };
+
+          mRotation = glm::rotate(
+            mRotation,
+            angle,
+            glm::conjugate(mRotation) * Vec3(axis.y, axis.x, 0.0f)
+          );
+
+          viewDirty = true;
         }
-
-        auto angle = glm::sqrt(anchor.x * anchor.x + anchor.y * anchor.y)
-          * mTranslationSensitivity * 0.5f;
-        auto axis = glm::normalize(anchor);
-
-        QCursor::setPos(mParent->mapToGlobal(QPoint(_width / 2, _height / 2)));
-        _anchor = { _width / 2, _height / 2 };
-
-        mRotation = glm::rotate(
-          mRotation,
-          angle,
-          glm::conjugate(mRotation) * Vec3(axis.y, axis.x, 0.0f)
-        );
-
-        viewDirty = true;
-      }
-      break;
-    case Camera::PATH:
-      break;
+        break;
+      case Camera::PATH:
+        break;
+    }
   }
 }
 
@@ -211,7 +205,7 @@ void Camera::setMode(Mode mode) {
   if (mMode == Mode::PATH && !_pathInitialized) {
     path.add({ -55.0f, -0.2f, -25.0f }, { -40.0f, -1.3f, -15.0f });
     path.add({ -40.0f, -1.3f, -15.0f }, { -30.0f, -0.2f, -16.0f });
-    path.add({ -30.0f, -0.2f, -16.0f },  { -23.0f, -0.2f, -16.5f });
+    path.add({ -30.0f, -0.2f, -16.0f }, { -23.0f, -0.2f, -16.5f });
     path.add({ -23.0f, -0.7f, -16.5f }, { 0.0f, 0.0f, 0.0f });
     path.add({ -20.0f, -2.0f, 9.0f }, { 0.0f, 0.0f, 0.0f });
     path.add({ -5.0f, -4.0f, 25.0f }, { 0.0f, 0.0f, 0.0f });

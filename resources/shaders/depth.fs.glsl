@@ -47,12 +47,12 @@ void main() {
   float depth = abs(texture(uDepth, gl_FragCoord.xy).r - focus);
 
   // Capping off the blurring for a tilt-shift effect
-  if (depth > cap) {
-    depth = cap;
-  }
+  //if (depth > cap) {
+  //  depth = cap;
+  //}
 
   // Distance can only make matters worse
-  depth += 1.0f;
+  //depth += 1.0f;
 
   float factor;
   for (int i = -3; i < 4; i++) {
@@ -79,5 +79,6 @@ void main() {
   // Finalize the weighted average
   currentColor /= weights;
 
-  FragColor = vec4(currentColor, 1.0);
+  //FragColor = vec4(currentColor, 1.0);
+  FragColor = vec4(vec3(depth), 1.0);
 }

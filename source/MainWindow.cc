@@ -185,9 +185,6 @@ namespace View {
       connect(mapper, SIGNAL(mapped(int)),
               mRenderer, SLOT(setShader(int)));
 
-      menu->addAction(actBasic);
-      menu->addAction(actToon);
-      menu->addAction(actTilt);
     }
 
     // Camera menu

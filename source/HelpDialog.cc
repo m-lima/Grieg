@@ -5,10 +5,12 @@ namespace View {
     QDialog(parent) {
     setupUi();
     setModal(true);
+    
+    adjustSize();
+    setFixedSize(300, height());
   }
 
   void HelpDialog::setupUi() {
-    setFixedSize(300, 220);
     lytMain = new QVBoxLayout(this);
     lytTexts = new QHBoxLayout();
     lblKeys = new QLabel(this);
@@ -32,30 +34,58 @@ namespace View {
     setWindowTitle("Help");
     lblKeys->setText(
       "<html><head/><body>"
-      "Left mouse<br>"
-      "Right mouse<br>"
+      "<b>Global:</b><br>"
       "Wheel mouse<br>"
-      "&lt;CTRL&gt; Left mouse<br>"
       "Space<br>"
       "R<br>"
       "F<br>"
       "X<br>"
       "Escape<br>"
       "?<br>"
+      "<br>"
+      "<b>Trackball mode:</b><br>"
+      "Left mouse<br>"
+      "Left mouse + CTRL<br>"
+      "Right mouse<br>"
+      "<br>"
+      "<b>WASD mode:</b><br>"
+      "W<br>"
+      "A<br>"
+      "S<br>"
+      "D<br>"
+      "Shift<br>"
+      "CTRL<br>"
+      "<br>"
+      "<b>Path mode:</b><br>"
+      "Left mouse + CTRL<br>"
       "</body></html>"
       );
     lblActions->setText(
       "<html><head/><body>"
-      "Rotate<br>"
-      "Translate<br>"
+      "<br>"
       "Zoom<br>"
-      "Rotate Sun<br>"
       "Toggle projection<br>"
       "Rotate main model<br>"
       "Toggle fullscreen<br>"
       "Reset view<br>"
       "Quit<br>"
       "Show this help<br>"
+      "<br>"
+      "<br>"
+      "Rotate<br>"
+      "Rotate Sun<br>"
+      "Translate<br>"
+      "<br>"
+      "<br>"
+      "Move forward<br>"
+      "Move left<br>"
+      "Move backward<br>"
+      "Move right<br>"
+      "Move up<br>"
+      "Move down<br>"
+      "<br>"
+      "<br>"
+      "Rotate Sun<br>"
       "</body></html>"
       );
   }
