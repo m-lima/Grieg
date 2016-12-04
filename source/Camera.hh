@@ -52,6 +52,7 @@ public:
 
   public slots:
   void mousePressed(QMouseEvent *evt);
+  void mouseReleased(QMouseEvent *evt);
   void mouseMoved(QMouseEvent *evt);
   void wheelMoved(QWheelEvent *evt);
   void keyPressed(QKeyEvent *evt);

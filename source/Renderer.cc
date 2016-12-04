@@ -399,7 +399,7 @@ void Renderer::paintGL() {
   glUseProgram(0);
 
   if (timer.elapsed() >= 1000) {
-    fpsText = fmt::format("FPS: {}", fpsCount / 2);
+    fpsText = fmt::format("FPS: {}", fpsCount);
     fpsCount = 0;
     timer.restart();
     lblFPS->setText(fpsText.c_str());
@@ -411,6 +411,13 @@ void Renderer::paintGL() {
 
 void Renderer::mousePressEvent(QMouseEvent *evt) {
   camera.mousePressed(evt);
+  setCursor(Qt::BlankCursor);
+}
+
+void Renderer::mouseReleaseEvent(QMouseEvent *evt) {
+  camera.mouseReleased(evt);
+  setCursor(Qt::ArrowCursor);
+  QCursor::setPos(mapToGlobal(QPoint(width() / 2, height() / 2)));
 }
 
 void Renderer::mouseMoveEvent(QMouseEvent *evt) {

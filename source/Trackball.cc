@@ -16,6 +16,10 @@ Vec3 Trackball::surfaceVector(int x, int y) {
   float width = _width / 2.0f;
   float height = _height / 2.0f;
 
+  if (width < 0 || height < 0) {
+    return Vec3();
+  }
+
   Vec3 point(x, y, 0.0f);
   point.x -= width;
   point.y -= height;

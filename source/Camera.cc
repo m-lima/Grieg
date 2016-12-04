@@ -1,5 +1,6 @@
 #include "Camera.hh"
 
+#include <QApplication>
 #include <glm/gtc/matrix_transform.hpp>
 
 namespace {
@@ -8,6 +9,7 @@ namespace {
   bool _pathInitialized = false;
 
   glm::ivec2 _anchor;
+  Vec3 _lookAt;
 
   bool _W_down = false;
   bool _A_down = false;
@@ -72,6 +74,9 @@ void Camera::mousePressed(QMouseEvent * evt) {
   }
 }
 
+void Camera::mouseReleased(QMouseEvent * evt) {
+}
+
 void Camera::mouseMoved(QMouseEvent * evt) {
   switch (mMode) {
     case Camera::TRACKBALL:
@@ -89,6 +94,13 @@ void Camera::mouseMoved(QMouseEvent * evt) {
       }
       break;
     case Camera::WASD:
+      if (evt->buttons() & Qt::LeftButton) {
+        lookAt({ 
+          _lookAt.x + (evt->x() - _anchor.x) * 0.0025f,
+          _lookAt.y + (evt->x() - _anchor.y) * 0.0025f,
+          _lookAt.z });
+        _anchor = { evt->x(), evt->y() };
+      }
       break;
     case Camera::PATH:
       break;
@@ -271,6 +283,7 @@ void Camera::moveTo(const Vec3 & position) {
 void Camera::lookAt(const Vec3 & target) {
   mRotation = glm::lookAt(
     mTranslation, target, mRotation * Vec3(0.0f, 1.0f, 0.0f));
+  _lookAt = target;
   viewDirty = true;
 }
 
