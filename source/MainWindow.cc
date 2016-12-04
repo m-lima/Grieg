@@ -77,12 +77,12 @@ namespace View {
       actFull->setShortcut(QKeySequence(Qt::Key_F));
       actExit->setShortcut(QKeySequence(Qt::Key_Escape));
 
+      connect(actFull, &QAction::triggered, this, &MainWindow::toggleFullscreen);
+      connect(actExit, &QAction::triggered, this, &QMainWindow::close);
+
       menu->addAction(actFull);
       menu->addSeparator();
       menu->addAction(actExit);
-
-      connect(actFull, &QAction::triggered, this, &MainWindow::toggleFullscreen);
-      connect(actExit, &QAction::triggered, this, &QMainWindow::close);
     }
 
     // Model menu
@@ -114,12 +114,6 @@ namespace View {
       actRotate->setShortcutContext(Qt::ApplicationShortcut);
       actRotate->setShortcut(QKeySequence(Qt::Key_R));
 
-      menu->addAction(actGrieg);
-      menu->addAction(actSuzy);
-      menu->addAction(actTerrain);
-      menu->addSeparator();
-      menu->addAction(actRotate);
-
       connect(actGrieg, SIGNAL(triggered()),
               mapper, SLOT(map()));
       connect(actSuzy, SIGNAL(triggered()),
@@ -130,6 +124,12 @@ namespace View {
               mRenderer, SLOT(setModel(int)));
       connect(actRotate, SIGNAL(triggered(bool)),
               mRenderer, SLOT(setModelRotation(bool)));
+
+      menu->addAction(actGrieg);
+      menu->addAction(actSuzy);
+      menu->addAction(actTerrain);
+      menu->addSeparator();
+      menu->addAction(actRotate);
     }
 
     // Shader menu
@@ -155,10 +155,6 @@ namespace View {
       mapper->setMapping(actToon, 1);
       mapper->setMapping(actTilt, 2);
 
-      menu->addAction(actBasic);
-      menu->addAction(actToon);
-      menu->addAction(actTilt);
-
       connect(actBasic, SIGNAL(triggered()),
               mapper, SLOT(map()));
       connect(actToon, SIGNAL(triggered()),
@@ -167,13 +163,17 @@ namespace View {
               mapper, SLOT(map()));
       connect(mapper, SIGNAL(mapped(int)),
               mRenderer, SLOT(setShader(int)));
+
+      menu->addAction(actBasic);
+      menu->addAction(actToon);
+      menu->addAction(actTilt);
     }
 
     // Camera menu
     {
       menu = mnbMenu->addMenu("&Camera");
 
-      QAction *actTrack = new QAction("&Trackball", menu);
+      actTrack = new QAction("&Trackball", menu);
       QAction *actWASD = new QAction("&Wasd", menu);
       QAction *actPath = new QAction("&Splice", menu);
       QAction *actTop = new QAction("&Top", menu);
@@ -197,6 +197,16 @@ namespace View {
       actPerspective->setIcon(QIcon(":images/ortho.png"));
       actReset->setIcon(QIcon(":images/reset.png"));
 
+      actTrack->setCheckable(true);
+      actWASD->setCheckable(true);
+      actPath->setCheckable(true);
+
+      group = new QActionGroup(menu);
+      group->addAction(actTrack);
+      group->addAction(actWASD);
+      group->addAction(actPath);
+      actTrack->setChecked(true);
+
       mapper = new QSignalMapper(this);
       mapper->setMapping(actTop, 0);
       mapper->setMapping(actBottom, 1);
@@ -204,23 +214,6 @@ namespace View {
       mapper->setMapping(actLeft, 3);
       mapper->setMapping(actFront, 4);
       mapper->setMapping(actBack, 5);
-
-      QMenu * subMenu = new QMenu("&Mode", menu);
-      subMenu->addAction(actTrack);
-      subMenu->addAction(actWASD);
-      subMenu->addAction(actPath);
-      menu->addMenu(subMenu);
-      menu->addSeparator();
-      menu->addAction(actTop);
-      menu->addAction(actBottom);
-      menu->addAction(actRight);
-      menu->addAction(actLeft);
-      menu->addAction(actFront);
-      menu->addAction(actBack);
-      menu->addSeparator();
-      menu->addAction(actPerspective);
-      menu->addSeparator();
-      menu->addAction(actReset);
 
       connect(actTop, SIGNAL(triggered()),
               mapper, SLOT(map()));
@@ -254,6 +247,23 @@ namespace View {
               mapper, SLOT(map()));
       connect(mapper, SIGNAL(mapped(int)),
               camera, SLOT(setMode(int)));
+
+      QMenu * subMenu = new QMenu("&Mode", menu);
+      subMenu->addAction(actTrack);
+      subMenu->addAction(actWASD);
+      subMenu->addAction(actPath);
+      menu->addMenu(subMenu);
+      menu->addSeparator();
+      menu->addAction(actTop);
+      menu->addAction(actBottom);
+      menu->addAction(actRight);
+      menu->addAction(actLeft);
+      menu->addAction(actFront);
+      menu->addAction(actBack);
+      menu->addSeparator();
+      menu->addAction(actPerspective);
+      menu->addSeparator();
+      menu->addAction(actReset);
     }
 
     // Light menu
@@ -275,12 +285,6 @@ namespace View {
       mapper->setMapping(actSpot1, 1);
       mapper->setMapping(actSpot2, 2);
 
-      menu->addAction(actSun);
-      menu->addAction(actSpot1);
-      menu->addAction(actSpot2);
-      menu->addSeparator();
-      menu->addAction(actRotate);
-
       connect(actSun, SIGNAL(triggered()),
               mapper, SLOT(map()));
       connect(actSpot1, SIGNAL(triggered()),
@@ -291,6 +295,12 @@ namespace View {
               mRenderer, SLOT(showPanel(int)));
       connect(actRotate, SIGNAL(triggered(bool)),
               mRenderer, SLOT(rotateLights(bool)));
+
+      menu->addAction(actSun);
+      menu->addAction(actSpot1);
+      menu->addAction(actSpot2);
+      menu->addSeparator();
+      menu->addAction(actRotate);
     }
 
     // Help dialog
@@ -326,6 +336,7 @@ namespace View {
     actPerspective->setText("Orthographic");
     actPerspective->setIcon(QIcon(":images/ortho.png"));
     ortho = false;
+    actTrack->setChecked(true);
 
     camera->reset();
   }

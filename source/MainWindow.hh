@@ -25,6 +25,7 @@ namespace View {
     Renderer * mRenderer = nullptr;
     Camera * camera = nullptr;
     QAction * actPerspective = nullptr;
+    QAction * actTrack = nullptr;
 
     QLabel * lblFPS = nullptr;
     QLabel * lblPosition = nullptr;
