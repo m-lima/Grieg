@@ -18,6 +18,9 @@ namespace View {
 
     void show(Renderer::LightBlock &block, int light);
 
+  protected:
+    void closeEvent(QCloseEvent *evt) Q_DECL_OVERRIDE;
+
   private:
     void initialize();
 

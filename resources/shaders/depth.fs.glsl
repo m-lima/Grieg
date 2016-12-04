@@ -44,7 +44,7 @@ void main() {
 
   // Map the pixel to distance
   // This generates a rapidly increasing value from a central focal point
-  float depth = abs(texture(uDepth, gl_FragCoord.xy).r - focus);
+  float depth = texture(uDepth, gl_FragCoord.xy).r - focus;
 
   // Capping off the blurring for a tilt-shift effect
   //if (depth > cap) {

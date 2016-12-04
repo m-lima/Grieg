@@ -132,12 +132,12 @@ namespace View {
     {
       menu = mnbMenu->addMenu("&Shader");
 
-      QAction *actBasic = new QAction("Basic", menu);
-      QAction *actAmbient = new QAction("Ambient", menu);
-      QAction *actNormals = new QAction("Normals", menu);
-      QAction *actHeight = new QAction("Height", menu);
-      QAction *actToon = new QAction("Toon", menu);
-      QAction *actTilt = new QAction("Tilt-shift", menu);
+      QAction *actBasic = new QAction("&Basic", menu);
+      QAction *actAmbient = new QAction("&Ambient", menu);
+      QAction *actNormals = new QAction("&Normals", menu);
+      QAction *actHeight = new QAction("&Height", menu);
+      QAction *actToon = new QAction("&Toon", menu);
+      QAction *actTilt = new QAction("Tilt-&shift", menu);
 
       actBasic->setCheckable(true);
       actAmbient->setCheckable(true);
@@ -204,7 +204,10 @@ namespace View {
       QAction *actReset = new QAction("Re&set", menu);
 
       actPerspective->setShortcutContext(Qt::ApplicationShortcut);
+      actReset->setShortcutContext(Qt::ApplicationShortcut);
+
       actPerspective->setShortcut(QKeySequence(Qt::Key_Space));
+      actReset->setShortcut(QKeySequence(Qt::Key_X));
 
       actTop->setIcon(QIcon(":images/top.png"));
       actBottom->setIcon(QIcon(":images/bottom.png"));

@@ -25,9 +25,10 @@ namespace {
     "uniform mat4 uModel;"
 
     "void main() {"
-    "  vec4 vmp = uView * uModel * vec4(vPosition, 1.0);"
-    "  fPosition = (uModel * vec4(vPosition, 1.0)).xyz;"
-    "  fDepth = vmp.z / vmp.w;"
+    "  vec4 vmp = uModel * vec4(vPosition, 1.0);"
+    "  fPosition = vmp.xyz;"
+    "  vmp = uView * vmp;"
+    "  fDepth = vmp.z;"
     "  gl_Position = uProj * vmp;"
     "  fTexCoord = vTexCoord;"
     "  fNormal = normalize((uModel * vec4(normalize(vNormal), 1.0)).xyz);"

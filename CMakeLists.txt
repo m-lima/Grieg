@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.2)
-project(INF251 CXX)
+project(GRIEG CXX)
 
 set(CMAKE_PREFIX_PATH "${CMAKE_SOURCE_DIR}/extern")
 set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
@@ -116,14 +116,14 @@ set(RESOURCES
 ##
 
 if(MSVC)
-  add_executable(inf251 ${SOURCES} ${SHADERS} ${UI} ${RESOURCES})
+  add_executable(grieg ${SOURCES} ${SHADERS} ${UI} ${RESOURCES})
 else()
-  add_executable(inf251 ${SOURCES} ${UI} ${RESOURCES})
+  add_executable(grieg ${SOURCES} ${UI} ${RESOURCES})
 endif()
-target_link_libraries(inf251 ${LIBRARIES})
-target_link_libraries(inf251 Qt5::Widgets)
-target_include_directories(inf251 PRIVATE ${INCLUDE_DIRS})
-set_target_properties(inf251 PROPERTIES CXX_LANGUAGE_STANDARD 11)
+target_link_libraries(grieg ${LIBRARIES})
+target_link_libraries(grieg Qt5::Widgets)
+target_include_directories(grieg PRIVATE ${INCLUDE_DIRS})
+set_target_properties(grieg PROPERTIES CXX_LANGUAGE_STANDARD 11)
 add_definitions(-DSPHERICAL_TRACKBALL)
 
 ##------------------------------------------------------------------------------
@@ -136,24 +136,24 @@ if(MSVC)
   source_group("Resources" FILES ${RESOURCES})
 
   if(${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION} GREATER 3.5)
-    set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT inf251)
+    set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT grieg)
   endif()
 endif()
 
 if(WIN32)
-  set_target_properties(inf251 PROPERTIES LINK_FLAGS_RELEASE "/SUBSYSTEM:WINDOWS")
-  set_target_properties(inf251 PROPERTIES LINK_FLAGS_DEBUG "/SUBSYSTEM:CONSOLE")
+  set_target_properties(grieg PROPERTIES LINK_FLAGS_RELEASE "/SUBSYSTEM:WINDOWS")
+  set_target_properties(grieg PROPERTIES LINK_FLAGS_DEBUG "/SUBSYSTEM:CONSOLE")
 
   #if(CMAKE_SIZEOF_VOID_P EQUAL 8)
     ## 32 bits
-    #add_custom_command(TARGET inf251 POST_BUILD
+    #add_custom_command(TARGET grieg POST_BUILD
       #COMMAND ${CMAKE_COMMAND} -E copy_directory
       #${CMAKE_SOURCE_DIR}/extern/lib/x86
       #${CMAKE_BINARY_DIR})
     #
     #else()
     ## 64 bits
-    add_custom_command(TARGET inf251 POST_BUILD
+    add_custom_command(TARGET grieg POST_BUILD
       COMMAND ${CMAKE_COMMAND} -E copy_directory
       ${CMAKE_SOURCE_DIR}/extern/lib/x64
       ${CMAKE_BINARY_DIR})

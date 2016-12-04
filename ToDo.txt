@@ -3,6 +3,7 @@ Rendering:
   [ ] Skybox on orthographic projection
   [ ] Skybox should not blur on tilt-shift
   [x] Place terrain
+  [ ] Change skybox
 
 Camera:
   [x] WASD rotation
@@ -10,7 +11,8 @@ Camera:
   [x] LookAt
   [x] Trackball rotation
   [x] Transition between modes
-  [ ] Disallow underground
+  [!] Disallow underground
+  [x] Limit zoom
 
 GUI:
   [x] Populate help dialog

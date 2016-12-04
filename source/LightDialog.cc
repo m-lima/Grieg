@@ -8,6 +8,7 @@ namespace View {
     QDialog(parent),
     _ui(new Ui::LightDialog) {
     _ui->setupUi(this);
+
   }
 
   LightDialog::~LightDialog() {
@@ -37,6 +38,11 @@ namespace View {
     
     initialize();
     QDialog::show();
+  }
+
+  void LightDialog::closeEvent(QCloseEvent * evt) {
+    hide();
+    evt->ignore();
   }
   
   void LightDialog::initialize() {

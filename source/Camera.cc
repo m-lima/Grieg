@@ -240,8 +240,8 @@ void Camera::zoom(int amount) {
   mFOV += mZoomSensitivity * amount;
   if (mFOV < 1.0f) {
     mFOV = 1.0f;
-  } else if (mFOV >= 180.0f) {
-    mFOV = 179.0f;
+  } else if (mFOV > 100.0f) {
+    mFOV = 100.0f;
   }
   projectionDirty = true;
 }
