@@ -18,6 +18,7 @@ namespace {
   constexpr int NORMALBUFFER_LOCATION = 11;
   constexpr int DEPTHBUFFER_LOCATION = 12;
   constexpr int LINEARDEPTHBUFFER_LOCATION = 13;
+  constexpr int STENCILBUFFER_LOCATION = 14;
 
   bool moveLights = true;
   float ambientLevel = 0.4f;
@@ -35,6 +36,7 @@ namespace {
   GLuint normalBufferTexture;
   GLuint depthBufferTexture;
   GLuint linearDepthBufferTexture;
+  GLuint stencilBufferTexture;
 
   float _lightAngle{};
   float _lightTilt{};
@@ -57,6 +59,7 @@ Renderer::Renderer(QWidget *parent) :
 
   toonShader = std::make_shared<Shader>();
   depthShader = std::make_shared<Shader>();
+  identityShader = std::make_shared<Shader>();
 
   water = std::make_shared<Texture>();
   bump = std::make_shared<Texture>();
@@ -139,10 +142,17 @@ void Renderer::updateModels() {
 }
 
 void Renderer::setAllShaders(std::shared_ptr<Shader> shader) {
-  grieghallen.setShader(shader);
-  suzanne1.setShader(shader);
-  suzanne2.setShader(shader);
-  bigSuzy.setShader(shader);
+  if (shader == heightShader) {
+    grieghallen.setShader(basicShader);
+    suzanne1.setShader(basicShader);
+    suzanne2.setShader(basicShader);
+    bigSuzy.setShader(basicShader);
+  } else {
+    grieghallen.setShader(shader);
+    suzanne1.setShader(shader);
+    suzanne2.setShader(shader);
+    bigSuzy.setShader(shader);
+  }
 
   if (shader == basicShader) {
     terrain.setShader(ambientShader);
@@ -152,6 +162,12 @@ void Renderer::setAllShaders(std::shared_ptr<Shader> shader) {
 }
 
 void Renderer::drawAll() {
+  gl->glEnable(GL_STENCIL_TEST);
+  gl->glStencilFunc(GL_ALWAYS, 1, 0xff);
+  gl->glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
+  gl->glStencilMask(0xff);
+  gl->glClear(GL_STENCIL_BUFFER_BIT);
+
   switch (currentModel) {
     case BERGEN_LOW:
     case BERGEN_MID:
@@ -173,6 +189,8 @@ void Renderer::drawAll() {
   if (lightBuffer[2].type != 0) {
     suzanne2.draw();
   }
+
+  gl->glDisable(GL_STENCIL_TEST);
 }
 
 void Renderer::setModelRotation(bool rotate) {
@@ -345,6 +363,10 @@ void Renderer::initializeGL() {
   depthShader->uniform("uDepth") = Sampler2D(LINEARDEPTHBUFFER_LOCATION);
   depthShader->uniform("uScreenSize") = glm::vec2(width(), height());
 
+  identityShader->load("identity", ShaderType::postprocess);
+  identityShader->uniform("uFramebuffer") = Sampler2D(FRAMEBUFFER_LOCATION);
+  identityShader->uniform("uScreenSize") = glm::vec2(width(), height());
+
   grieghallen.load("grieghallen.obj");
   grieghallen.modelTransform = glm::scale(Mat4(), Vec3(0.02f, 0.02f, 0.02f));
 
@@ -440,6 +462,10 @@ void Renderer::resizeGL(int width, int height) {
   glBindTexture(GL_TEXTURE_2D, depthBufferTexture);
   glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT24, width, height, 0, GL_DEPTH_COMPONENT, GL_FLOAT, 0);
 
+  glActiveTexture(GL_TEXTURE0 + STENCILBUFFER_LOCATION);
+  glBindTexture(GL_TEXTURE_2D, stencilBufferTexture);
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_STENCIL_INDEX8, width, height, 0, GL_STENCIL_INDEX, GL_UNSIGNED_BYTE, 0);
+
   glActiveTexture(GL_TEXTURE0 + LINEARDEPTHBUFFER_LOCATION);
   glBindTexture(GL_TEXTURE_2D, linearDepthBufferTexture);
   glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, width, height, 0, GL_R32F, GL_FLOAT, 0);
@@ -465,7 +491,7 @@ void Renderer::paintGL() {
   }
 
   /* Draw grid before doing anything else */
-  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
   glDisable(GL_DEPTH_TEST);
   glDisable(GL_CULL_FACE);
   glBindVertexArray(gridVao);
@@ -482,9 +508,6 @@ void Renderer::paintGL() {
   basicShader->uniform("uAmbientLight") = glm::vec3(ambientLevel);
   heightShader->uniform("uAmbientLight") = glm::vec3(ambientLevel);
 
-  lineShader->use();
-  //camera.path.draw();
-
   drawAll();
 
   if (showCubemap)
@@ -492,12 +515,25 @@ void Renderer::paintGL() {
 
   if (mPostprocessShader) {
     QOpenGLFramebufferObject::bindDefault();
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_STENCIL_ATTACHMENT, GL_TEXTURE_2D, stencilBufferTexture, 0 /* level */);
+
+    glDisable(GL_DEPTH_TEST);
+
+    glEnable(GL_STENCIL_TEST);
+    glStencilFunc(GL_EQUAL, 1, 0xff);
+    glStencilMask(0);
 
     mPostprocessShader->use();
 
     // The triangles are defined in the postprocessor's vertex shader
     glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+
+    glStencilFunc(GL_NOTEQUAL, 1, 0xff);
+    identityShader->use();
+    glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+
+    glDisable(GL_STENCIL_TEST);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_STENCIL_ATTACHMENT, GL_TEXTURE_2D, 0, 0);
   }
 
   glUseProgram(0);
@@ -566,6 +602,18 @@ void Renderer::generateFrameBuffer() {
 
   glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT24, width(), height(), 0, GL_DEPTH_COMPONENT, GL_FLOAT, 0);
 
+  // Stencil attachment
+  glGenTextures(1, &stencilBufferTexture);
+  glActiveTexture(GL_TEXTURE0 + STENCILBUFFER_LOCATION);
+  glBindTexture(GL_TEXTURE_2D, stencilBufferTexture);
+
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_STENCIL_INDEX8, width(), height(), 0, GL_STENCIL_INDEX, GL_UNSIGNED_BYTE, 0);
+
   // Linear depth attachment
   glGenTextures(1, &linearDepthBufferTexture);
   glActiveTexture(GL_TEXTURE0 + LINEARDEPTHBUFFER_LOCATION);
@@ -585,6 +633,7 @@ void Renderer::generateFrameBuffer() {
   glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, normalBufferTexture, 0);
   glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT2, GL_TEXTURE_2D, linearDepthBufferTexture, 0);
   glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, depthBufferTexture, 0);
+  glFramebufferTexture2D(GL_FRAMEBUFFER, GL_STENCIL_ATTACHMENT, GL_TEXTURE_2D, stencilBufferTexture, 0);
 
   GLuint attachments[3] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2 };
   glDrawBuffers(3, attachments);
