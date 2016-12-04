@@ -62,11 +62,11 @@ void main() {
     depth = cap;
   }
 
-  depth = depth / cap;
+  depth = depth / cap - 1.0;
 
   float factor;
-  for (int i = -3; i < 4; i++) {
-    for (int j = -3; j < 4; j++) {
+  for (int i = -4; i < 5; i++) {
+    for (int j = -4; j < 5; j++) {
 
       //if (i == 0 || j == 0) {
       //  factor = 1.0;
@@ -94,6 +94,6 @@ void main() {
   // Finalize the weighted average
   currentColor /= weights;
 
-  //FragColor = vec4(currentColor, 1.0);
-  FragColor = vec4(vec3(depth), 1.0);
+  FragColor = vec4(currentColor, 1.0);
+  //FragColor = vec4(vec3(depth), 1.0);
 }

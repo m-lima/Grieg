@@ -360,6 +360,7 @@ void Renderer::initializeGL() {
 
   depthShader->load("depth", ShaderType::postprocess);
   depthShader->uniform("uFramebuffer") = Sampler2D(FRAMEBUFFER_LOCATION);
+  depthShader->uniform("uDepthbuffer") = Sampler2D(DEPTHBUFFER_LOCATION);
   depthShader->uniform("uDepth") = Sampler2D(LINEARDEPTHBUFFER_LOCATION);
   depthShader->uniform("uScreenSize") = glm::vec2(width(), height());
 
