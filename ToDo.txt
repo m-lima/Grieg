@@ -5,13 +5,17 @@ Rendering:
   [x] Place terrain
 
 Camera:
-  [ ] WASD rotation
+  [x] WASD rotation
   [x] WASD can't be orthographic
   [ ]?LookAt
+  [x] Trackball rotation
+  [x] Transition between modes
+  [ ] Disallow underground
 
 GUI:
   [ ] Populate help dialog
   [x] Can't rotate model if Grieg model
+  [ ] Reset and camera defaults should disable ortho
 
 GLSL:
   [ ] Depth shader ratios
@@ -19,4 +23,5 @@ GLSL:
 
 Misc:
   [ ] Spline
+  [ ] Make a cool path for spline
   [x] Terrain texture offset

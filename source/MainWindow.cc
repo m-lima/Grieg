@@ -196,7 +196,7 @@ namespace View {
 
       actTrack = new QAction("&Trackball", menu);
       QAction *actWASD = new QAction("&Wasd", menu);
-      QAction *actPath = new QAction("&Splice", menu);
+      QAction *actPath = new QAction("&Path", menu);
       QAction *actTop = new QAction("&Top", menu);
       QAction *actBottom = new QAction("&Bottom", menu);
       QAction *actRight = new QAction("Rig&ht", menu);

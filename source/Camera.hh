@@ -82,7 +82,6 @@ private:
   // View tracking variables
   Vec3 mTranslation;
   Quat mRotation;
-  Quat mPreRotation;
 
   // Light tracking variables
   Vec3 mLightPosition;
