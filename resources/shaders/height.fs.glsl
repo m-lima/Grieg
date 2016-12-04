@@ -51,7 +51,7 @@ void main()
 
   vec3 color = vec3(0.3, 0.6, 0.9);
 
-  if (fPosition.y > -0.145) {
+  if (fPosition.y > -0.144) {
     vec3 brown = vec3(0.65, 0.35, 0.15);
     vec3 white = vec3(0.9);
     color = mix(brown, white, fPosition.y / 15.0);

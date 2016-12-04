@@ -29,7 +29,8 @@ Camera::Camera(QWidget * parent) :
   mZoomSensitivity(0.025f),
   mTranslationSensitivity(0.005f),
   trackball(&mRotation, &mLightPosition, &viewDirty),
-  mParent(parent) {}
+  mParent(parent) {
+}
 
 Mat4 Camera::rotation() {
   return mMode == TRACKBALL
@@ -53,8 +54,7 @@ Mat4 Camera::projection() {
   }
 }
 
-Mat4 Camera::skyboxPV()
-{
+Mat4 Camera::skyboxPV() {
   auto proj = glm::perspectiveFov(glm::radians(mFOV),
                                   static_cast<float>(_width),
                                   static_cast<float>(_height),
@@ -241,12 +241,10 @@ void Camera::reset() {
   mFOV = 45.0f;
   projectionDirty = true;
 
-  mRotation = Quat();
-  mTranslation = Vec3(0.0f, 0.0f, -5.0f);
-  viewDirty = true;
-
   mLightPosition = Vec3(1.0f, 1.0f, 1.0f);
   lightDirty = true;
+
+  setDefaultPosition(Position::BACK);
 }
 
 void Camera::zoom(int amount) {
