@@ -31,13 +31,14 @@ const float focus = 5.0f;
 const float cap = 5.0f;
 
 float linearDepth() {
-  //float depth = texture(
-  //  uDepthbuffer,
-  //  vec2(gl_FragCoord.x / uScreenSize.x, gl_FragCoord.y / uScreenSize.y)).r;
-  //return 2.0 * 0.1 * 200.0 / (200.1 - (2.0 * depth - 1.0) * (199.9));
-  return texture(
-    uDepth,
+  float depth = texture(
+    uDepthbuffer,
     vec2(gl_FragCoord.x / uScreenSize.x, gl_FragCoord.y / uScreenSize.y)).r;
+    //vec2(gl_FragCoord.x, gl_FragCoord.y)).r;
+  return 2.0 * 0.1 * 200.0 / (200.1 - (2.0 * depth - 1.0) * (199.9));
+  //return texture(
+  //  uDepth,
+  //  vec2(gl_FragCoord.x / uScreenSize.x, gl_FragCoord.y / uScreenSize.y)).r;
 }
 
 // Fetch a color from the frame buffer with the given offsets

@@ -9,9 +9,9 @@ uniform sampler2D uDepth;
 uniform vec2 uScreenSize;
 
 float linearDepth(vec2 coord) {
-  //float depth = texture(uDepthbuffer, coord).r;
-  //return 2.0 * 0.1 * 200.0 / (200.1 - (2.0 * depth - 1.0) * (199.9));
-  return texture(uDepth, coord).r * 200.0;
+  float depth = texture(uDepthbuffer, coord).r;
+  return 2.0 * 0.1 * 200.0 / (200.1 - (2.0 * depth - 1.0) * (199.9));
+  //return texture(uDepth, coord).r;
 }
 
 void main() {
@@ -86,4 +86,5 @@ void main() {
   }
 
   FragColor = vec4(currentColor, 1.0);
+  //FragColor = vec4(vec3(linearDepth(currentPixel)), 1.0);
 }
