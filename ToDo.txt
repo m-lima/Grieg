@@ -7,7 +7,7 @@ Rendering:
 Camera:
   [x] WASD rotation
   [x] WASD can't be orthographic
-  [ ]?LookAt
+  [x] LookAt
   [x] Trackball rotation
   [x] Transition between modes
   [ ] Disallow underground
@@ -22,6 +22,6 @@ GLSL:
   [ ] Height color
 
 Misc:
-  [ ] Spline
-  [ ] Make a cool path for spline
+  [x] Spline
+  [x] Make a cool path for spline
   [x] Terrain texture offset

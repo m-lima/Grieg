@@ -7,8 +7,8 @@ class CameraPath {
   std::vector<glm::vec3> mPosVertices;
   std::vector<glm::mat4x3> mPosSplines;
 
-  std::vector<glm::vec2> mDirVertices;
-  std::vector<glm::mat4x2> mDirSplines;
+  std::vector<glm::vec3> mDirVertices;
+  std::vector<glm::mat4x3> mDirSplines;
   GLuint mVbo {};
   GLuint mVao {};
 

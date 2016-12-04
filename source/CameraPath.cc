@@ -46,11 +46,12 @@ void CameraPath::add(glm::vec3 position, glm::vec3 lookAt)
   // ϑ = tan⁻¹(y / x)
   // ϕ = cos⁻¹(z / r)
 
-  auto dir = glm::normalize(lookAt - position);
-  auto u = atan2(dir.y, dir.x); // ϑ
-  auto v = acos(dir.z); // ϕ
+  //auto dir = glm::normalize(lookAt - position);
+  //auto u = atan2(dir.y, dir.x); // ϑ
+  //auto v = acos(dir.z); // ϕ
 
-  mDirVertices.emplace_back(u, v);
+  //mDirVertices.emplace_back(u, v);
+  mDirVertices.emplace_back(lookAt);
 }
 
 void CameraPath::buildSplines()
@@ -81,10 +82,15 @@ void CameraPath::buildSplines()
 
     // Direction spline
     {
-      auto u = _hermite(dir[a].x, dir[b].x, dir[c].x, dir[d].x);
-      auto v = _hermite(dir[a].y, dir[b].y, dir[c].y, dir[d].y);
-      glm::mat2x4 m { u, v };
-      println(":: {}, {}", dir[b].x, dir[b].y);
+      //auto u = _hermite(dir[a].x, dir[b].x, dir[c].x, dir[d].x);
+      //auto v = _hermite(dir[a].y, dir[b].y, dir[c].y, dir[d].y);
+      //glm::mat2x4 m { u, v };
+      //println(":: {}, {}", dir[b].x, dir[b].y);
+      //mDirSplines.emplace_back(glm::transpose(m));
+      auto x = _hermite(dir[a].x, dir[b].x, dir[c].x, dir[d].x);
+      auto y = _hermite(dir[a].y, dir[b].y, dir[c].y, dir[d].y);
+      auto z = _hermite(dir[a].z, dir[b].z, dir[c].z, dir[d].z);
+      glm::mat3x4 m { x, y, z };
       mDirSplines.emplace_back(glm::transpose(m));
     }
   }
@@ -93,15 +99,17 @@ void CameraPath::buildSplines()
   init();
   size_t num = n * SPLINE_STEPS;
   std::vector<glm::vec3> positions { num };
-  std::vector<glm::vec3> directions { 2 * num };
+  //std::vector<glm::vec3> directions { 2 * num };
+  std::vector<glm::vec3> directions { num };
   for (size_t i = 0; i < num; i++) {
     auto t = i / static_cast<float>(SPLINE_STEPS);
     auto pair = interp(t);
 
     positions[i] = pair.first;
 
-    directions[2 * i] = pair.first;
-    directions[2 * i + 1] = pair.first + pair.second * 0.1f;
+    //directions[2 * i] = pair.first;
+    //directions[2 * i + 1] = pair.first + pair.second * 0.1f;
+    directions[i] = pair.second;
   }
 
   positions.insert(positions.end(), directions.cbegin(), directions.cend());
@@ -119,14 +127,14 @@ std::pair<glm::vec3, glm::vec3> CameraPath::interp(float t) const
   Vec4 v { t*t*t, t*t, t, 1.0f };
 
   glm::vec3 pos = mPosSplines[i] * v;
-  glm::vec3 dir;
+  glm::vec3 dir = mDirSplines[i] * v;
   {
     // Gotta do a bit more work to convert the direction from spherical to
     // cartesian coordinates.
-    auto s = mDirSplines[i] * v;
-    dir.x = cos(s.x) * cos(s.y);
-    dir.y = cos(s.x) * sin(s.y);
-    dir.z = sin(s.x);
+    //auto s = mDirSplines[i] * v;
+    //dir.x = cos(s.x) * cos(s.y);
+    //dir.y = cos(s.x) * sin(s.y);
+    //dir.z = sin(s.x);
   }
 
   return std::make_pair(pos, dir);

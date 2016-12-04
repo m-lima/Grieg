@@ -9,7 +9,6 @@ namespace {
   bool _pathInitialized = false;
 
   glm::ivec2 _anchor;
-  Vec3 _lookAt;
 
   bool _W_down = false;
   bool _A_down = false;
@@ -17,7 +16,6 @@ namespace {
   bool _D_down = false;
   bool _Shift_down = false;
   bool _CTRL_down = false;
-
 }
 
 Camera::Camera(QWidget * parent) :
@@ -60,7 +58,9 @@ Vec3 Camera::lightPosition() {
 }
 
 Vec3 Camera::eyePosition() {
-  return mRotation * mTranslation;
+  return mMode == Camera::TRACKBALL
+    ? mRotation * mTranslation
+    : mTranslation;
 }
 
 void Camera::mousePressed(QMouseEvent * evt) {
@@ -209,11 +209,16 @@ void Camera::setMode(Mode mode) {
   viewDirty = true;
 
   if (mMode == Mode::PATH && !_pathInitialized) {
-    path.add({ 0.0f, 0.0f, 5.0f }, { 0.0f, 0.0f, 0.0f });
-    path.add({ 10.0f, 0.0f, 5.0f }, { 0.0f, 0.0f, 0.0f });
-    path.add({ 15.0f, 5.0f, 5.0f }, { 0.0f, 0.0f, 0.0f });
-    path.add({ 15.0f, -5.0f, 5.0f }, { 0.0f, 0.0f, 0.0f });
-    path.add({ 0.0f, 0.0f, 5.0f }, { 0.0f, 0.0f, 0.0f });
+    path.add({ -55.0f, -0.2f, -25.0f }, { -40.0f, -1.3f, -15.0f });
+    path.add({ -40.0f, -1.3f, -15.0f }, { -30.0f, -0.2f, -16.0f });
+    path.add({ -30.0f, -0.2f, -16.0f },  { -23.0f, -0.2f, -16.5f });
+    path.add({ -23.0f, -0.7f, -16.5f }, { 0.0f, 0.0f, 0.0f });
+    path.add({ -20.0f, -2.0f, 9.0f }, { 0.0f, 0.0f, 0.0f });
+    path.add({ -5.0f, -4.0f, 25.0f }, { 0.0f, 0.0f, 0.0f });
+    path.add({ 5.0f, -1.0f, 0.0f }, { 0.0f, 0.0f, 0.0f });
+    path.add({ 0.0f, -1.0f, -5.0f }, { 0.0f, 0.0f, 0.0f });
+    path.add({ -5.0f, -1.0f, 0.0f }, { 0.0f, 0.0f, 0.0f });
+    path.add({ -22.0f, -2.0f, 5.0f }, { -55.0f, -0.2f, -25.0f });
     path.buildSplines();
     _pathInitialized = true;
   }
@@ -316,8 +321,7 @@ void Camera::moveTo(const Vec3 & position) {
 
 void Camera::lookAt(const Vec3 & target) {
   mRotation = glm::lookAt(
-    mTranslation, target, Vec3(0.0f, 1.0f, 0.0f));
-  _lookAt = target;
+    target, mTranslation, Vec3(0.0f, 1.0f, 0.0f));
   viewDirty = true;
 }
 
@@ -361,7 +365,7 @@ void Camera::update() {
       auto index = path.interp(pathIndex);
       pathIndex += 0.01f;
       moveTo(index.first);
-      lookAt({ 0.0f, 0.0f, 0.0f });
+      lookAt(index.second);
       break;
   }
 }
