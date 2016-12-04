@@ -41,7 +41,8 @@ namespace {
 }
 
 Renderer::Renderer(QWidget *parent) :
-  QOpenGLWidget(parent)
+  QOpenGLWidget(parent),
+  camera(this)
 {
   basicShader = std::make_shared<Shader>();
   toonShader = std::make_shared<Shader>();
@@ -78,12 +79,8 @@ void Renderer::checkAndLoadUniforms() {
 
 void Renderer::updateModels() {
   if (rotateModel) {
-    grieghallen.modelTransform = glm::rotate(
-      grieghallen.modelTransform, 0.01f, glm::vec3(0, 1, 0));
     bigSuzy.modelTransform = glm::rotate(
       bigSuzy.modelTransform, 0.01f, glm::vec3(0, 1, 0));
-    terrain.modelTransform = glm::rotate(
-      terrain.modelTransform, 0.01f, glm::vec3(0, 1, 0));
   }
 
   if (moveLights) {
@@ -141,6 +138,7 @@ void Renderer::setAllShaders(std::shared_ptr<Shader> shader) {
 void Renderer::drawAll() {
   switch (currentModel) {
     case 0:
+      terrain.draw();
       grieghallen.draw();
       break;
 
@@ -159,10 +157,6 @@ void Renderer::drawAll() {
 
       bigSuzy.draw();
       break;
-
-    case 2:
-      terrain.draw();
-      break;
   }
 
   if (lightBuffer[1].type != 0) {
@@ -178,7 +172,7 @@ void Renderer::setModelRotation(bool rotate) {
 }
 
 void Renderer::setModel(int model) {
-  currentModel = model % 3;
+  currentModel = model % 2;
 }
 
 void Renderer::rotateLights(bool move) {
@@ -269,7 +263,11 @@ void Renderer::initializeGL() {
   terrain.load("bergen_1024x918.bin");
   //terrain.load("bergen_2048x1836.bin");
   //terrain.load("bergen_3072x2754.bin");
-  terrain.modelTransform = glm::scale(Mat4(), Vec3(4.0f, 4.0f, 4.0f));
+
+  constexpr float ratio = 120.0f;
+  terrain.modelTransform = glm::scale(terrain.modelTransform, Vec3(ratio, ratio, ratio));
+  terrain.modelTransform = glm::translate(terrain.modelTransform, { -0.202f, 0.0f, -0.1675f});
+  terrain.modelTransform = glm::rotate(terrain.modelTransform, 3.5f, { 0.0f, 1.0f, 0.0f });
 
   bergen->load("bergen_terrain_texture.png");
   terrain.setMaterial(bergen, { 0.0f, 0.0f, 0.0f });
@@ -411,13 +409,10 @@ void Renderer::paintGL() {
 
 void Renderer::mousePressEvent(QMouseEvent *evt) {
   camera.mousePressed(evt);
-  setCursor(Qt::BlankCursor);
 }
 
 void Renderer::mouseReleaseEvent(QMouseEvent *evt) {
   camera.mouseReleased(evt);
-  setCursor(Qt::ArrowCursor);
-  QCursor::setPos(mapToGlobal(QPoint(width() / 2, height() / 2)));
 }
 
 void Renderer::mouseMoveEvent(QMouseEvent *evt) {

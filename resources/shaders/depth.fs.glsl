@@ -27,9 +27,14 @@ layout(std430, binding = 2) buffer MaterialBlock {
   vec3 uSpecular;
 };
 
+const float focus = 5.0f;
+const float cap = 2.0f;
+
 // Fetch a color from the frame buffer with the given offsets
 vec3 textureOffset(int offsetX, int offsetY) {
-  return texture(uFramebuffer, vec2((gl_FragCoord.x + offsetX) / uScreenSize.x, (gl_FragCoord.y + offsetY) / uScreenSize.y)).rgb;
+  return texture(uFramebuffer,
+                 vec2((gl_FragCoord.x + offsetX) / uScreenSize.x,
+                 (gl_FragCoord.y + offsetY) / uScreenSize.y)).rgb;
 }
 
 void main() {
@@ -38,9 +43,16 @@ void main() {
   float weights = 0;
 
   // Map the pixel to distance
-  // This generates a rapidly increasing value from a central
-  // focal point. Then it is capped to [0..1] and shifted to [-1..0]
-  float depth = texture(uDepth, gl_FragCoord.xy).r - 5;
+  // This generates a rapidly increasing value from a central focal point
+  float depth = abs(texture(uDepth, gl_FragCoord.xy).r - focus);
+
+  // Capping off the blurring for a tilt-shift effect
+  if (depth > cap) {
+    depth = cap;
+  }
+
+  // Distance can only make matters worse
+  depth += 1.0f;
 
   float factor;
   for (int i = -3; i < 4; i++) {
@@ -49,8 +61,12 @@ void main() {
       // Fake gaussian - an approxiation I tested on Octave
       // should work close enough, though much faster
       // ** Very sensitive!! Only makes since if doing tilt-shifting
-      factor = (i == 0 ? 1 : 1 / abs(i));
-      factor *= (j == 0 ? 1 : 1 / abs(j));
+      if (i == 0 || j == 0) {
+        factor = depth;
+      } else {
+        factor = depth / abs(i);
+        factor *= depth / abs(j);
+      }
 
       // Store the current factor into the overall weight
       weights += factor;

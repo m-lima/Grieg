@@ -5,6 +5,7 @@
 #include "Trackball.hh"
 #include "CameraPath.hh"
 
+#include <QWidget>
 #include <QMouseEvent>
 #include <QWheelEvent>
 #include <QKeyEvent>
@@ -28,7 +29,7 @@ public:
     BACK
   };
 
-  explicit Camera();
+  explicit Camera(QWidget * parent);
   ~Camera() = default;
 
   bool projectionDirty;
@@ -49,6 +50,9 @@ public:
   void stop();
   void setMode(Mode mode);
   void setDefaultPosition(Position position);
+  Mode mode() {
+    return mMode;
+  }
 
   public slots:
   void mousePressed(QMouseEvent *evt);
@@ -78,6 +82,7 @@ private:
   // View tracking variables
   Vec3 mTranslation;
   Quat mRotation;
+  Quat mPreRotation;
 
   // Light tracking variables
   Vec3 mLightPosition;
@@ -90,6 +95,7 @@ private:
   float mZoomSensitivity;
   float mTranslationSensitivity;
 
+  QWidget * mParent;
   Trackball trackball;
   CameraPath path;
 };

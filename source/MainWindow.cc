@@ -91,23 +91,20 @@ namespace View {
 
       QAction *actGrieg = new QAction("&Grieghallen", menu);
       QAction *actSuzy = new QAction("Big &Suzy", menu);
-      QAction *actTerrain = new QAction("&Terrain", menu);
       QAction *actRotate = new QAction("&Rotate", menu);
 
       actGrieg->setCheckable(true);
       actSuzy->setCheckable(true);
-      actTerrain->setCheckable(true);
+      actRotate->setEnabled(false);
 
       group = new QActionGroup(menu);
       group->addAction(actGrieg);
       group->addAction(actSuzy);
-      group->addAction(actTerrain);
       actGrieg->setChecked(true);
 
       mapper = new QSignalMapper(this);
       mapper->setMapping(actGrieg, 0);
       mapper->setMapping(actSuzy, 1);
-      mapper->setMapping(actTerrain, 2);
 
       actRotate->setCheckable(true);
       actRotate->setChecked(false);
@@ -118,16 +115,15 @@ namespace View {
               mapper, SLOT(map()));
       connect(actSuzy, SIGNAL(triggered()),
               mapper, SLOT(map()));
-      connect(actTerrain, SIGNAL(triggered()),
-              mapper, SLOT(map()));
       connect(mapper, SIGNAL(mapped(int)),
               mRenderer, SLOT(setModel(int)));
       connect(actRotate, SIGNAL(triggered(bool)),
               mRenderer, SLOT(setModelRotation(bool)));
+      connect(actSuzy, &QAction::toggled,
+              actRotate, &QAction::setEnabled);
 
       menu->addAction(actGrieg);
       menu->addAction(actSuzy);
-      menu->addAction(actTerrain);
       menu->addSeparator();
       menu->addAction(actRotate);
     }
@@ -247,6 +243,8 @@ namespace View {
               mapper, SLOT(map()));
       connect(mapper, SIGNAL(mapped(int)),
               camera, SLOT(setMode(int)));
+      connect(actTrack, &QAction::toggled,
+              actPerspective, &QAction::setEnabled);
 
       QMenu * subMenu = new QMenu("&Mode", menu);
       subMenu->addAction(actTrack);

@@ -1,0 +1,22 @@
+Rendering:
+  [ ] Remove texture from toon shader
+  [ ] Skybox on orthographic projection
+  [ ] Skybox should not blur on tilt-shift
+  [x] Place terrain
+
+Camera:
+  [ ] WASD rotation
+  [x] WASD can't be orthographic
+  [ ]?LookAt
+
+GUI:
+  [ ] Populate help dialog
+  [x] Can't rotate model if Grieg model
+
+GLSL:
+  [ ] Depth shader ratios
+  [ ] Height color
+
+Misc:
+  [ ] Spline
+  [x] Terrain texture offset

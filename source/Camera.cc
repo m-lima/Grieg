@@ -20,7 +20,8 @@ namespace {
 
 }
 
-Camera::Camera() :
+Camera::Camera(QWidget * parent) :
+  QObject(parent),
   mFOV(45.0f),
   projectionDirty(true),
   viewDirty(true),
@@ -29,25 +30,26 @@ Camera::Camera() :
   mTranslation{ 0.0f, 0.0f, -5.0f },
   mZoomSensitivity(0.025f),
   mTranslationSensitivity(0.005f),
-  trackball(&mRotation, &mLightPosition, &viewDirty) {}
+  trackball(&mRotation, &mLightPosition, &viewDirty),
+  mParent(parent) {}
 
 Mat4 Camera::rotation() {
-  return glm::translate(
-    Mat4(mRotation), glm::conjugate(mRotation) * mTranslation);
+  return Mat4(mPreRotation) *
+    glm::translate(Mat4(mRotation), glm::conjugate(mRotation) * mTranslation);
 }
 
 Mat4 Camera::projection() {
-  if (mOrtho) {
+  if (mOrtho && mMode == Camera::TRACKBALL) {
     float zoom = mFOV / 22.5f;
     float ratio = static_cast<float>(_height) / static_cast<float>(_width);
-    return glm::ortho(-zoom, zoom, -zoom * ratio, zoom * ratio, 1.0f, 200.0f);
+    return glm::ortho(-zoom, zoom, -zoom * ratio, zoom * ratio, 0.1f, 1000.0f);
   } else {
     return glm::perspectiveFov(
       glm::radians(mFOV),
       static_cast<float>(_width),
       static_cast<float>(_height),
-      1.0f,
-      200.0f
+      0.1f,
+      1000.0f
     );
   }
 }
@@ -68,6 +70,7 @@ void Camera::mousePressed(QMouseEvent * evt) {
       trackball.anchor(evt->x(), evt->y());
       break;
     case Camera::WASD:
+      mParent->setCursor(Qt::BlankCursor);
       break;
     case Camera::PATH:
       break;
@@ -75,6 +78,10 @@ void Camera::mousePressed(QMouseEvent * evt) {
 }
 
 void Camera::mouseReleased(QMouseEvent * evt) {
+  mParent->setCursor(Qt::ArrowCursor);
+  if (mMode == Camera::WASD) {
+    QCursor::setPos(mParent->mapToGlobal(QPoint(_width / 2, _height / 2)));
+  }
 }
 
 void Camera::mouseMoved(QMouseEvent * evt) {
@@ -95,11 +102,24 @@ void Camera::mouseMoved(QMouseEvent * evt) {
       break;
     case Camera::WASD:
       if (evt->buttons() & Qt::LeftButton) {
-        lookAt({ 
-          _lookAt.x + (evt->x() - _anchor.x) * 0.0025f,
-          _lookAt.y + (evt->x() - _anchor.y) * 0.0025f,
-          _lookAt.z });
-        _anchor = { evt->x(), evt->y() };
+        glm::ivec2 newAnchor = { evt->x(), evt->y() };
+        Vec2 angle = { newAnchor.x - _anchor.x, newAnchor.y - _anchor.y };
+        angle *= 0.0025f;
+    
+        QCursor::setPos(mParent->mapToGlobal(QPoint(_width / 2, _height / 2)));
+        _anchor = { _width / 2, _height / 2 };
+
+        mPreRotation =
+          glm::rotate(mPreRotation, static_cast<float>(angle.x), Vec3(0.0f, 1.0f, 0.0f));
+        mPreRotation =
+          glm::rotate(mPreRotation, static_cast<float>(angle.y), Vec3(1.0f, 0.0f, 0.0f));
+        viewDirty = true;
+
+        //lookAt({
+        //  _lookAt.x + (evt->x() - _anchor.x) * 0.0025f,
+        //  _lookAt.y + (evt->x() - _anchor.y) * 0.0025f,
+        //  _lookAt.z });
+        //_anchor = { evt->x(), evt->y() };
       }
       break;
     case Camera::PATH:
@@ -173,6 +193,7 @@ void Camera::keyReleased(QKeyEvent * evt) {
 
 void Camera::setMode(Mode mode) {
   mMode = mode;
+  projectionDirty = true;
 
   if (mMode == Mode::PATH && !_pathInitialized) {
     path.add({ 0.0f, 0.0f, 5.0f }, { 0.0f, 0.0f, 0.0f });
@@ -196,6 +217,7 @@ void Camera::reset() {
   projectionDirty = true;
 
   mRotation = Quat();
+  mPreRotation = Quat();
   mTranslation = Vec3(0.0f, 0.0f, -5.0f);
   viewDirty = true;
 
@@ -281,8 +303,8 @@ void Camera::moveTo(const Vec3 & position) {
 }
 
 void Camera::lookAt(const Vec3 & target) {
-  mRotation = glm::lookAt(
-    mTranslation, target, mRotation * Vec3(0.0f, 1.0f, 0.0f));
+  mPreRotation = glm::lookAt(
+    mTranslation, target, (mPreRotation * mRotation) * Vec3(0.0f, 1.0f, 0.0f));
   _lookAt = target;
   viewDirty = true;
 }
@@ -335,4 +357,5 @@ void Camera::stop() {
   _D_down = false;
   _Shift_down = false;
   _CTRL_down = false;
+  mParent->setCursor(Qt::ArrowCursor);
 }
