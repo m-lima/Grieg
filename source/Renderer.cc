@@ -139,10 +139,17 @@ void Renderer::updateModels() {
 }
 
 void Renderer::setAllShaders(std::shared_ptr<Shader> shader) {
-  grieghallen.setShader(shader);
-  suzanne1.setShader(shader);
-  suzanne2.setShader(shader);
-  bigSuzy.setShader(shader);
+  if (shader == heightShader) {
+    grieghallen.setShader(basicShader);
+    suzanne1.setShader(basicShader);
+    suzanne2.setShader(basicShader);
+    bigSuzy.setShader(basicShader);
+  } else {
+    grieghallen.setShader(shader);
+    suzanne1.setShader(shader);
+    suzanne2.setShader(shader);
+    bigSuzy.setShader(shader);
+  }
 
   if (shader == basicShader) {
     terrain.setShader(ambientShader);
