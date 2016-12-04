@@ -81,7 +81,7 @@ void main() {
       factor = exp(depth*pow(i, 2)) * exp(depth*pow(j, 2));
 
       // Make it more sensitive for tilt-shifting
-      factor = pow(factor, 8);
+      //factor = pow(factor, 8);
 
       // Store the current factor into the overall weight
       weights += factor;
