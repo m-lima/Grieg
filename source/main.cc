@@ -78,6 +78,7 @@ int main(int argc, char * argv[]) {
 
   QSurfaceFormat surfaceFormat;
   surfaceFormat.setDepthBufferSize(24);
+  surfaceFormat.setStencilBufferSize(8);
   surfaceFormat.setVersion(4, 3);
   surfaceFormat.setProfile(QSurfaceFormat::CoreProfile);
   QSurfaceFormat::setDefaultFormat(surfaceFormat);

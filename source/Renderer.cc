@@ -36,7 +36,6 @@ namespace {
   GLuint normalBufferTexture;
   GLuint depthBufferTexture;
   GLuint linearDepthBufferTexture;
-  GLuint stencilBufferTexture;
 
   float _lightAngle{};
   float _lightTilt{};
@@ -461,11 +460,7 @@ void Renderer::resizeGL(int width, int height) {
 
   glActiveTexture(GL_TEXTURE0 + DEPTHBUFFER_LOCATION);
   glBindTexture(GL_TEXTURE_2D, depthBufferTexture);
-  glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT24, width, height, 0, GL_DEPTH_COMPONENT, GL_FLOAT, 0);
-
-  glActiveTexture(GL_TEXTURE0 + STENCILBUFFER_LOCATION);
-  glBindTexture(GL_TEXTURE_2D, stencilBufferTexture);
-  glTexImage2D(GL_TEXTURE_2D, 0, GL_STENCIL_INDEX8, width, height, 0, GL_STENCIL_INDEX, GL_UNSIGNED_BYTE, 0);
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH24_STENCIL8, width, height, 0, GL_DEPTH_STENCIL, GL_UNSIGNED_INT_24_8, 0);
 
   glActiveTexture(GL_TEXTURE0 + LINEARDEPTHBUFFER_LOCATION);
   glBindTexture(GL_TEXTURE_2D, linearDepthBufferTexture);
@@ -521,7 +516,6 @@ void Renderer::paintGL() {
     glBlitFramebuffer(0, 0, width(), height(), 0, 0, width(), height(), GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT, GL_NEAREST);
 
     glDisable(GL_DEPTH_TEST);
-
     glEnable(GL_STENCIL_TEST);
     glStencilFunc(GL_EQUAL, 1, 0xff);
     glStencilMask(0);
@@ -573,8 +567,8 @@ void Renderer::generateFrameBuffer() {
   glActiveTexture(GL_TEXTURE0 + FRAMEBUFFER_LOCATION);
   glBindTexture(GL_TEXTURE_2D, frameBufferTexture);
 
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
 
@@ -585,8 +579,8 @@ void Renderer::generateFrameBuffer() {
   glActiveTexture(GL_TEXTURE0 + FRAMEBUFFER_LOCATION);
   glBindTexture(GL_TEXTURE_2D, normalBufferTexture);
 
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
 
@@ -597,24 +591,12 @@ void Renderer::generateFrameBuffer() {
   glActiveTexture(GL_TEXTURE0 + DEPTHBUFFER_LOCATION);
   glBindTexture(GL_TEXTURE_2D, depthBufferTexture);
 
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-
-  glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT24, width(), height(), 0, GL_DEPTH_COMPONENT, GL_FLOAT, 0);
-
-  // Stencil attachment
-  glGenTextures(1, &stencilBufferTexture);
-  glActiveTexture(GL_TEXTURE0 + STENCILBUFFER_LOCATION);
-  glBindTexture(GL_TEXTURE_2D, stencilBufferTexture);
-
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
-  glTexImage2D(GL_TEXTURE_2D, 0, GL_STENCIL_INDEX8, width(), height(), 0, GL_STENCIL_INDEX, GL_UNSIGNED_BYTE, 0);
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH24_STENCIL8, width(), height(), 0, GL_DEPTH_STENCIL, GL_UNSIGNED_INT_24_8, 0);
 
   // Linear depth attachment
   glGenTextures(1, &linearDepthBufferTexture);
@@ -634,8 +616,7 @@ void Renderer::generateFrameBuffer() {
   glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, frameBufferTexture, 0);
   glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, normalBufferTexture, 0);
   glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT2, GL_TEXTURE_2D, linearDepthBufferTexture, 0);
-  glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, depthBufferTexture, 0);
-  glFramebufferTexture2D(GL_FRAMEBUFFER, GL_STENCIL_ATTACHMENT, GL_TEXTURE_2D, stencilBufferTexture, 0);
+  glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_TEXTURE_2D, depthBufferTexture, 0);
 
   GLuint attachments[3] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2 };
   glDrawBuffers(3, attachments);
