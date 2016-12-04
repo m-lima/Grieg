@@ -140,6 +140,8 @@ void Renderer::setAllShaders(std::shared_ptr<Shader> shader) {
 
   if (shader == basicShader) {
     terrain.setShader(ambientShader);
+  } else {
+    terrain.setShader(shader);
   }
 }
 
