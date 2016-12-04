@@ -5,9 +5,10 @@ Rendering:
   [x] Place terrain
 
 Camera:
-  [ ] WASD rotation
+  [x] WASD rotation
   [x] WASD can't be orthographic
   [ ]?LookAt
+  [ ] Trackball rotation
 
 GUI:
   [ ] Populate help dialog
@@ -19,4 +20,5 @@ GLSL:
 
 Misc:
   [ ] Spline
+  [ ] Make a cool path for spline
   [x] Terrain texture offset

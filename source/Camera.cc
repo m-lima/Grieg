@@ -34,8 +34,9 @@ Camera::Camera(QWidget * parent) :
   mParent(parent) {}
 
 Mat4 Camera::rotation() {
-  return Mat4(mPreRotation) *
-    glm::translate(Mat4(mRotation), glm::conjugate(mRotation) * mTranslation);
+  //return Mat4(mPreRotation) *
+  //  glm::translate(Mat4(mRotation), glm::conjugate(mRotation) * mTranslation);
+  return Mat4(mRotation) * glm::translate(Mat4(), mTranslation);
 }
 
 Mat4 Camera::projection() {
@@ -102,24 +103,25 @@ void Camera::mouseMoved(QMouseEvent * evt) {
       break;
     case Camera::WASD:
       if (evt->buttons() & Qt::LeftButton) {
-        glm::ivec2 newAnchor = { evt->x(), evt->y() };
-        Vec2 angle = { newAnchor.x - _anchor.x, newAnchor.y - _anchor.y };
-        angle *= 0.0025f;
-    
+        Vec2 anchor = { evt->x() - _anchor.x, evt->y() - _anchor.y };
+        if (anchor.x == 0.0f && anchor.y == 0.0f) {
+          return;
+        }
+
+        auto angle = glm::sqrt(anchor.x * anchor.x + anchor.y * anchor.y)
+          * mTranslationSensitivity * 0.5f;
+        auto axis = glm::normalize(anchor);
+
         QCursor::setPos(mParent->mapToGlobal(QPoint(_width / 2, _height / 2)));
         _anchor = { _width / 2, _height / 2 };
 
-        mPreRotation =
-          glm::rotate(mPreRotation, static_cast<float>(angle.x), Vec3(0.0f, 1.0f, 0.0f));
-        mPreRotation =
-          glm::rotate(mPreRotation, static_cast<float>(angle.y), Vec3(1.0f, 0.0f, 0.0f));
-        viewDirty = true;
+        mRotation = glm::rotate(
+          mRotation,
+          angle,
+          glm::conjugate(mRotation) * Vec3(axis.y, axis.x, 0.0f)
+        );
 
-        //lookAt({
-        //  _lookAt.x + (evt->x() - _anchor.x) * 0.0025f,
-        //  _lookAt.y + (evt->x() - _anchor.y) * 0.0025f,
-        //  _lookAt.z });
-        //_anchor = { evt->x(), evt->y() };
+        viewDirty = true;
       }
       break;
     case Camera::PATH:
@@ -217,7 +219,6 @@ void Camera::reset() {
   projectionDirty = true;
 
   mRotation = Quat();
-  mPreRotation = Quat();
   mTranslation = Vec3(0.0f, 0.0f, -5.0f);
   viewDirty = true;
 
@@ -303,8 +304,8 @@ void Camera::moveTo(const Vec3 & position) {
 }
 
 void Camera::lookAt(const Vec3 & target) {
-  mPreRotation = glm::lookAt(
-    mTranslation, target, (mPreRotation * mRotation) * Vec3(0.0f, 1.0f, 0.0f));
+  mRotation = glm::lookAt(
+    mTranslation, target, Vec3(0.0f, 1.0f, 0.0f));
   _lookAt = target;
   viewDirty = true;
 }
@@ -315,28 +316,32 @@ void Camera::update() {
     default:
       break;
     case Camera::WASD:
-      if (_W_down) {
-        mTranslation += Vec3(0.0f, 0.0f, 0.1f);
-        viewDirty = true;
-      }
-      if (_A_down) {
-        mTranslation += Vec3(0.1f, 0.0f, 0.0f);
-        viewDirty = true;
-      }
-      if (_S_down) {
-        mTranslation += Vec3(0.0f, 0.0f, -0.1f);
-        viewDirty = true;
-      }
-      if (_D_down) {
-        mTranslation += Vec3(-0.1f, 0.0f, 0.0f);
-        viewDirty = true;
-      }
-      if (_Shift_down) {
-        mTranslation += Vec3(0.0f, -0.1f, 0.0f);
-        viewDirty = true;
-      }
-      if (_CTRL_down) {
-        mTranslation += Vec3(0.0f, 0.1f, 0.0f);
+      if (_W_down
+          || _A_down
+          || _S_down
+          || _D_down
+          || _Shift_down
+          || _CTRL_down) {
+        Vec3 base;
+        if (_W_down) {
+          base += Vec3(0.0f, 0.0f, 0.1f);
+        }
+        if (_A_down) {
+          base += Vec3(0.1f, 0.0f, 0.0f);
+        }
+        if (_S_down) {
+          base += Vec3(0.0f, 0.0f, -0.1f);
+        }
+        if (_D_down) {
+          base += Vec3(-0.1f, 0.0f, 0.0f);
+        }
+        if (_Shift_down) {
+          base += Vec3(0.0f, -0.1f, 0.0f);
+        }
+        if (_CTRL_down) {
+          base += Vec3(0.0f, 0.1f, 0.0f);
+        }
+        mTranslation += glm::conjugate(mRotation) * base;
         viewDirty = true;
       }
       break;
@@ -345,7 +350,7 @@ void Camera::update() {
       auto index = path.interp(pathIndex);
       pathIndex += 0.01f;
       moveTo(index.first);
-      lookAt(index.second);
+      lookAt({ 0.0f, 0.0f, 0.0f });
       break;
   }
 }
