@@ -17,6 +17,9 @@ namespace View {
 
     void attachRenderer(Renderer * renderer);
 
+  signals:
+    void rotationEnabled(bool);
+
   protected:
     void keyPressEvent(QKeyEvent *evt) Q_DECL_OVERRIDE;
     void keyReleaseEvent(QKeyEvent *evt) Q_DECL_OVERRIDE;
@@ -40,6 +43,7 @@ namespace View {
     void resetCamera();
     void showHelp();
     void toggleFullscreen();
+    void setModel(int model);
 
   };
 }

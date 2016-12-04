@@ -3,6 +3,10 @@
 #include <QOpenGLFramebufferObject>
 #include <QElapsedTimer>
 #include <QMouseEvent>
+#include <QProgressDialog>
+#include <QApplication>
+
+#include <thread>
 
 #include "LightDialog.hh"
 
@@ -18,9 +22,9 @@ namespace {
   bool moveLights = true;
   float ambientLevel = 0.4f;
   bool rotateModel = false;
-  int currentModel = 0;
-  bool waterized = false;
+  Renderer::Model currentModel = Renderer::BERGEN_LOW;
   bool currentWaterized = false;
+  bool loading = false;
 
   GLuint gridVbo = 0;
   GLuint gridVao = 0;
@@ -149,24 +153,16 @@ void Renderer::setAllShaders(std::shared_ptr<Shader> shader) {
 
 void Renderer::drawAll() {
   switch (currentModel) {
-    case 0:
+    case BERGEN_LOW:
+    case BERGEN_MID:
+    case BERGEN_HI:
+    default:
       terrain.draw();
       grieghallen.draw();
       break;
 
-    case 1:
-      if (waterized) {
-        if (!currentWaterized) {
-          bigSuzy.setMaterial(water);
-          currentWaterized = true;
-        }
-      } else {
-        if (currentWaterized) {
-          bigSuzy.setBump(bump);
-          currentWaterized = false;
-        }
-      }
-
+    case SUZY_BUMP:
+    case SUZY_WATER:
       bigSuzy.draw();
       break;
   }
@@ -183,8 +179,52 @@ void Renderer::setModelRotation(bool rotate) {
   rotateModel = rotate;
 }
 
-void Renderer::setModel(int model) {
-  currentModel = model % 2;
+void Renderer::setModel(Renderer::Model model) {
+  if (currentModel == model) {
+    return;
+  }
+
+  currentModel = model;
+
+  switch (model) {
+    case BERGEN_LOW:
+    default:
+    {
+      loading = true;
+      std::thread thread([&]() {
+        terrain.load("bergen_1024x918.bin");
+        loading = false;
+      });
+      thread.detach();
+      break;
+    }
+    case BERGEN_MID:
+    {
+      loading = true;
+      std::thread thread([&]() {
+        terrain.load("bergen_2048x1836.bin");
+        loading = false;
+      });
+      thread.detach();
+      break;
+    }
+    case BERGEN_HI:
+    {
+      loading = true;
+      std::thread thread([&]() {
+        terrain.load("bergen_3072x2754.bin");
+        loading = false;
+      });
+      thread.detach();
+      break;
+    }
+    case SUZY_BUMP:
+      bigSuzy.setBump(bump);
+      break;
+    case SUZY_WATER:
+      bigSuzy.setMaterial(water);
+      break;
+  }
 }
 
 void Renderer::rotateLights(bool move) {
@@ -309,10 +349,7 @@ void Renderer::initializeGL() {
 
   bigSuzy.load("suzanne.obj");
 
-  //terrain.load("suzanne.obj");
   terrain.load("bergen_1024x918.bin");
-  //terrain.load("bergen_2048x1836.bin");
-  //terrain.load("bergen_3072x2754.bin");
 
   constexpr float ratio = 120.0f;
   terrain.modelTransform = glm::translate(terrain.modelTransform, { 0.0f, -0.145f, 0.0f});
@@ -407,6 +444,10 @@ void Renderer::resizeGL(int width, int height) {
 }
 
 void Renderer::paintGL() {
+  if (loading) {
+    return;
+  }
+
   camera.update();
 
   checkAndLoadUniforms();

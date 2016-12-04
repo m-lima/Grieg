@@ -89,43 +89,66 @@ namespace View {
     {
       menu = mnbMenu->addMenu("&Model");
 
-      QAction *actGrieg = new QAction("&Grieghallen", menu);
-      QAction *actSuzy = new QAction("Big &Suzy", menu);
+      QAction *actBergenLow = new QAction("L&ow", menu);
+      QAction *actBergenMid = new QAction("&Medium", menu);
+      QAction *actBergenHi = new QAction("&High", menu);
+      QAction *actSuzyBump = new QAction("&Bump", menu);
+      QAction *actSuzyWater = new QAction("&Water", menu);
       QAction *actRotate = new QAction("&Rotate", menu);
 
-      actGrieg->setCheckable(true);
-      actSuzy->setCheckable(true);
+      actBergenLow->setCheckable(true);
+      actBergenMid->setCheckable(true);
+      actBergenHi->setCheckable(true);
+      actSuzyBump->setCheckable(true);
+      actSuzyWater->setCheckable(true);
       actRotate->setEnabled(false);
 
       group = new QActionGroup(menu);
-      group->addAction(actGrieg);
-      group->addAction(actSuzy);
-      actGrieg->setChecked(true);
+      group->addAction(actBergenLow);
+      group->addAction(actBergenMid);
+      group->addAction(actBergenHi);
+      group->addAction(actSuzyBump);
+      group->addAction(actSuzyWater);
+      actBergenLow->setChecked(true);
 
       mapper = new QSignalMapper(this);
-      mapper->setMapping(actGrieg, 0);
-      mapper->setMapping(actSuzy, 1);
+      mapper->setMapping(actBergenLow, 0);
+      mapper->setMapping(actBergenMid, 1);
+      mapper->setMapping(actBergenHi, 2);
+      mapper->setMapping(actSuzyBump, 3);
+      mapper->setMapping(actSuzyWater, 4);
 
       actRotate->setCheckable(true);
       actRotate->setChecked(false);
-      actRotate->setShortcutContext(Qt::ApplicationShortcut);
-      actRotate->setShortcut(QKeySequence(Qt::Key_R));
 
-      connect(actGrieg, SIGNAL(triggered()),
+      connect(actBergenLow, SIGNAL(triggered()),
               mapper, SLOT(map()));
-      connect(actSuzy, SIGNAL(triggered()),
+      connect(actBergenMid, SIGNAL(triggered()),
+              mapper, SLOT(map()));
+      connect(actBergenHi, SIGNAL(triggered()),
+              mapper, SLOT(map()));
+      connect(actSuzyBump, SIGNAL(triggered()),
+              mapper, SLOT(map()));
+      connect(actSuzyWater, SIGNAL(triggered()),
               mapper, SLOT(map()));
       connect(mapper, SIGNAL(mapped(int)),
-              mRenderer, SLOT(setModel(int)));
+              this, SLOT(setModel(int)));
       connect(actRotate, SIGNAL(triggered(bool)),
               mRenderer, SLOT(setModelRotation(bool)));
-      connect(actSuzy, &QAction::toggled,
+      connect(this, &MainWindow::rotationEnabled,
               actRotate, &QAction::setEnabled);
 
-      menu->addAction(actGrieg);
-      menu->addAction(actSuzy);
-      menu->addSeparator();
-      menu->addAction(actRotate);
+      QMenu * subMenu = new QMenu("&Bergen", menu);
+      subMenu->addAction(actBergenLow);
+      subMenu->addAction(actBergenMid);
+      subMenu->addAction(actBergenHi);
+      menu->addMenu(subMenu);
+      subMenu = new QMenu("Big &Suzy", menu);
+      subMenu->addAction(actSuzyBump);
+      subMenu->addAction(actSuzyWater);
+      subMenu->addSeparator();
+      subMenu->addAction(actRotate);
+      menu->addMenu(subMenu);
     }
 
     // Shader menu
@@ -397,4 +420,10 @@ namespace View {
     return QMainWindow::event(evt);
   }
 
+  void MainWindow::setModel(int model) {
+    emit rotationEnabled(model != Renderer::BERGEN_LOW
+                         && model != Renderer::BERGEN_MID
+                         && model != Renderer::BERGEN_HI);
+    mRenderer->setModel(model);
+  }
 }

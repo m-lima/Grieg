@@ -17,6 +17,14 @@ class Renderer : public QOpenGLWidget, public QOpenGLFunctions_4_3_Core {
   Q_OBJECT
 
 public:
+  enum Model {
+    BERGEN_LOW,
+    BERGEN_MID,
+    BERGEN_HI,
+    SUZY_BUMP,
+    SUZY_WATER
+  };
+
   Camera camera;
 
   Renderer(QWidget *parent = 0);
@@ -37,11 +45,14 @@ public:
 
   public slots:
   void setModelRotation(bool rotate);
-  void setModel(int model);
   void rotateLights(bool move);
   void setShader(int shader);
   void showPanel(int light);
   void setAmbient(int level);
+  void setModel(Model model);
+  void setModel(int model) {
+    setModel(static_cast<Model>(model));
+  }
 
   void setFPS(QLabel * labelFPS) {
     lblFPS = labelFPS;

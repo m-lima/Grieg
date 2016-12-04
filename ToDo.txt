@@ -1,10 +1,10 @@
 Rendering:
-  [ ] Remove texture from toon shader
-  [ ] Skybox on orthographic projection
+  [x] Remove texture from toon shader
+  [x] Skybox on orthographic projection
   [ ] Skybox should not blur on tilt-shift
   [x] Place terrain
-  [ ] Change skybox
-  [ ] Disable skybox when BigSuzy
+  [x] Change skybox
+  [!] Disable skybox when BigSuzy
 
 Camera:
   [x] WASD rotation
@@ -18,7 +18,8 @@ Camera:
 GUI:
   [x] Populate help dialog
   [x] Can't rotate model if Grieg model
-  [ ] Reset and camera defaults should disable ortho
+  [x] Reset and camera defaults should disable ortho
+  [ ] Multi terrain
 
 GLSL:
   [ ] Depth shader ratios
@@ -28,3 +29,4 @@ Misc:
   [x] Spline
   [x] Make a cool path for spline
   [x] Terrain texture offset
+  [ ] Parallel faces
