@@ -24,6 +24,7 @@ namespace {
   bool rotateModel = false;
   Renderer::Model currentModel = Renderer::BERGEN_LOW;
   bool currentWaterized = false;
+  bool showCubemap = true;
   bool loading = false;
 
   GLuint gridVbo = 0;
@@ -233,6 +234,22 @@ void Renderer::rotateLights(bool move) {
 
 void Renderer::setShader(int shader) {
   shader %= 6;
+
+  if (shader == 4) {
+    grieghallen.enableTexture = false;
+    suzanne1.enableTexture = false;
+    suzanne2.enableTexture = false;
+    bigSuzy.enableTexture = false;
+    terrain.enableTexture = false;
+    showCubemap = false;
+  } else {
+    grieghallen.enableTexture = true;
+    suzanne1.enableTexture = true;
+    suzanne2.enableTexture = true;
+    bigSuzy.enableTexture = true;
+    terrain.enableTexture = true;
+    showCubemap = true;
+  }
 
   switch (shader) {
   case 4:
@@ -480,7 +497,8 @@ void Renderer::paintGL() {
 
   drawAll();
 
-  cubemap.draw();
+  if (showCubemap)
+    cubemap.draw();
 
   if (mPostprocessShader) {
     QOpenGLFramebufferObject::bindDefault();
