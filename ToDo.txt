@@ -4,6 +4,7 @@ Rendering:
   [ ] Skybox should not blur on tilt-shift
   [x] Place terrain
   [ ] Change skybox
+  [ ] Disable skybox when BigSuzy
 
 Camera:
   [x] WASD rotation
@@ -21,7 +22,7 @@ GUI:
 
 GLSL:
   [ ] Depth shader ratios
-  [ ] Height color
+  [x] Height color
 
 Misc:
   [x] Spline

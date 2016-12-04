@@ -36,7 +36,7 @@ namespace {
 
     QImage image(QString("resources/textures/skybox_%1.jpg").arg(files[sidei]));
     if (image.isNull())
-      fatal("  Could not load cubemap part: skybox_{}.jpg", files[sidei]);
+      fatal("  Could not load cubemap part: skybox_{}.tga", files[sidei]);
 
     image = image.convertToFormat(QImage::Format_RGB888);
     if (image.isNull())

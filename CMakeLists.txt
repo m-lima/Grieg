@@ -114,6 +114,7 @@ set(RESOURCES
 add_custom_target(always ALL DEPENDS copy_resources)
 add_custom_command(
   OUTPUT copy_resources
+  COMMAND ${CMAKE_COMMAND} -E remove_directory ${CMAKE_BINARY_DIR}/resources
   COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/resources/textures ${CMAKE_BINARY_DIR}/resources/textures
   COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/resources/meshes ${CMAKE_BINARY_DIR}/resources/meshes
   DEPENDS always_execute
