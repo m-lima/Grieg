@@ -19,6 +19,7 @@ namespace View {
   protected:
     void keyPressEvent(QKeyEvent *evt) Q_DECL_OVERRIDE;
     void keyReleaseEvent(QKeyEvent *evt) Q_DECL_OVERRIDE;
+    bool event(QEvent *evt) Q_DECL_OVERRIDE;
 
   private:
     Renderer * mRenderer = nullptr;

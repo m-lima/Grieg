@@ -59,11 +59,11 @@ Vec3 Camera::eyePosition() {
 }
 
 void Camera::mousePressed(QMouseEvent * evt) {
+  _anchor = { evt->x(), evt->y() };
   switch (mMode) {
     case Camera::TRACKBALL:
     default:
       trackball.anchor(evt->x(), evt->y());
-      _anchor = { evt->x(), evt->y() };
       break;
     case Camera::WASD:
       break;
@@ -172,12 +172,7 @@ void Camera::setMode(Mode mode) {
     _pathInitialized = true;
   }
 
-  _W_down = false;
-  _A_down = false;
-  _S_down = false;
-  _D_down = false;
-  _Shift_down = false;
-  _CTRL_down = false;
+  stop();
 }
 
 
@@ -302,11 +297,11 @@ void Camera::update() {
         viewDirty = true;
       }
       if (_Shift_down) {
-        mTranslation += Vec3(0.0f, 0.1f, 0.0f);
+        mTranslation += Vec3(0.0f, -0.1f, 0.0f);
         viewDirty = true;
       }
       if (_CTRL_down) {
-        mTranslation += Vec3(0.0f, -0.1f, 0.0f);
+        mTranslation += Vec3(0.0f, 0.1f, 0.0f);
         viewDirty = true;
       }
       break;
@@ -318,4 +313,13 @@ void Camera::update() {
       lookAt(index.second);
       break;
   }
+}
+
+void Camera::stop() {
+  _W_down = false;
+  _A_down = false;
+  _S_down = false;
+  _D_down = false;
+  _Shift_down = false;
+  _CTRL_down = false;
 }

@@ -355,4 +355,12 @@ namespace View {
     }
   }
 
+  bool MainWindow::event(QEvent * evt) {
+    if (evt->type() == QEvent::WindowDeactivate) {
+      camera->stop();
+    }
+
+    return QMainWindow::event(evt);
+  }
+
 }

@@ -46,6 +46,7 @@ public:
   void moveTo(const Vec3 & position);
   void lookAt(const Vec3 & target);
   void update();
+  void stop();
   void setMode(Mode mode);
   void setDefaultPosition(Position position);
 
