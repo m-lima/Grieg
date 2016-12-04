@@ -47,14 +47,9 @@ const vec3 vtx[] = {
 
 out vec3 fTexCoords;
 
-layout(std430, binding = 0) buffer MatrixBlock {
-  mat4 uProj;
-  mat4 uView;
-};
+uniform mat4 uPV;
 
 void main() {
   fTexCoords = vtx[gl_VertexID];
-  mat4 view = uView;
-  view[3] = vec4(0, 0, 0, 1);
-  gl_Position = uProj * view * vec4(fTexCoords, 1.0);
+  gl_Position = uPV * vec4(fTexCoords, 1.0);
 }

@@ -40,6 +40,9 @@ public:
   Mat4 rotation();
   Mat4 projection();
 
+  // Projection-View matrix for the skybox
+  Mat4 skyboxPV();
+
   // Managed locations
   Vec3 lightPosition();
   Vec3 eyePosition();

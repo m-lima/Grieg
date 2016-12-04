@@ -5,13 +5,10 @@
 
 class Cubemap {
   GLuint mTexture {};
-  Shader mShader;
 public:
   ~Cubemap();
 
-  template <class T, size_t N>
-  void bindBuffer(const ShaderStorage<T, N> &ub)
-  { mShader.bindBuffer(ub); }
+  Shader shader;
 
   void load();
   void draw();

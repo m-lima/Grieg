@@ -53,6 +53,19 @@ Mat4 Camera::projection() {
   }
 }
 
+Mat4 Camera::skyboxPV()
+{
+  auto proj = glm::perspectiveFov(glm::radians(mFOV),
+                                  static_cast<float>(_width),
+                                  static_cast<float>(_height),
+                                  0.1f,
+                                  1000.0f);
+
+  auto view = rotation();
+  view[3] = { 0.0f, 0.0f, 0.0f, 1.0f };
+  return proj * view;
+}
+
 Vec3 Camera::lightPosition() {
   return glm::normalize(mLightPosition);
 }

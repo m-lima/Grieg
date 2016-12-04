@@ -83,12 +83,12 @@ void Cubemap::load()
   gl->glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
   gl->glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
-  mShader.load("skybox");
+  shader.load("skybox");
 }
 
 void Cubemap::draw()
 {
-  mShader.use();
+  shader.use();
   gl->glDepthMask(GL_FALSE);
   gl->glActiveTexture(0);
   gl->glBindTexture(GL_TEXTURE_CUBE_MAP, mTexture);

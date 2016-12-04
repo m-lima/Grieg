@@ -80,6 +80,8 @@ void Renderer::checkAndLoadUniforms() {
     lightBuffer[0].direction = camera.lightPosition();
     camera.lightDirty = false;
   }
+
+  cubemap.shader.uniform("uPV") = camera.skyboxPV();
 }
 
 void Renderer::updateModels() {
@@ -284,7 +286,6 @@ void Renderer::initializeGL() {
   heightShader->uniform("uBump") = Sampler2D(BUMP_LOCATION);
 
   cubemap.load();
-  cubemap.bindBuffer(matrixBuffer);
 
   toonShader->load("toon", ShaderType::postprocess);
   toonShader->uniform("uFramebuffer") = Sampler2D(FRAMEBUFFER_LOCATION);
