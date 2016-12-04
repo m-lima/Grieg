@@ -34,9 +34,9 @@ Camera::Camera(QWidget * parent) :
   mParent(parent) {}
 
 Mat4 Camera::rotation() {
-  //return Mat4(mPreRotation) *
-  //  glm::translate(Mat4(mRotation), glm::conjugate(mRotation) * mTranslation);
-  return Mat4(mRotation) * glm::translate(Mat4(), mTranslation);
+  return mMode == TRACKBALL
+    ? glm::translate(Mat4(mRotation), glm::conjugate(mRotation) * mTranslation)
+    : Mat4(mRotation) * glm::translate(Mat4(), mTranslation);
 }
 
 Mat4 Camera::projection() {
@@ -194,8 +194,19 @@ void Camera::keyReleased(QKeyEvent * evt) {
 }
 
 void Camera::setMode(Mode mode) {
+  if (mode == mMode) {
+    return;
+  }
+
+  if (mMode == Camera::TRACKBALL && mode == Camera::WASD) {
+    mTranslation = glm::conjugate(mRotation) * mTranslation;
+  } else if (mMode == Camera::WASD && mode == Camera::TRACKBALL) {
+    mTranslation = Vec3(0.0f, 0.0f, -glm::distance(mTranslation, {}));
+  }
+
   mMode = mode;
   projectionDirty = true;
+  viewDirty = true;
 
   if (mMode == Mode::PATH && !_pathInitialized) {
     path.add({ 0.0f, 0.0f, 5.0f }, { 0.0f, 0.0f, 0.0f });
