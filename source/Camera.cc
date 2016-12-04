@@ -41,14 +41,14 @@ Mat4 Camera::projection() {
   if (mOrtho && mMode == Camera::TRACKBALL) {
     float zoom = mFOV / 22.5f;
     float ratio = static_cast<float>(_height) / static_cast<float>(_width);
-    return glm::ortho(-zoom, zoom, -zoom * ratio, zoom * ratio, 0.1f, 1000.0f);
+    return glm::ortho(-zoom, zoom, -zoom * ratio, zoom * ratio, 0.1f, 200.0f);
   } else {
     return glm::perspectiveFov(
       glm::radians(mFOV),
       static_cast<float>(_width),
       static_cast<float>(_height),
       0.1f,
-      1000.0f
+      200.0f
     );
   }
 }
@@ -59,7 +59,7 @@ Mat4 Camera::skyboxPV()
                                   static_cast<float>(_width),
                                   static_cast<float>(_height),
                                   0.1f,
-                                  1000.0f);
+                                  200.0f);
 
   auto view = rotation();
   view[3] = { 0.0f, 0.0f, 0.0f, 1.0f };

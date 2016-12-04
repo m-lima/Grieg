@@ -28,7 +28,7 @@ namespace {
     "  vec4 vmp = uModel * vec4(vPosition, 1.0);"
     "  fPosition = vmp.xyz;"
     "  vmp = uView * vmp;"
-    "  fDepth = vmp.z;"
+    "  fDepth = vmp.z / vmp.w;"
     "  gl_Position = uProj * vmp;"
     "  fTexCoord = vTexCoord;"
     "  fNormal = normalize((uModel * vec4(normalize(vNormal), 1.0)).xyz);"

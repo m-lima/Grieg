@@ -5,10 +5,13 @@ out vec4 FragColor;
 uniform sampler2D uFramebuffer;
 uniform sampler2D uNormalbuffer;
 uniform sampler2D uDepthbuffer;
+uniform sampler2D uDepth;
 uniform vec2 uScreenSize;
 
 float linearDepth(vec2 coord) {
-  return texture(uDepthbuffer, coord).r;
+  //float depth = texture(uDepthbuffer, coord).r;
+  //return 2.0 * 0.1 * 200.0 / (200.1 - (2.0 * depth - 1.0) * (199.9));
+  return texture(uDepth, coord).r * 200.0;
 }
 
 void main() {
@@ -44,38 +47,39 @@ void main() {
     // Draw contour
     currentColor = vec3(0);
 
-  // Try to detect break in depth
+    // Try to detect break in depth
   } else {
-  
+    float depth = linearDepth(currentPixel);
+
     // Left depth step change
     float leftDeltaDepth =
       linearDepth(vec2((gl_FragCoord.x - 1) / uScreenSize.x, currentPixel.y)) -
-      linearDepth(currentPixel);
+      depth;
 
     // Right depth step change
-    float rightDeltaDepth = linearDepth(currentPixel) -
+    float rightDeltaDepth = depth -
       linearDepth(vec2((gl_FragCoord.x + 1) / uScreenSize.x, currentPixel.y));
 
     // Down depth step change
     float downDeltaDepth =
       linearDepth(vec2(currentPixel.x, (gl_FragCoord.y - 1) / uScreenSize.y)) -
-      linearDepth(currentPixel);
+      depth;
 
     // Up depth step change
-    float upDeltaDepth = linearDepth(currentPixel) -
+    float upDeltaDepth = depth -
       linearDepth(vec2(currentPixel.x, (gl_FragCoord.y + 1) / uScreenSize.y));
 
     // Detect a smooth gradient
-    if (leftDeltaDepth - rightDeltaDepth > 0.001) {
+    if (leftDeltaDepth - rightDeltaDepth > 0.01 * depth) {
 
       // It is in fact an edge, detect height jump
-      if (abs(leftDeltaDepth) > 0.0001 || abs(rightDeltaDepth) > 0.0001) {
+      if (abs(leftDeltaDepth) > 0.001 * depth || abs(rightDeltaDepth) > 0.001 * depth) {
         currentColor = vec3(0);
       }
 
-    // Same for vertical
-    } else if (downDeltaDepth - upDeltaDepth > 0.001) {
-      if (abs(downDeltaDepth) > 0.0001 || abs(upDeltaDepth) > 0.0001) {
+      // Same for vertical
+    } else if (downDeltaDepth - upDeltaDepth > 0.01 * depth) {
+      if (abs(downDeltaDepth) > 0.001 * depth || abs(upDeltaDepth) > 0.001 * depth) {
         currentColor = vec3(0);
       }
     }

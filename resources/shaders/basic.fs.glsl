@@ -64,13 +64,13 @@ void main() {
 
     } else if (uLights[i].type == 1) { // Directional light
 
-      // There is no point of origin, so the incidence is always the
-      // reverse of the direction
+                                       // There is no point of origin, so the incidence is always the
+                                       // reverse of the direction
       lightIncidence = normalize(uLights[i].direction);
 
     } else { // Light that have a point of origin
 
-      // The direction of incidence is relative to the light source
+             // The direction of incidence is relative to the light source
       lightIncidence = normalize(uLights[i].position - fPosition);
 
       // Distance to the point of origin
@@ -78,12 +78,12 @@ void main() {
 
       if (uLights[i].type == 2) { // Point light
 
-        // Point lights attenuate more
+                                  // Point lights attenuate more
         attenuation = 1.0 / (1.0 + 0.0002 * pow(dist, 2));
 
       } else if (uLights[i].type == 3) { // Spotlight
 
-        // Spot lights attenuate less
+                                         // Spot lights attenuate less
         attenuation = 1.0 / (1.0 + 0.00005 * pow(dist, 2));
 
         // Angle between the direction of the light and direction
@@ -130,5 +130,6 @@ void main() {
 
   FragColor = vec4(color, 1.0);
   FragNormal = vec4(normal / 2 + 0.5, 1.0);
-  FragDepth = fDepth;
+  //FragDepth = fDepth;
+  FragDepth = 0.5;
 }

@@ -47,8 +47,7 @@ namespace {
 
 Renderer::Renderer(QWidget *parent) :
   QOpenGLWidget(parent),
-  camera(this)
-{
+  camera(this) {
   basicShader = std::make_shared<Shader>();
   ambientShader = std::make_shared<Shader>();
   normalsShader = std::make_shared<Shader>();
@@ -186,37 +185,24 @@ void Renderer::setModel(Renderer::Model model) {
   }
 
   currentModel = model;
+  loading = true;
+  repaint();
 
   switch (model) {
     case BERGEN_LOW:
     default:
     {
-      loading = true;
-      std::thread thread([&]() {
-        terrain.load("bergen_1024x918.bin");
-        loading = false;
-      });
-      thread.detach();
+      terrain.load("bergen_1024x918.bin");
       break;
     }
     case BERGEN_MID:
     {
-      loading = true;
-      std::thread thread([&]() {
-        terrain.load("bergen_2048x1836.bin");
-        loading = false;
-      });
-      thread.detach();
+      terrain.load("bergen_2048x1836.bin");
       break;
     }
     case BERGEN_HI:
     {
-      loading = true;
-      std::thread thread([&]() {
-        terrain.load("bergen_3072x2754.bin");
-        loading = false;
-      });
-      thread.detach();
+      terrain.load("bergen_3072x2754.bin");
       break;
     }
     case SUZY_BUMP:
@@ -226,6 +212,9 @@ void Renderer::setModel(Renderer::Model model) {
       bigSuzy.setMaterial(water);
       break;
   }
+
+  loading = false;
+  repaint();
 }
 
 void Renderer::rotateLights(bool move) {
@@ -252,35 +241,35 @@ void Renderer::setShader(int shader) {
   }
 
   switch (shader) {
-  case 4:
-    mPostprocessShader = toonShader;
-    break;
+    case 4:
+      mPostprocessShader = toonShader;
+      break;
 
-  case 5:
-    mPostprocessShader = depthShader;
-    break;
+    case 5:
+      mPostprocessShader = depthShader;
+      break;
 
-  default:
-    mPostprocessShader = nullptr;
-    break;
+    default:
+      mPostprocessShader = nullptr;
+      break;
   }
 
   switch (shader) {
-  case 1:
-    mObjectShader = ambientShader;
-    break;
+    case 1:
+      mObjectShader = ambientShader;
+      break;
 
-  case 2:
-    mObjectShader = normalsShader;
-    break;
+    case 2:
+      mObjectShader = normalsShader;
+      break;
 
-  case 3:
-    mObjectShader = heightShader;
-    break;
+    case 3:
+      mObjectShader = heightShader;
+      break;
 
-  default:
-    mObjectShader = basicShader;
-    break;
+    default:
+      mObjectShader = basicShader;
+      break;
   }
 
   setAllShaders(mObjectShader);
@@ -348,6 +337,7 @@ void Renderer::initializeGL() {
   toonShader->uniform("uFramebuffer") = Sampler2D(FRAMEBUFFER_LOCATION);
   toonShader->uniform("uNormalbuffer") = Sampler2D(NORMALBUFFER_LOCATION);
   toonShader->uniform("uDepthbuffer") = Sampler2D(DEPTHBUFFER_LOCATION);
+  toonShader->uniform("uDepth") = Sampler2D(LINEARDEPTHBUFFER_LOCATION);
   toonShader->uniform("uScreenSize") = glm::vec2(width(), height());
 
   depthShader->load("depth", ShaderType::postprocess);
@@ -369,9 +359,9 @@ void Renderer::initializeGL() {
   terrain.load("bergen_1024x918.bin");
 
   constexpr float ratio = 120.0f;
-  terrain.modelTransform = glm::translate(terrain.modelTransform, { 0.0f, -0.145f, 0.0f});
+  terrain.modelTransform = glm::translate(terrain.modelTransform, { 0.0f, -0.145f, 0.0f });
   terrain.modelTransform = glm::scale(terrain.modelTransform, Vec3(ratio, ratio, ratio));
-  terrain.modelTransform = glm::translate(terrain.modelTransform, { -0.202f, 0.0f, -0.1675f});
+  terrain.modelTransform = glm::translate(terrain.modelTransform, { -0.202f, 0.0f, -0.1675f });
   terrain.modelTransform = glm::rotate(terrain.modelTransform, 3.5f, { 0.0f, 1.0f, 0.0f });
 
   bergen->load("bergen_terrain_texture.png");
@@ -452,7 +442,7 @@ void Renderer::resizeGL(int width, int height) {
 
   glActiveTexture(GL_TEXTURE0 + LINEARDEPTHBUFFER_LOCATION);
   glBindTexture(GL_TEXTURE_2D, linearDepthBufferTexture);
-  glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, width, height, 0, GL_R8, GL_FLOAT, 0);
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, width, height, 0, GL_R32F, GL_FLOAT, 0);
 
   glViewport(0, 0, width, height);
 
@@ -462,9 +452,9 @@ void Renderer::resizeGL(int width, int height) {
 
 void Renderer::paintGL() {
   if (loading) {
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     return;
   }
-
   camera.update();
 
   checkAndLoadUniforms();

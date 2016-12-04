@@ -52,5 +52,6 @@ void main()
 
   FragColor = vec4(color, 1.0);
   FragNormal = vec4(normal / 2 + 0.5, 1.0);
-  FragDepth = fDepth;
+  FragDepth = 0.5;
+  //FragDepth = fDepth;
 }
