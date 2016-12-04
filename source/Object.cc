@@ -95,7 +95,7 @@ namespace {
   ObjFile readObjFile(const std::string &name) {
     ObjFile obj;
 
-    auto path = format(":meshes/{}", name);
+    auto path = format("resources/meshes/{}", name);
 
     QFile file(QString::fromStdString(path));
     if (!file.open(QFile::ReadOnly | QFile::Text)) {
@@ -206,7 +206,7 @@ namespace {
   MtlFile readMtlFile(const std::string &name) {
     MtlFile mtl;
 
-    auto path = format(":meshes/{}", name);
+    auto path = format("resources/meshes/{}", name);
 
     QFile file(QString::fromStdString(path));
     if (!file.open(QFile::ReadOnly | QFile::Text)) {
@@ -306,7 +306,7 @@ namespace {
 
   /// Reads a .bin file and loads all its contents into memory
   Terrain readTerrainFile(const std::string & name) {
-    auto path = format(":meshes/{}", name);
+    auto path = format("resources/meshes/{}", name);
     QFile file(QString::fromStdString(path));
     if (!file.open(QFile::ReadOnly)) {
       fatal("Couldn't open file {}.bin", name);

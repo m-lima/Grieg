@@ -31,13 +31,8 @@ void Texture::load(const std::string & name, int numFrames) {
 
   println("Loading texture: {} with {} frames", name, numFrames);
 
-  int index = 0;
-  QImage surface;
-  do {
-    auto path = format(":textures{}/{}", index, name);
-    surface = QImage(QString::fromStdString(path));
-    index++;
-  } while (index < 3 && surface.isNull());
+  auto path = format("resources/textures/{}", name);
+  auto surface = QImage(QString::fromStdString(path));
 
   if (surface.isNull()) { fatal("  Could not load texture: {}", name); }
 

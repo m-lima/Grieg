@@ -34,7 +34,7 @@ namespace {
         "negz",
     };
 
-    QImage image(QString(":textures2/skybox_%1.jpg").arg(files[sidei]));
+    QImage image(QString("resources/textures/skybox_%1.jpg").arg(files[sidei]));
     if (image.isNull())
       fatal("  Could not load cubemap part: skybox_{}.jpg", files[sidei]);
 

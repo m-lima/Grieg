@@ -103,13 +103,22 @@ set(SHADERS
 
 set(RESOURCES
   resources/images/images.qrc
-  resources/textures/textures0.qrc
-  resources/textures/textures1.qrc
-  resources/textures/textures2.qrc
   resources/shaders/shaders.qrc
-  resources/meshes/meshes.qrc
   resources/qdarkstyle/style.qrc
   )
+
+##------------------------------------------------------------------------------
+## Resources
+##
+
+add_custom_target(always ALL DEPENDS copy_resources)
+add_custom_command(
+  OUTPUT copy_resources
+  COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/resources/textures ${CMAKE_BINARY_DIR}/resources/textures
+  COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/resources/meshes ${CMAKE_BINARY_DIR}/resources/meshes
+  DEPENDS always_execute
+  )
+add_custom_command(OUTPUT always_execute COMMAND ${CMAKE_COMMAND} -E echo)
 
 ##------------------------------------------------------------------------------
 ## Targets
@@ -125,6 +134,7 @@ target_link_libraries(grieg Qt5::Widgets)
 target_include_directories(grieg PRIVATE ${INCLUDE_DIRS})
 set_target_properties(grieg PROPERTIES CXX_LANGUAGE_STANDARD 11)
 add_definitions(-DSPHERICAL_TRACKBALL)
+add_dependencies(grieg always)
 
 ##------------------------------------------------------------------------------
 ## MSVC specifics
