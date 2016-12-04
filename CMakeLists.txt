@@ -93,6 +93,7 @@ set(SHADERS
   resources/shaders/normals.fs.glsl
   resources/shaders/basic.fs.glsl
   resources/shaders/depth.fs.glsl
+  resources/shaders/fog.fs.glsl
   resources/shaders/height.fs.glsl
   resources/shaders/grid.fs.glsl
   resources/shaders/toon.fs.glsl

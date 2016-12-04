@@ -161,6 +161,7 @@ namespace View {
       QAction *actHeight = new QAction("&Height", menu);
       QAction *actToon = new QAction("&Toon", menu);
       QAction *actTilt = new QAction("Tilt-&shift", menu);
+      QAction *actFog = new QAction("Fo&g", menu);
 
       actBasic->setCheckable(true);
       actAmbient->setCheckable(true);
@@ -168,6 +169,7 @@ namespace View {
       actHeight->setCheckable(true);
       actToon->setCheckable(true);
       actTilt->setCheckable(true);
+      actFog->setCheckable(true);
 
       group = new QActionGroup(menu);
       group->addAction(actBasic);
@@ -176,6 +178,7 @@ namespace View {
       group->addAction(actHeight);
       group->addAction(actToon);
       group->addAction(actTilt);
+      group->addAction(actFog);
       actBasic->setChecked(true);
 
       mapper = new QSignalMapper(this);
@@ -185,6 +188,7 @@ namespace View {
       mapper->setMapping(actHeight, 3);
       mapper->setMapping(actToon, 4);
       mapper->setMapping(actTilt, 5);
+      mapper->setMapping(actFog, 6);
 
       menu->addAction(actBasic);
       menu->addAction(actAmbient);
@@ -192,6 +196,7 @@ namespace View {
       menu->addAction(actHeight);
       menu->addAction(actToon);
       menu->addAction(actTilt);
+      menu->addAction(actFog);
 
       connect(actBasic, SIGNAL(triggered()),
               mapper, SLOT(map()));
@@ -204,6 +209,8 @@ namespace View {
       connect(actToon, SIGNAL(triggered()),
               mapper, SLOT(map()));
       connect(actTilt, SIGNAL(triggered()),
+              mapper, SLOT(map()));
+      connect(actFog, SIGNAL(triggered()),
               mapper, SLOT(map()));
       connect(mapper, SIGNAL(mapped(int)),
               mRenderer, SLOT(setShader(int)));
@@ -405,11 +412,7 @@ namespace View {
   }
 
   void MainWindow::keyReleaseEvent(QKeyEvent *evt) {
-    if (evt->key() == Qt::Key_Escape) {
-      static_cast<QWidget*>(parent())->close();
-    } else {
-      camera->keyReleased(evt);
-    }
+    camera->keyReleased(evt);
   }
 
   bool MainWindow::event(QEvent * evt) {

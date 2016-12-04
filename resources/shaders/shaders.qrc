@@ -5,6 +5,7 @@
     <file>basic.fs.glsl</file>
     <file>normals.fs.glsl</file>
     <file>depth.fs.glsl</file>
+    <file>fog.fs.glsl</file>
     <file>identity.fs.glsl</file>
     <file>height.fs.glsl</file>
     <file>grid.fs.glsl</file>

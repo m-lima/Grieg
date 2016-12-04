@@ -96,6 +96,7 @@ private:
 
   std::shared_ptr<Shader> toonShader;
   std::shared_ptr<Shader> depthShader;
+  std::shared_ptr<Shader> fogShader;
   std::shared_ptr<Shader> identityShader;
 
   std::shared_ptr<Shader> mPostprocessShader;

@@ -58,6 +58,7 @@ Renderer::Renderer(QWidget *parent) :
 
   toonShader = std::make_shared<Shader>();
   depthShader = std::make_shared<Shader>();
+  fogShader = std::make_shared<Shader>();
   identityShader = std::make_shared<Shader>();
 
   water = std::make_shared<Texture>();
@@ -239,7 +240,7 @@ void Renderer::rotateLights(bool move) {
 }
 
 void Renderer::setShader(int shader) {
-  shader %= 6;
+  shader %= 7;
 
   if (shader == 4) {
     grieghallen.enableTexture = false;
@@ -254,7 +255,7 @@ void Renderer::setShader(int shader) {
     suzanne2.enableTexture = true;
     bigSuzy.enableTexture = true;
     terrain.enableTexture = true;
-    showCubemap = true;
+    showCubemap = shader != 6;
   }
 
   switch (shader) {
@@ -266,6 +267,10 @@ void Renderer::setShader(int shader) {
       mPostprocessShader = depthShader;
       break;
 
+    case 6:
+      mPostprocessShader = fogShader;
+      break;
+      
     default:
       mPostprocessShader = nullptr;
       break;
@@ -362,6 +367,12 @@ void Renderer::initializeGL() {
   depthShader->uniform("uDepthbuffer") = Sampler2D(DEPTHBUFFER_LOCATION);
   depthShader->uniform("uDepth") = Sampler2D(LINEARDEPTHBUFFER_LOCATION);
   depthShader->uniform("uScreenSize") = glm::vec2(width(), height());
+
+  fogShader->load("fog", ShaderType::postprocess);
+  fogShader->uniform("uFramebuffer") = Sampler2D(FRAMEBUFFER_LOCATION);
+  fogShader->uniform("uDepthbuffer") = Sampler2D(DEPTHBUFFER_LOCATION);
+  fogShader->uniform("uDepth") = Sampler2D(LINEARDEPTHBUFFER_LOCATION);
+  fogShader->uniform("uScreenSize") = glm::vec2(width(), height());
 
   identityShader->load("identity", ShaderType::postprocess);
   identityShader->uniform("uFramebuffer") = Sampler2D(FRAMEBUFFER_LOCATION);
