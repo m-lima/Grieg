@@ -38,6 +38,8 @@ namespace View {
     status->addPermanentWidget(pnlAmbient, 2);
 
     setStatusBar(status);
+    
+    setAttribute(Qt::WA_DeleteOnClose);
   }
 
   void MainWindow::attachRenderer(Renderer * renderer) {

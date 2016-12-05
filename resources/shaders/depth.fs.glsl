@@ -34,11 +34,7 @@ float linearDepth() {
   float depth = texture(
     uDepthbuffer,
     vec2(gl_FragCoord.x / uScreenSize.x, gl_FragCoord.y / uScreenSize.y)).r;
-    //vec2(gl_FragCoord.x, gl_FragCoord.y)).r;
   return 2.0 * 0.1 * 200.0 / (200.1 - (2.0 * depth - 1.0) * (199.9));
-  //return texture(
-  //  uDepth,
-  //  vec2(gl_FragCoord.x / uScreenSize.x, gl_FragCoord.y / uScreenSize.y)).r;
 }
 
 // Fetch a color from the frame buffer with the given offsets
@@ -68,20 +64,10 @@ void main() {
   for (int i = -4; i < 5; i++) {
     for (int j = -4; j < 5; j++) {
 
-      //if (i == 0 || j == 0) {
-      //  factor = 1.0;
-      //} else {
-      //  factor = depth / abs(i);
-      //  factor *= depth / abs(j);
-      //}
-      
       // Fake gaussian - an approxiation I tested on Octave
       // should work close enough, though much faster
       // ** Very sensitive!! Only makes since if doing tilt-shifting
       factor = exp(depth*pow(i, 2)) * exp(depth*pow(j, 2));
-
-      // Make it more sensitive for tilt-shifting
-      //factor = pow(factor, 8);
 
       // Store the current factor into the overall weight
       weights += factor;
@@ -95,5 +81,4 @@ void main() {
   currentColor /= weights;
 
   FragColor = vec4(currentColor, 1.0);
-  //FragColor = vec4(vec3(depth), 1.0);
 }

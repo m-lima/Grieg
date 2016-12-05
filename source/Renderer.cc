@@ -17,7 +17,7 @@ namespace {
   constexpr int FRAMEBUFFER_LOCATION = 10;
   constexpr int NORMALBUFFER_LOCATION = 11;
   constexpr int DEPTHBUFFER_LOCATION = 12;
-  constexpr int LINEARDEPTHBUFFER_LOCATION = 13;
+  //constexpr int LINEARDEPTHBUFFER_LOCATION = 13;
   constexpr int STENCILBUFFER_LOCATION = 14;
 
   bool moveLights = true;
@@ -35,7 +35,7 @@ namespace {
   GLuint frameBufferTexture;
   GLuint normalBufferTexture;
   GLuint depthBufferTexture;
-  GLuint linearDepthBufferTexture;
+  //GLuint linearDepthBufferTexture;
 
   float _lightAngle{};
   float _lightTilt{};
@@ -359,19 +359,19 @@ void Renderer::initializeGL() {
   toonShader->uniform("uFramebuffer") = Sampler2D(FRAMEBUFFER_LOCATION);
   toonShader->uniform("uNormalbuffer") = Sampler2D(NORMALBUFFER_LOCATION);
   toonShader->uniform("uDepthbuffer") = Sampler2D(DEPTHBUFFER_LOCATION);
-  toonShader->uniform("uDepth") = Sampler2D(LINEARDEPTHBUFFER_LOCATION);
+  //toonShader->uniform("uDepth") = Sampler2D(LINEARDEPTHBUFFER_LOCATION);
   toonShader->uniform("uScreenSize") = glm::vec2(width(), height());
 
   depthShader->load("depth", ShaderType::postprocess);
   depthShader->uniform("uFramebuffer") = Sampler2D(FRAMEBUFFER_LOCATION);
   depthShader->uniform("uDepthbuffer") = Sampler2D(DEPTHBUFFER_LOCATION);
-  depthShader->uniform("uDepth") = Sampler2D(LINEARDEPTHBUFFER_LOCATION);
+  //depthShader->uniform("uDepth") = Sampler2D(LINEARDEPTHBUFFER_LOCATION);
   depthShader->uniform("uScreenSize") = glm::vec2(width(), height());
 
   fogShader->load("fog", ShaderType::postprocess);
   fogShader->uniform("uFramebuffer") = Sampler2D(FRAMEBUFFER_LOCATION);
   fogShader->uniform("uDepthbuffer") = Sampler2D(DEPTHBUFFER_LOCATION);
-  fogShader->uniform("uDepth") = Sampler2D(LINEARDEPTHBUFFER_LOCATION);
+  //fogShader->uniform("uDepth") = Sampler2D(LINEARDEPTHBUFFER_LOCATION);
   fogShader->uniform("uScreenSize") = glm::vec2(width(), height());
 
   identityShader->load("identity", ShaderType::postprocess);
@@ -450,8 +450,8 @@ void Renderer::initializeGL() {
   glBindTexture(GL_TEXTURE_2D, normalBufferTexture);
   glActiveTexture(GL_TEXTURE0 + DEPTHBUFFER_LOCATION);
   glBindTexture(GL_TEXTURE_2D, depthBufferTexture);
-  glActiveTexture(GL_TEXTURE0 + LINEARDEPTHBUFFER_LOCATION);
-  glBindTexture(GL_TEXTURE_2D, linearDepthBufferTexture);
+  //glActiveTexture(GL_TEXTURE0 + LINEARDEPTHBUFFER_LOCATION);
+  //glBindTexture(GL_TEXTURE_2D, linearDepthBufferTexture);
 
   setShader(0); // set to 'basic' shader
 
@@ -473,19 +473,20 @@ void Renderer::resizeGL(int width, int height) {
   glBindTexture(GL_TEXTURE_2D, depthBufferTexture);
   glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH24_STENCIL8, width, height, 0, GL_DEPTH_STENCIL, GL_UNSIGNED_INT_24_8, 0);
 
-  glActiveTexture(GL_TEXTURE0 + LINEARDEPTHBUFFER_LOCATION);
-  glBindTexture(GL_TEXTURE_2D, linearDepthBufferTexture);
-  glTexImage2D(GL_TEXTURE_2D, 0, GL_R32F, width, height, 0, GL_RED, GL_FLOAT, 0);
+  //glActiveTexture(GL_TEXTURE0 + LINEARDEPTHBUFFER_LOCATION);
+  //glBindTexture(GL_TEXTURE_2D, linearDepthBufferTexture);
+  //glTexImage2D(GL_TEXTURE_2D, 0, GL_R32F, width, height, 0, GL_RED, GL_FLOAT, 0);
 
   glViewport(0, 0, width, height);
 
   toonShader->uniform("uScreenSize") = glm::vec2(width, height);
   depthShader->uniform("uScreenSize") = glm::vec2(width, height);
+  fogShader->uniform("uScreenSize") = glm::vec2(width, height);
 }
 
 void Renderer::paintGL() {
   if (loading) {
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
     return;
   }
   camera.update();
@@ -498,23 +499,13 @@ void Renderer::paintGL() {
   }
 
   /* Draw grid before doing anything else */
-  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);// | GL_STENCIL_BUFFER_BIT);
-  glDisable(GL_DEPTH_TEST);
-  glDisable(GL_CULL_FACE);
-  glBindVertexArray(gridVao);
-  glBindBuffer(GL_ARRAY_BUFFER, gridVbo);
-  gridShader->use();
-  glEnableVertexAttribArray(0);
-  glVertexAttribPointer(0, 3, GL_FLOAT, GL_TRUE, sizeof(GLfloat) * 3, 0);
-  glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
-  glDisableVertexAttribArray(0);
-  glEnable(GL_CULL_FACE);
-  glEnable(GL_DEPTH_TEST);
-
   ambientShader->uniform("uAmbientLight") = glm::vec3(ambientLevel);
   basicShader->uniform("uAmbientLight") = glm::vec3(ambientLevel);
   heightShader->uniform("uAmbientLight") = glm::vec3(ambientLevel);
 
+  glEnable(GL_CULL_FACE);
+  glEnable(GL_DEPTH_TEST);
+  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
   drawAll();
 
   if (showCubemap)
@@ -522,13 +513,15 @@ void Renderer::paintGL() {
 
   if (mPostprocessShader) {
     QOpenGLFramebufferObject::bindDefault();
-    glBindFramebuffer(GL_READ_FRAMEBUFFER, frameBuffer);
 
-    glBlitFramebuffer(0, 0, width(), height(), 0, 0, width(), height(), GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT, GL_NEAREST);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+    glBindFramebuffer(GL_READ_FRAMEBUFFER, frameBuffer);
+    glBlitFramebuffer(0, 0, width(), height(), 0, 0, width(), height(), GL_STENCIL_BUFFER_BIT, GL_NEAREST);
 
     glDisable(GL_DEPTH_TEST);
+    glEnable(GL_CULL_FACE);
     glEnable(GL_STENCIL_TEST);
-    glStencilFunc(GL_EQUAL, 1, 0xff);
+    glStencilFunc(GL_EQUAL, 1, 0xFF);
     glStencilMask(0);
 
     mPostprocessShader->use();
@@ -536,13 +529,14 @@ void Renderer::paintGL() {
     // The triangles are defined in the postprocessor's vertex shader
     glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 
-    glStencilFunc(GL_NOTEQUAL, 1, 0xff);
+    glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
     identityShader->use();
     glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 
     glDisable(GL_STENCIL_TEST);
   }
 
+  QOpenGLFramebufferObject::bindDefault();
   glUseProgram(0);
 
   if (timer.elapsed() >= 1000) {
@@ -610,27 +604,27 @@ void Renderer::generateFrameBuffer() {
   glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH24_STENCIL8, width(), height(), 0, GL_DEPTH_STENCIL, GL_UNSIGNED_INT_24_8, 0);
 
   // Linear depth attachment
-  glGenTextures(1, &linearDepthBufferTexture);
-  glActiveTexture(GL_TEXTURE0 + LINEARDEPTHBUFFER_LOCATION);
-  glBindTexture(GL_TEXTURE_2D, linearDepthBufferTexture);
+  //glGenTextures(1, &linearDepthBufferTexture);
+  //glActiveTexture(GL_TEXTURE0 + LINEARDEPTHBUFFER_LOCATION);
+  //glBindTexture(GL_TEXTURE_2D, linearDepthBufferTexture);
 
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+  //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+  //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+  //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+  //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
-  glTexImage2D(GL_TEXTURE_2D, 0, GL_R32F, width(), height(), 0, GL_RED, GL_FLOAT, 0);
+  //glTexImage2D(GL_TEXTURE_2D, 0, GL_R32F, width(), height(), 0, GL_RED, GL_FLOAT, 0);
 
   // Actual frame buffer
   glGenFramebuffers(1, &frameBuffer);
   glBindFramebuffer(GL_FRAMEBUFFER, frameBuffer);
   glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, frameBufferTexture, 0);
   glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, normalBufferTexture, 0);
-  glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT2, GL_TEXTURE_2D, linearDepthBufferTexture, 0);
+  //glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT2, GL_TEXTURE_2D, linearDepthBufferTexture, 0);
   glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_TEXTURE_2D, depthBufferTexture, 0);
 
-  GLuint attachments[3] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2 };
-  glDrawBuffers(3, attachments);
+  GLuint attachments[2] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1 };
+  glDrawBuffers(2, attachments);
 
   QOpenGLFramebufferObject::bindDefault();
 }

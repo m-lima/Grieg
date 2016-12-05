@@ -11,7 +11,6 @@ uniform vec2 uScreenSize;
 float linearDepth(vec2 coord) {
   float depth = texture(uDepthbuffer, coord).r;
   return 2.0 * 0.1 * 200.0 / (200.1 - (2.0 * depth - 1.0) * (199.9));
-  //return texture(uDepth, coord).r;
 }
 
 void main() {
@@ -23,11 +22,6 @@ void main() {
   vec2 currentPixel = vec2(gl_FragCoord.x / uScreenSize.x, gl_FragCoord.y / uScreenSize.y);
 
   vec3 currentColor = floor(texture(uFramebuffer, currentPixel).rgb * 3) / 3;
-  //vec3 currentColor = floor(texture(uNormalbuffer, currentPixel).rgb * 4) / 4;
-  //vec3 currentBrightness = texture(uFramebuffer, currentPixel).rgb;
-  ////vec3 currentColor = vec3(texture(uFramebuffer, currentPixel).r);
-  //currentBrightness = floor(currentBrightness * 3) / 3;
-  //currentColor *= currentBrightness;
 
   // Horizontal normal gradient
   float horizontalDeltaNormal = distance(
@@ -86,5 +80,4 @@ void main() {
   }
 
   FragColor = vec4(currentColor, 1.0);
-  //FragColor = vec4(vec3(linearDepth(currentPixel)), 1.0);
 }

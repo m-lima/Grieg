@@ -15,7 +15,6 @@ namespace {
     "out vec2 fTexCoord;"
     "out vec3 fNormal;"
     "out vec3 fEyePos;"
-    "out float fDepth;"
 
     "layout(std430, binding = 0) buffer MatrixBlock {"
     "  mat4 uProj;"
@@ -27,9 +26,7 @@ namespace {
     "void main() {"
     "  vec4 vmp = uModel * vec4(vPosition, 1.0);"
     "  fPosition = vmp.xyz;"
-    "  vmp = uView * vmp;"
-    "  fDepth = vmp.z / vmp.w;"
-    "  gl_Position = uProj * vmp;"
+    "  gl_Position = uProj * uView * vmp;"
     "  fTexCoord = vTexCoord;"
     "  fNormal = normalize((uModel * vec4(normalize(vNormal), 1.0)).xyz);"
     "  fEyePos = (inverse(uView) * inverse(uModel) * vec4(0.0, 0.0, 5.0, 1.0)).xyz;"
@@ -186,7 +183,7 @@ void Shader::load(const std::string &name, ShaderType type)
 
   gl->glBindFragDataLocation(mProgram, 0, "FragColor");
   gl->glBindFragDataLocation(mProgram, 1, "FragNormal");
-  gl->glBindFragDataLocation(mProgram, 2, "FragDepth");
+  //gl->glBindFragDataLocation(mProgram, 2, "FragDepth");
 }
 
 Shader::UniformProxy Shader::uniform(const std::string &name)

@@ -7,7 +7,6 @@ in vec3 fEyePos;
 in float fDepth;
 out vec4 FragColor;
 out vec4 FragNormal;
-out float FragDepth;
 
 uniform sampler2D uTexture;
 uniform int uHaveTexture;
@@ -130,5 +129,4 @@ void main() {
 
   FragColor = vec4(color, 1.0);
   FragNormal = vec4(normal / 2 + 0.5, 1.0);
-  FragDepth = 1.0;// fDepth;
 }
