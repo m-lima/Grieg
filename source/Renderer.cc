@@ -154,11 +154,11 @@ void Renderer::setAllShaders(std::shared_ptr<Shader> shader) {
     bigSuzy.setShader(shader);
   }
 
-  if (shader == basicShader) {
-    terrain.setShader(ambientShader);
-  } else {
+  //if (shader == basicShader) {
+  //  terrain.setShader(ambientShader);
+  //} else {
     terrain.setShader(shader);
-  }
+  //}
 }
 
 void Renderer::drawAll() {
