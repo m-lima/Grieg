@@ -111,6 +111,7 @@ void Camera::mouseMoved(QMouseEvent * evt) {
         if (evt->buttons() & Qt::LeftButton) {
           Vec2 anchor = { evt->x() - _anchor.x, evt->y() - _anchor.y };
           if (anchor.x == 0.0f && anchor.y == 0.0f) {
+            _anchor = { _width / 2, _height / 2 };
             return;
           }
 
